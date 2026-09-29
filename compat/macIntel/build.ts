@@ -1,5 +1,5 @@
 import { $ } from "bun";
-import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "@toonflow/file";
 import { dirname, relative, resolve } from "node:path";
 import sharedConfig from "../../electrobun.config";
 

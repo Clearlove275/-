@@ -1,5 +1,5 @@
 import { once } from "node:events";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeAtomicSync } from "@toonflow/file";
 import { createServer, type Server } from "node:http";
 import { dirname, resolve } from "node:path";
 import type { Express } from "express";
@@ -23,7 +23,7 @@ function saveRuntime(value = runtime) {
   const { enabled, token } = getMcpSettings();
   if (!value?.file) return;
   if (enabled && token.length >= 32) {
-    writeFileSync(value.file, JSON.stringify({ pid: process.pid, url: value.url, token }), { mode: 0o600 });
+    writeAtomicSync(value.file, JSON.stringify({ pid: process.pid, url: value.url, token }), { mode: 0o600 });
   } else removeRuntime(value.file);
 }
 

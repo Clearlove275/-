@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { lstat, readFile, readdir } from "node:fs/promises";
+import { lstat, readFile, readdir } from "@toonflow/file";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import * as zod from "zod";

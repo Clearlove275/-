@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile } from "@toonflow/file";
 import { join } from "node:path";
 import { DefaultResourceLoader, SettingsManager, type ToolDefinition } from "@earendil-works/pi-coding-agent";
 import { buildSystemPrompt } from "@/agent/runtime/prompt";

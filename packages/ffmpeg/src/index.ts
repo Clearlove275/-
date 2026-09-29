@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { createReadStream, createWriteStream } from "node:fs";
-import { chmod, lstat, mkdir, mkdtemp, realpath, rename, rm } from "node:fs/promises";
+import { createReadStream, createWriteStream, chmod, lstat, mkdir, mkdtemp, realpath, rename, rm } from "@toonflow/file";
+import { file } from "@toonflow/file/bun";
 import { basename, dirname, join, resolve } from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -45,7 +45,7 @@ async function readVersion(path: string, name: string, signal?: AbortSignal) {
 export async function getToolStatus(directory: string, mode: FfmpegMode) {
   const entries = await Promise.all(toolNames.map(async (name) => {
     const downloaded = join(directory, executableName(name));
-    const hasDownload = mode !== "system" && await Bun.file(downloaded).exists();
+    const hasDownload = mode !== "system" && await file(downloaded).exists();
     const path = hasDownload ? downloaded : mode === "download" ? null : Bun.which(executableName(name));
     const origin = path ? hasDownload ? "download" as const : "system" as const : null;
     try {
@@ -102,17 +102,17 @@ export async function installFfmpeg(directory: string, sourceId: SourceId, signa
           report({ phase: "downloading", file: name, received, total });
           callback(null, chunk);
         },
-      }), createWriteStream(compressed, { flags: "wx" }), { signal });
+      }), createWriteStream(compressed, { flags: "wx", signal }), { signal });
       report({ phase: "verifying", file: name, received, total });
       if (hash.digest("hex") !== asset.sha256) throw new Error(`${name} 文件校验失败，请换源重试`);
       const binary = join(staged, executableName(name));
       let extracted = 0;
-      await pipeline(createReadStream(compressed), createGunzip(), new Transform({
+      await pipeline(createReadStream(compressed, { signal }), createGunzip(), new Transform({
         transform(chunk: Buffer, _encoding, callback) {
           extracted += chunk.length;
           callback(extracted > 256 * 1024 * 1024 ? new Error("解压文件超过允许大小") : null, chunk);
         },
-      }), createWriteStream(binary, { flags: "wx" }), { signal });
+      }), createWriteStream(binary, { flags: "wx", signal }), { signal });
       if (process.platform !== "win32") await chmod(binary, 0o755);
       await readVersion(binary, name, signal);
     }
@@ -136,7 +136,7 @@ export async function installFfmpeg(directory: string, sourceId: SourceId, signa
   } finally {
     // 仅清理本次 mkdtemp 创建、且仍位于数据目录内的临时目录。
     if (!preserveBackup && dirname(temporary) === root) {
-      await rm(temporary, { recursive: true, force: true }).catch(error => {
+      await rm(temporary, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }).catch(error => {
         console.warn(`FFmpeg 临时目录清理失败：${temporary}`, error);
       });
     }

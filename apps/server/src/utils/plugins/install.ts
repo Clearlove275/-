@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, lstat, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, lstat, readFile, readdir, rename, rm, writeFile } from "@toonflow/file";
 import { dirname, join, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { crc32, inflateRawSync } from "node:zlib";

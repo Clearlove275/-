@@ -1,4 +1,4 @@
-import { lstat, mkdir, readdir, rm, unlink, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readdir, rm, unlink, writeFile } from "@toonflow/file";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import type { AgentCard } from "@toonflow/teams-scaffold/a2a";

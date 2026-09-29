@@ -1,6 +1,7 @@
 import { once } from "node:events";
 import { execFile } from "node:child_process";
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, writeAtomicSync } from "@toonflow/file";
+import { file } from "@toonflow/file/bun";
 import type { AddressInfo } from "node:net";
 import { resolve } from "node:path";
 import { promisify } from "node:util";
@@ -36,7 +37,7 @@ async function restoreInstallRegistration(installDirectory: string) {
   if (process.platform === "win32" && existsSync(uninstaller)) {
     try {
       // SDK 启动和更新会重写卸载入口；安装了 NSIS 时统一交给它处理数据保留选项。
-      const { identifier, channel } = await Bun.file(resolve(PATHS.RESOURCES_FOLDER, "version.json")).json();
+      const { identifier, channel } = await file(resolve(PATHS.RESOURCES_FOLDER, "version.json")).json();
       const registryKey = `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${identifier}.${channel}`;
       for (const [name, command] of [["UninstallString", `"${uninstaller}"`], ["QuietUninstallString", `"${uninstaller}" /S`]]) {
         await execFileAsync("reg.exe", ["add", registryKey, "/v", name, "/t", "REG_SZ", "/d", command, "/f"], { windowsHide: true });
@@ -76,7 +77,7 @@ async function start() {
     const installDirectory = resolve(PATHS.RESOURCES_FOLDER, process.platform === "darwin" ? "../../.." : "../..");
     const dataDirectory = process.env.TOONFLOW_DATA_DIR ?? resolve(installDirectory, "data");
     // ACT: 先显示原生动画，再加载服务，避免初始化期间没有反馈。
-    const startupSettings = await Bun.file(resolve(dataDirectory, "settings.json")).json().catch((error) => {
+    const startupSettings = await file(resolve(dataDirectory, "settings.json")).json().catch((error) => {
       if (error.code !== "ENOENT") console.error("读取启动设置失败，使用默认启动动画：", error);
       return null;
     });
@@ -97,7 +98,7 @@ async function start() {
     }
     process.env.toonflowDesktop = "1";
     const { createApp } = await import("@toonflow/server/app");
-    const { hash } = await Bun.file(resolve(PATHS.RESOURCES_FOLDER, "version.json")).json();
+    const { hash } = await file(resolve(PATHS.RESOURCES_FOLDER, "version.json")).json();
     if (typeof hash !== "string" || !hash) throw new Error("应用构建标识缺失，无法同步内置插件");
     const app = await createApp({
       webRoot: resolve(PATHS.VIEWS_FOLDER, "mainview"),
@@ -232,7 +233,7 @@ async function start() {
     });
     if (process.platform === "win32") {
       // ACT: 运行信息随应用目录清理；启动器通过 PID 忽略已退出进程留下的端口。
-      writeFileSync(resolve(PATHS.RESOURCES_FOLDER, "desktopRuntime.json"), JSON.stringify({ pid: process.pid, port: address.port }));
+      writeAtomicSync(resolve(PATHS.RESOURCES_FOLDER, "desktopRuntime.json"), JSON.stringify({ pid: process.pid, port: address.port }));
     }
   } catch (error) {
     splash?.close();

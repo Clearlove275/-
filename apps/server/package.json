@@ -22,6 +22,7 @@
     "@earendil-works/pi-ai": "0.85.1",
     "@earendil-works/pi-coding-agent": "^0.85.1",
     "@toonflow/ffmpeg": "workspace:*",
+    "@toonflow/file": "workspace:*",
     "@toonflow/mcp": "workspace:*",
     "@toonflow/providers": "workspace:*",
     "@toonflow/teams-scaffold": "workspace:*",

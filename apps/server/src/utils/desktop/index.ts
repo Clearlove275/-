@@ -1,4 +1,5 @@
 import { basename } from "node:path";
+import { file } from "@toonflow/file/bun";
 import type { Request } from "express";
 import conf from "@/utils/conf";
 import type { DesktopRuntime, updateSnapshot } from "@/types/desktop";
@@ -63,10 +64,10 @@ export async function selectProviderFile(req: Request) {
 export async function readProviderFile(req: Request, token: string) {
   const selected = getDesktopState(req).selectedProviderFile;
   if (!selected || token !== selected.token) throw Object.assign(new Error("请重新选择并授权供应商文件"), { status: 403 });
-  const file = Bun.file(selected.path);
-  if (!(await file.exists())) throw Object.assign(new Error("供应商文件已被移动或删除，请重新选择"), { status: 404 });
-  if (file.size > 2 * 1024 * 1024) throw Object.assign(new Error("供应商文件不能超过 2 MB"), { status: 400 });
-  return { name: basename(selected.path), source: await file.text(), lastModified: file.lastModified };
+  const providerFile = file(selected.path);
+  if (!(await providerFile.exists())) throw Object.assign(new Error("供应商文件已被移动或删除，请重新选择"), { status: 404 });
+  if (providerFile.size > 2 * 1024 * 1024) throw Object.assign(new Error("供应商文件不能超过 2 MB"), { status: 400 });
+  return { name: basename(selected.path), source: await providerFile.text(), lastModified: providerFile.lastModified };
 }
 
 export async function getDesktopUpdate(req: Request): Promise<updateSnapshot> {

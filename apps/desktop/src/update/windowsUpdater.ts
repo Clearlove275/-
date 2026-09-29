@@ -1,8 +1,11 @@
 import { execFile } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
-import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, createWriteStream, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, rmSync, writeAtomicSync } from "@toonflow/file";
+import { file } from "@toonflow/file/bun";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
@@ -36,6 +39,11 @@ export default function createWindowsUpdater(resourcesDirectory: string, lifecyc
     if (!lstatSync(extractionDirectory).isDirectory() || lstatSync(extractionDirectory).isSymbolicLink()) throw new Error("更新缓存目录不能是链接");
   }
 
+  function removeUpdateFile(path: string) {
+    try { rmSync(path, { force: true }); }
+    catch (error) { console.warn(`更新文件清理失败：${path}`, error); }
+  }
+
   function readPrepared(): preparedUpdate | undefined {
     if (!regularFile(preparedPath)) return;
     try {
@@ -48,7 +56,7 @@ export default function createWindowsUpdater(resourcesDirectory: string, lifecyc
 
   async function getLocalInfo() {
     if (!localInfo) {
-      const info = await Bun.file(join(resourcesDirectory, "version.json")).json();
+      const info = await file(join(resourcesDirectory, "version.json")).json();
       if (!info || info.identifier !== "local.toonflow.desktop" || !["stable", "canary", "dev"].includes(info.channel)
         || typeof info.version !== "string" || !versionPattern.test(info.version) || typeof info.hash !== "string" || !hashPattern.test(info.hash)
         || typeof info.baseUrl !== "string" || typeof info.name !== "string" || !/^[a-zA-Z0-9_-]+$/.test(info.name)) {
@@ -60,7 +68,7 @@ export default function createWindowsUpdater(resourcesDirectory: string, lifecyc
       ensureDirectory();
       // 新版成功启动后才清理旧 app，崩溃或启动失败时保留恢复副本。
       if (regularFile(resultPath)) {
-        const result = await Bun.file(resultPath).json().catch(() => null);
+        const result = await file(resultPath).json().catch(() => null);
         if (typeof result?.transactionId !== "string" || !/^[a-f0-9]{32}$/.test(result.transactionId) || result.transactionId === observedResult) return localInfo;
         observedResult = result.transactionId;
         if (result.success && result.hash === localInfo.hash) {
@@ -121,15 +129,18 @@ export default function createWindowsUpdater(resourcesDirectory: string, lifecyc
   }
 
   async function download(fileName: string, path: string) {
-    const response = await fetch(artifactUrl(fileName), { signal: AbortSignal.timeout(15 * 60_000) });
+    const signal = AbortSignal.timeout(15 * 60_000);
+    const response = await fetch(artifactUrl(fileName), { signal });
     if (!response.ok) throw new Error(`下载更新失败：HTTP ${response.status}`);
-    await Bun.write(path, response);
+    if (!response.body) throw new Error("下载更新失败：响应为空");
+    await pipeline(Readable.from(response.body), createWriteStream(path, { flags: "wx", signal }), { signal });
   }
 
   async function downloadUpdate() {
     if (busy) throw new Error("已有更新任务正在执行");
     if (!manifest) {
       await checkForUpdate();
+      if (busy) throw new Error("已有更新任务正在执行");
       if (state.error) throw new Error(state.error);
     }
     if (!manifest || !state.updateAvailable) throw new Error("暂无可安装的更新");
@@ -170,14 +181,12 @@ export default function createWindowsUpdater(resourcesDirectory: string, lifecyc
       const archiveInfo = await readArchiveInfo(archivePath);
       if (archiveInfo.hash !== target.hash || archiveInfo.version !== target.version) throw new Error("更新包版本与清单不一致");
       const digest = createHash("sha256");
-      for await (const chunk of Bun.file(archivePath).stream()) digest.update(chunk);
+      for await (const chunk of file(archivePath).stream()) digest.update(chunk);
       const prepared: preparedUpdate = { hash: target.hash, version: target.version, archiveSha256: digest.digest("hex") };
       const targetPath = join(extractionDirectory, `${target.hash}.tar`);
       if (existsSync(targetPath) && !regularFile(targetPath)) throw new Error("更新包路径不能是链接或目录");
       renameSync(archivePath, targetPath);
-      const recordPath = temporaryFile(".json");
-      writeFileSync(recordPath, JSON.stringify(prepared));
-      renameSync(recordPath, preparedPath);
+      writeAtomicSync(preparedPath, JSON.stringify(prepared));
       state.updateReady = true;
       console.log(`更新包已准备：${localInfo.version} → ${target.version}，${usedPatch ? "Patch" : "全量"}`);
     } catch (error) {
@@ -186,13 +195,14 @@ export default function createWindowsUpdater(resourcesDirectory: string, lifecyc
       throw error;
     } finally {
       busy = false;
-      for (const path of temporaryFiles) rmSync(path, { force: true });
+      for (const path of temporaryFiles) removeUpdateFile(path);
     }
   }
 
   async function applyUpdate() {
     if (busy) throw new Error("已有更新任务正在执行");
     await getLocalInfo();
+    if (busy) throw new Error("已有更新任务正在执行");
     ensureDirectory();
     const prepared = readPrepared();
     if (!prepared || prepared.hash === localInfo.hash || (manifest && prepared.hash !== manifest.hash)) throw new Error("请先下载当前版本的更新包");
@@ -210,13 +220,13 @@ export default function createWindowsUpdater(resourcesDirectory: string, lifecyc
       // 等待外层 launcher 退出，避免它仍占用 app；普通 Bun 验证或无 launcher 时等待当前宿主。
       const launcherPid = Number(process.env.ELECTROBUN_LAUNCHER_PID);
       const parentPid = Number.isSafeInteger(launcherPid) && launcherPid > 0 && launcherPid <= 0x7fffffff ? launcherPid : process.pid;
-      writeFileSync(planPath, JSON.stringify({ schemaVersion: 1, transactionId, installDirectory, parentPid,
-        identifier: localInfo.identifier, channel: localInfo.channel, ...prepared }), { flag: "wx" });
+      writeAtomicSync(planPath, JSON.stringify({ schemaVersion: 1, transactionId, installDirectory, parentPid,
+        identifier: localInfo.identifier, channel: localInfo.channel, ...prepared }), { exclusive: true });
       await execFileAsync(helperPath, ["--spawn-update", planPath, "--quiet"], { windowsHide: true, timeout: 15000 });
       const deadline = Date.now() + 120000;
       while (!regularFile(readyPath)) {
         if (regularFile(resultPath)) {
-          const result = await Bun.file(resultPath).json().catch(() => null);
+          const result = await file(resultPath).json().catch(() => null);
           if (result?.transactionId === transactionId && result.success === false) throw new Error(String(result.error));
         }
         if (Date.now() >= deadline) throw new Error("更新助手未就绪，已取消本次更新");
@@ -227,7 +237,7 @@ export default function createWindowsUpdater(resourcesDirectory: string, lifecyc
         try {
           lifecycle.quitAfterApproval(approval);
         } catch (error) {
-          rmSync(planPath, { force: true });
+          removeUpdateFile(planPath);
           busy = false;
           state.error = error instanceof Error ? error.message : String(error);
         }
@@ -235,9 +245,11 @@ export default function createWindowsUpdater(resourcesDirectory: string, lifecyc
     } catch (error) {
       if (approval) lifecycle.cancelQuitApproval(approval);
       busy = false;
-      rmSync(planPath, { force: true });
-      rmSync(preparedPath, { force: true });
-      state.updateReady = false;
+      removeUpdateFile(planPath);
+      if (approval) {
+        removeUpdateFile(preparedPath);
+        state.updateReady = false;
+      }
       state.error = error instanceof Error ? error.message : String(error);
       throw error;
     }

@@ -1,18 +1,10 @@
-import { constants } from "node:fs";
-import { copyFile, link, lstat, rename, unlink, writeFile, realpath } from "node:fs/promises";
+import { constants, copyFile, lstat, rename, unlink, realpath, writeAtomic } from "@toonflow/file";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import type { Request } from "express";
 import { resolveWorkspace } from "@/utils/workspace";
 
 export async function writeWorkspaceFile(path: string, content: string | Uint8Array, exclusive = false) {
-  const temporary = `${path}.${crypto.randomUUID()}.tmp`;
-  try {
-    await writeFile(temporary, content, { flag: "wx", mode: 0o600 });
-    if (exclusive) await link(temporary, path);
-    else await rename(temporary, path);
-  } finally {
-    await unlink(temporary).catch((err: NodeJS.ErrnoException) => { if (err.code !== "ENOENT") throw err; });
-  }
+  await writeAtomic(path, content, { exclusive });
 }
 
 export async function renameWorkspaceFile(source: string, target: string) {
@@ -30,7 +22,10 @@ export async function renameWorkspaceFile(source: string, target: string) {
   await copyFile(source, target, constants.COPYFILE_EXCL);
   // ACT: 目标完整写入后才移除源文件；移除失败只回滚本次目标。
   try { await unlink(source); }
-  catch (err) { await unlink(target); throw err; }
+  catch (err) {
+    await unlink(target).catch(error => console.warn(`重命名回滚失败：${target}`, error));
+    throw err;
+  }
 }
 
 export function isWithin(root: string, path: string) {

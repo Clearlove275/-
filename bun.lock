@@ -5,6 +5,7 @@
     "": {
       "name": "toonflow",
       "devDependencies": {
+        "@toonflow/file": "workspace:*",
         "@types/bun": "^1.4.2",
         "@types/postcss-pxtorem": "^6.1.0",
         "postcss": "^8.5.28",
@@ -15,6 +16,7 @@
     "apps/desktop": {
       "name": "@toonflow/desktop",
       "dependencies": {
+        "@toonflow/file": "workspace:*",
         "@toonflow/server": "workspace:*",
         "@toonflow/startup": "workspace:*",
       },
@@ -30,6 +32,7 @@
         "@earendil-works/pi-ai": "0.85.1",
         "@earendil-works/pi-coding-agent": "^0.85.1",
         "@toonflow/ffmpeg": "workspace:*",
+        "@toonflow/file": "workspace:*",
         "@toonflow/mcp": "workspace:*",
         "@toonflow/providers": "workspace:*",
         "@toonflow/teams-scaffold": "workspace:*",
@@ -54,6 +57,7 @@
     "apps/updateServer": {
       "name": "@toonflow/updateServer",
       "dependencies": {
+        "@toonflow/file": "workspace:*",
         "express": "^5.2.1",
       },
       "devDependencies": {
@@ -129,7 +133,16 @@
       "version": "0.0.0",
       "dependencies": {
         "@renmu/fluent-ffmpeg": "2.3.3",
+        "@toonflow/file": "workspace:*",
         "eventsource-parser": "3.1.1",
+      },
+    },
+    "packages/file": {
+      "name": "@toonflow/file",
+      "version": "0.0.0",
+      "dependencies": {
+        "async-mutex": "0.5.0",
+        "stubborn-fs": "2.0.0",
       },
     },
     "packages/mcp": {
@@ -143,6 +156,7 @@
         "@modelcontextprotocol/core": "^2.0.0",
         "@modelcontextprotocol/node": "^2.0.0",
         "@modelcontextprotocol/server": "^2.0.0",
+        "@toonflow/file": "workspace:*",
         "zod": "^4.6.2",
       },
       "devDependencies": {
@@ -170,6 +184,7 @@
         "@earendil-works/pi-ai": "0.85.1",
         "@tabler/icons-vue": "^3.46.0",
         "@toonflow/ffmpeg": "workspace:*",
+        "@toonflow/file": "workspace:*",
         "@vitejs/plugin-vue": "^6.0.8",
         "eventsource-parser": "3.1.1",
         "vite": "^8.2.2",
@@ -331,12 +346,16 @@
     "packages/startup": {
       "name": "@toonflow/startup",
       "version": "0.0.0",
+      "dependencies": {
+        "@toonflow/file": "workspace:*",
+      },
     },
     "packages/teamScaffold": {
       "name": "@toonflow/teams-scaffold",
       "version": "0.0.0",
       "dependencies": {
         "@a2a-js/sdk": "1.2.0",
+        "@toonflow/file": "workspace:*",
         "fflate": "^0.8.3",
         "zod": "^4.6.2",
       },
@@ -359,6 +378,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@toonflow/ffmpeg": "workspace:*",
+        "@toonflow/file": "workspace:*",
         "@toonflow/providers": "workspace:*",
         "@vitejs/plugin-vue": "^6.0.8",
         "vite": "^8.2.2",
@@ -408,6 +428,17 @@
       "peerDependencies": {
         "element-plus": "^2.14.5",
         "vue": "^3.5.42",
+      },
+    },
+    "packages/tools/ffmpeg": {
+      "name": "@toonflow/tool-ffmpeg",
+      "version": "2.0.0",
+      "dependencies": {
+        "@toonflow/ffmpeg": "workspace:*",
+        "zod": "^4.6.2",
+      },
+      "devDependencies": {
+        "@toonflow/tools-scaffold": "workspace:*",
       },
     },
     "packages/tools/mediaGeneration": {
@@ -1009,6 +1040,8 @@
 
     "@toonflow/ffmpeg": ["@toonflow/ffmpeg@workspace:packages/ffmpeg"],
 
+    "@toonflow/file": ["@toonflow/file@workspace:packages/file"],
+
     "@toonflow/mcp": ["@toonflow/mcp@workspace:packages/mcp"],
 
     "@toonflow/model-icons": ["@toonflow/model-icons@workspace:packages/modelIcons"],
@@ -1042,6 +1075,8 @@
     "@toonflow/tool-ask-user": ["@toonflow/tool-ask-user@workspace:packages/tools/askUser"],
 
     "@toonflow/tool-canvas": ["@toonflow/tool-canvas@workspace:packages/tools/canvas"],
+
+    "@toonflow/tool-ffmpeg": ["@toonflow/tool-ffmpeg@workspace:packages/tools/ffmpeg"],
 
     "@toonflow/tool-media-generation": ["@toonflow/tool-media-generation@workspace:packages/tools/mediaGeneration"],
 
@@ -1306,6 +1341,8 @@
     "ast-walker-scope": ["ast-walker-scope@0.9.0", "https://registry.npmmirror.com/ast-walker-scope/-/ast-walker-scope-0.9.0.tgz", { "dependencies": { "@babel/parser": "^7.29.2", "@babel/types": "^7.29.0", "ast-kit": "^2.2.0" } }, "sha512-IJdzo2vLiElBxKzwS36VsCue/62d6IdWjnPB2v3nuPKeWGynp6FF/CYoLa5i/3jXH/z97ZDdsXz6abpgM6w07A=="],
 
     "async": ["async@0.2.10", "https://registry.npmmirror.com/async/-/async-0.2.10.tgz", {}, "sha512-eAkdoKxU6/LkKDBzLpT+t6Ff5EtfSF4wx1WfJiPEEV7WNLnDaRXk0oVysiEPm262roaachGexwUv94WhSgN5TQ=="],
+
+    "async-mutex": ["async-mutex@0.5.0", "https://registry.npmmirror.com/async-mutex/-/async-mutex-0.5.0.tgz", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-1A94B18jkJ3DYq284ohPxoXbfTA5HsQ7/Mf4DEhcyLx3Bz27Rh59iScbB6EPiP+B+joue6YCxcMXSbFC1tZKwA=="],
 
     "async-validator": ["async-validator@4.2.5", "https://registry.npmmirror.com/async-validator/-/async-validator-4.2.5.tgz", {}, "sha512-7HhHjtERjqlNbZtqNqy2rckN/SpOOlmDliet+lP7k+eKZEjPk3DgyeU9lIXLdeLz0uBbbVp+9Qdow9wJWgwwfg=="],
 

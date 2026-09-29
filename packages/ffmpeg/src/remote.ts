@@ -2,6 +2,8 @@ import { chainMethods, queryMethods, runMethods } from "./browserTypes";
 import type { BrowserFfmpegRequest, FfmpegCall, FfmpegRemoteEvent } from "./browserTypes";
 import type { FfmpegCommand, FfmpegFactory } from "./types";
 
+export { chainMethods, queryMethods, runMethods } from "./browserTypes";
+
 const chainNames = new Set<string>(chainMethods);
 const queryNames = new Set<string>(queryMethods);
 const runNames = new Set<string>(runMethods);

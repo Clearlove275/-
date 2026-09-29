@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
-import { open, rename, unlink } from "node:fs/promises";
-import { dirname, isAbsolute, join } from "node:path";
+import { writeAtomic } from "@toonflow/file";
+import { isAbsolute, join } from "node:path";
 import { promisify } from "node:util";
 import { PATHS } from "electrobun/main";
 
@@ -61,16 +61,7 @@ export default async function saveFile(token: string, content: Uint8Array): Prom
   if (!entry || entry.expiresAt <= Date.now()) throw new Error("保存位置已过期，请重新选择保存位置");
   const selected = entry.path;
   try {
-    const temporary = join(dirname(selected), `.toonflow-${crypto.randomUUID()}.tmp`);
-    const file = await open(temporary, "wx", 0o600);
-    try {
-      await file.writeFile(content);
-      await file.close();
-      await rename(temporary, selected);
-    } finally {
-      await file.close();
-      await unlink(temporary).catch((error: NodeJS.ErrnoException) => { if (error.code !== "ENOENT") throw error; });
-    }
+    await writeAtomic(selected, content);
     return true;
   } catch (error) {
     throw new Error(`保存文件失败：${error instanceof Error ? error.message : String(error)}`, { cause: error });

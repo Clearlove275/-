@@ -24,7 +24,9 @@
 
 `/api/tools/renderers` 仅列出已启用的组件映射及内容版本地址，`/api/tools/client` 只下发对应浏览器代码与样式，不执行或暴露服务端入口、配置和密钥。web 使用 `@toonflow/tools-scaffold/client` 的 `loadToolComponent(tool.name)`，统一向组件传入 `{ tool: ToolCall, directory?: string }`；无组件时展示普通工具消息，加载失败时提示用户停止后重试。历史消息可能只有 `args/result`，组件不能假定一定存在实时交互信息。`askUser` 的回答、跳过和历史展示均由包内 `src/questionCard.vue` 维护，web 不导入该组件。
 
-`createTools(context)` 返回 Pi 的工具定义数组，一个插件可提供多个工具。宿主传入当前工作区 `cwd`、仅属于该工具且已校验的配置 `config`、安全路径解析 `resolvePath`、带锁的原子写入 `writeFile`，以及 Pi SDK 工具构造函数。不传入应用全局设置或其他工具的配置；工具需要的密钥通过自身配置项填写。工作区文件插件通过宿主方法限制路径；只读模式只注册 `read` 与 `ls`。
+`createTools(context)` 返回 Pi 的工具定义数组，一个插件可提供多个工具。宿主传入当前工作区 `cwd`、仅属于该工具且已校验的配置 `config`、统一文件能力 `files`，以及 Pi SDK 工具构造函数。不传入应用全局设置或其他工具的配置；工具需要的密钥通过自身配置项填写。工作区文件插件通过宿主方法限制路径；只读模式只注册 `read` 与 `ls`。
+
+`context.files` 提供 `readFile`、`access`、`stat`、`readdir`、`detectImageMimeType`、`writeFile`、`mkdir`、`rename`、`remove` 和 `copyFile`，全部接入宿主的统一文件层。读取方法第二个参数 `readOnly=true` 时额外允许读取全局技能目录；写入始终限制在当前工作区。`writeFile(path, content, exclusive?)` 原子保存，`exclusive=true` 禁止覆盖；`mkdir(path, recursive?)` 和 `remove(path, recursive?)` 默认不递归；`rename` 禁止覆盖已有目标；`copyFile(path, target, exclusive?)` 默认允许覆盖。旧 `resolvePath`、`writeFile` 入口继续保留，新工具使用 `files`，避免直接导入文件 API 或把文件层实现打入插件。已有直接调用系统 API 的旧工具需要更新其源码后重新构建。
 
 `context.skills` 提供统一的技能扫描、读取、新建和修改，复用宿主的 SDK 扫描与文件落盘。`skillOperator` 据此操作工作区 `skill/` 和全局 `data/skills/`，无需把 Pi SDK 打入工具。读取、新建、修改默认开启，可在工具配置中分别关闭；目录查询始终保留，普通工作区文件的写入范围不因此扩大。
 

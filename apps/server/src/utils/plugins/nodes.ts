@@ -1,4 +1,4 @@
-import { lstat, readFile } from "node:fs/promises";
+import { lstat, readFile } from "@toonflow/file";
 import { dirname, resolve } from "node:path";
 import { z } from "zod";
 import conf from "@/utils/conf";

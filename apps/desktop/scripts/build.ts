@@ -1,5 +1,5 @@
 import { $ } from "bun";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "@toonflow/file";
 import { resolve } from "node:path";
 
 const projectDir = resolve(import.meta.dir, "../../..");
