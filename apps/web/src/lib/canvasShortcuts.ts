@@ -50,7 +50,7 @@ export const canvasShortcutFields: {
   { id: "redo", label: "重做" },
   { id: "search", label: "画布节点搜索" },
   { id: "delete", label: "删除" },
-  { id: "paste", label: "粘贴节点" },
+  { id: "paste", label: "粘贴节点或图片" },
 ];
 
 const keyLabels: Record<string, string> = {

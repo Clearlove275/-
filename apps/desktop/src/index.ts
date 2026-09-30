@@ -151,6 +151,7 @@ async function start() {
     app.locals.desktop = {
       openUrl,
       readClipboardText: Utils.clipboardReadText,
+      readClipboardImage: Utils.clipboardReadImage,
       writeClipboardText: Utils.clipboardWriteText,
       selectSaveFile,
       saveFile,

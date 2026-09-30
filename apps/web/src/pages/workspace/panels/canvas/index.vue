@@ -148,7 +148,7 @@ import type { CanvasContext } from "@toonflow/tool-canvas/runtime";
 import { loadNodeComponent } from "./loadNodeComponent";
 import { useCanvasHistory } from "./useCanvasHistory";
 import { copyNodeToClipboard, nodeClipboardCommand, readClipboardNode } from "./nodeClipboard";
-import { readClipboardText } from "@/lib/clipboard";
+import { isDesktopClipboard, readClipboardImage, readClipboardText } from "@/lib/clipboard";
 import nodeMenu from "./components/nodeMenu.vue";
 import remoteNode from "./components/remoteNode.vue";
 import canvasMenu from "./components/canvasMenu.vue";
@@ -167,7 +167,7 @@ import { generalSettings } from "@/stores/settings";
 import { getShortcutBindings, shortcutLabel, shortcutMatches, shortcutPressed } from "@/lib/canvasShortcuts";
 import useWorkspaceFiles from "@/lib/workspaceFiles";
 import anonymousData from "@/lib/anonymousData";
-import { dropCanvasFiles, importCanvasFiles, isCanvasFileDrag } from "./canvasDrop";
+import { createClipboardImageFile, dropCanvasFiles, getClipboardImageFiles, importCanvasFiles, isCanvasFileDrag } from "./canvasDrop";
 import "@vue-flow/core/dist/style.css";
 import "@vue-flow/core/dist/theme-default.css";
 import "@vue-flow/minimap/dist/style.css";
@@ -211,7 +211,6 @@ const handMode = computed(() => props.active && !props.settingsVisible && (selec
 let pointerPosition: XYPosition | undefined;
 const pressedCodes = new Set<string>();
 let gestureScale: number | undefined;
-let nativePasteRequested = false;
 const showEdges = ref(true);
 const assetsVisible = ref(false);
 const assetLibraryRef = ref<InstanceType<typeof assetLibrary>>();
@@ -612,27 +611,57 @@ function cancelCanvasSave() {
   saveCanvas.cancel();
 }
 async function pasteNode(event: ClipboardEvent) {
-  if (!nativePasteRequested) return;
-  nativePasteRequested = false;
   const target = event.target;
   if (!props.active || event.defaultPrevented || props.settingsVisible || !canvasId.value || !project.value?.directory) return;
   if (
     target instanceof Element &&
-    (target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox'], [role='dialog'], #agentPanel") ||
+    (target.closest("input, textarea, select, [contenteditable='false'], [role='textbox'], [role='dialog'], #agentPanel") ||
       (target !== document.body && target !== document.documentElement && !canvasElement.value?.contains(target)))
   )
     return;
   const command = event.clipboardData?.getData("text/plain") ?? "";
-  if (!nodeClipboardCommand.test(command)) return;
+  if (nodeClipboardCommand.test(command)) {
+    event.preventDefault();
+    await pasteNodeFromClipboard(command);
+    return;
+  }
+  let files = getClipboardImageFiles(event);
+  // ACT: 部分 WebView 不向 paste 事件暴露剪贴板图片，桌面端回退到原生 PNG 读取。
+  if (!files.length && isDesktopClipboard) {
+    const image = await readClipboardImage().catch(() => null);
+    if (image) files = [createClipboardImageFile(image)];
+  }
+  if (!files.length) return;
   event.preventDefault();
-  await pasteNodeAtCenter(command);
+  const position = pastePosition();
+  if (position) await importCanvasImages(files, position);
 }
 
-async function pasteNodeAtCenter(command?: string) {
+function pastePosition() {
   const rect = canvasElement.value?.getBoundingClientRect();
   if (!rect) return;
-  const position = screenToFlowCoordinate({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
-  await pasteClipboardNode(position, command);
+  const point = pointerPosition && pointerPosition.x >= rect.left && pointerPosition.x <= rect.right && pointerPosition.y >= rect.top && pointerPosition.y <= rect.bottom
+    ? pointerPosition
+    : { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  return screenToFlowCoordinate(point);
+}
+
+async function pasteNodeFromClipboard(command?: string) {
+  const position = pastePosition();
+  if (position) await pasteClipboardNode(position, command);
+}
+
+async function importCanvasImages(files: File[], position: { x: number; y: number }) {
+  const directory = project.value?.directory;
+  if (!directory) return false;
+  const canvasSignal = canvasController.signal;
+  try {
+    await canvasHistory.batch(() => importCanvasFiles(files, position, { directory, availableNodes: availableNodes.value, signal: canvasSignal, flow }));
+    return true;
+  } catch (error) {
+    if (!canvasSignal.aborted) ElMessage.error(error instanceof Error ? error.message : "图片导入失败");
+    return false;
+  }
 }
 
 async function pasteClipboardNode(position: { x: number; y: number }, command?: string) {
@@ -642,10 +671,15 @@ async function pasteClipboardNode(position: { x: number; y: number }, command?: 
     const directory = project.value.directory;
     const node = await readClipboardNode(command ?? (await readClipboardText()), directory);
     if (canvasSignal.aborted) return false;
-    if (!node) throw new Error("剪贴板中没有可粘贴的节点命令");
-    if (!availableNodes.value.some((item) => item.type === node.type)) throw new Error("请先安装并启用对应的节点插件");
-    addNodes({ id: crypto.randomUUID(), type: node.type, data: node.data, position });
-    return true;
+    if (node) {
+      if (!availableNodes.value.some((item) => item.type === node.type)) throw new Error("请先安装并启用对应的节点插件");
+      addNodes({ id: crypto.randomUUID(), type: node.type, data: node.data, position });
+      return true;
+    }
+    const image = await readClipboardImage();
+    if (canvasSignal.aborted) return false;
+    if (!image) throw new Error("剪贴板中没有可粘贴的节点或图片");
+    return await importCanvasImages([createClipboardImageFile(image)], position);
   } catch (error) {
     const pasteShortcut = generalSettings.value.canvasShortcuts.paste;
     const clipboardMessage = getShortcutBindings(pasteShortcut).some(binding => /^(Ctrl|Meta)\+KeyV$/.test(binding))
@@ -696,7 +730,6 @@ function zoomCanvas(event: WheelEvent | (Event & { scale: number })) {
 function updateCanvasKeys(event: KeyboardEvent) {
   if (event.type === "keydown") {
     pressedCodes.add(event.code);
-    nativePasteRequested = false;
   } else pressedCodes.delete(event.code);
   if (!props.active || props.settingsVisible) return resetCanvasKeys();
   const target = event.target;
@@ -723,7 +756,6 @@ function updateCanvasKeys(event: KeyboardEvent) {
   }
   if (!canvasId.value || !project.value?.directory) return;
   if (action === "paste" && event.code === "KeyV" && (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey) {
-    nativePasteRequested = true;
     return;
   }
   event.preventDefault();
@@ -739,7 +771,7 @@ function updateCanvasKeys(event: KeyboardEvent) {
       });
     return;
   }
-  if (action === "paste") void pasteNodeAtCenter();
+  if (action === "paste") void pasteNodeFromClipboard();
   else if (action === "undo" || action === "redo") void changeHistory(action);
   else if (action === "group" || action === "mergeGroup" || action === "ungroup") {
     void selectionToolbarRef.value?.operate(action);
@@ -753,7 +785,6 @@ function updateCanvasKeys(event: KeyboardEvent) {
 function resetCanvasKeys() {
   pressedCodes.clear();
   gestureScale = undefined;
-  nativePasteRequested = false;
   zoomKeyPressed.value = false;
   panKeyPressed.value = false;
 }

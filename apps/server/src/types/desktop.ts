@@ -17,6 +17,7 @@ export type updateSnapshot = {
 export interface DesktopRuntime {
   openUrl(url: string): void;
   readClipboardText(): string | null;
+  readClipboardImage(): Uint8Array | null;
   writeClipboardText(text: string): void;
   selectProviderFile(): Promise<string | null>;
   selectDirectory(): Promise<string | null>;
