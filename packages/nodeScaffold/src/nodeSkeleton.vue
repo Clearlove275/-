@@ -13,7 +13,8 @@
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item v-if="assetOutputs.length && saveNodeToAssets" command="saveAsset" :icon="IconFolderPlus">保存到素材库</el-dropdown-item>
-          <el-dropdown-item :divided="!!(assetOutputs.length && saveNodeToAssets)" command="copy" :icon="IconCopy">复制节点</el-dropdown-item>
+          <el-dropdown-item v-if="subjectOutputs.length && saveNodeToSubjects" command="saveSubject" :icon="IconUsers">保存到主体库</el-dropdown-item>
+          <el-dropdown-item :divided="!!((assetOutputs.length && saveNodeToAssets) || (subjectOutputs.length && saveNodeToSubjects))" command="copy" :icon="IconCopy">复制节点</el-dropdown-item>
           <el-dropdown-item command="duplicate" :icon="IconCopyPlus">创建副本</el-dropdown-item>
           <el-dropdown-item command="delete" :icon="IconTrash">删除节点</el-dropdown-item>
           <el-dropdown-item divided command="clipboard" :icon="IconCopy" :disabled="!copyNodeToClipboard || copyingToClipboard">
@@ -40,6 +41,13 @@
             title="添加到素材库"
             aria-label="添加到素材库"
             @click.stop="handleCommand('saveAsset')" />
+          <el-button
+            v-if="subjectOutputs.length && saveNodeToSubjects"
+            :icon="IconUsers"
+            text
+            title="添加到主体库"
+            aria-label="添加到主体库"
+            @click.stop="handleCommand('saveSubject')" />
           <slot name="topActions" />
           <el-button
             :tag="downloadUrl ? 'a' : 'button'"
@@ -162,6 +170,7 @@ import {
   IconCopy,
   IconCopyPlus,
   IconFolderPlus,
+  IconUsers,
   IconDownload,
   IconMaximize,
   IconBox,
@@ -364,6 +373,10 @@ const saveNodeToAssets = inject<((label: string, outputs: { label: string; outpu
   "saveNodeToAssets",
   undefined
 );
+const saveNodeToSubjects = inject<((label: string, outputs: { label: string; output: NodeOutput }[]) => void) | undefined>(
+  "saveNodeToSubjects",
+  undefined
+);
 const assetOutputs = computed(() =>
   props.handles.flatMap((handle) => {
     const output = props.outputs[handle.id];
@@ -372,8 +385,11 @@ const assetOutputs = computed(() =>
   })
 );
 
+const subjectOutputs = computed(() => assetOutputs.value.filter(item => item.output.dataType === "IMAGE" || item.output.dataType === "AUDIO"));
+
 async function handleCommand(command: string) {
   if (command === "saveAsset") saveNodeToAssets?.(props.label, assetOutputs.value);
+  if (command === "saveSubject") saveNodeToSubjects?.(props.label, subjectOutputs.value);
   if (command === "clipboard" && copyNodeToClipboard && !copyingToClipboard.value) {
     copyingToClipboard.value = true;
     try {

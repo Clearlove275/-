@@ -25,6 +25,7 @@
       @error="mediaError" />
     <component v-else :is="itemIcon" class="typeIcon" :size="21" aria-hidden="true" />
     <el-button
+      v-if="!item.source.startsWith('subject:')"
       class="removeButton nodrag nopan"
       :icon="IconX"
       circle

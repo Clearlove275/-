@@ -62,10 +62,12 @@
       <background :gap="16" pattern-color="var(--el-border-color)" />
       <canvasMenu ref="canvasMenuRef" v-model:canvasId="canvasId" :directory="project?.directory" :initialCanvasId="initialCanvasId" :activateCanvas="activateCanvas" :flushSave="flushCanvases ?? flushCanvasSave">
         <assetLibrary ref="assetLibraryRef" v-model="assetsVisible" :directory="project?.directory" />
+        <subjectLibrary ref="subjectLibraryRef" v-model="subjectsVisible" :directory="project?.directory" />
       </canvasMenu>
       <canvasControls
         ref="canvasControlsRef"
         v-model:assetsVisible="assetsVisible"
+        v-model:subjectsVisible="subjectsVisible"
         v-model:snapEnabled="snapEnabled"
         v-model:showEdges="showEdges"
         :canvasId="canvasId"
@@ -154,6 +156,7 @@ import remoteNode from "./components/remoteNode.vue";
 import canvasMenu from "./components/canvasMenu.vue";
 import canvasControls from "./components/canvasControls.vue";
 import assetLibrary from "./components/assetLibrary.vue";
+import subjectLibrary from "./components/subjectLibrary.vue";
 import groupNode from "./components/groupNode.vue";
 import selectionToolbar from "./components/selectionToolbar.vue";
 import nodeSearch from "./components/nodeSearch.vue";
@@ -167,6 +170,7 @@ import { generalSettings } from "@/stores/settings";
 import { getShortcutBindings, shortcutLabel, shortcutMatches, shortcutPressed } from "@/lib/canvasShortcuts";
 import useWorkspaceFiles from "@/lib/workspaceFiles";
 import anonymousData from "@/lib/anonymousData";
+import { loadSubjects, subjectMentions } from "@/lib/subjects";
 import { dropCanvasFiles, importCanvasFiles, isCanvasFileDrag } from "./canvasDrop";
 import "@vue-flow/core/dist/style.css";
 import "@vue-flow/core/dist/theme-default.css";
@@ -214,7 +218,9 @@ let gestureScale: number | undefined;
 let nativePasteRequested = false;
 const showEdges = ref(true);
 const assetsVisible = ref(false);
+const subjectsVisible = ref(false);
 const assetLibraryRef = ref<InstanceType<typeof assetLibrary>>();
+const subjectLibraryRef = ref<InstanceType<typeof subjectLibrary>>();
 const edgeDisconnect = ref<{ id: string; x: number; y: number }>();
 const flow = useVueFlow(props.runtimeKey);
 onScopeDispose(anonymousData.observeCanvas(() => props.active && canvasId.value
@@ -248,6 +254,8 @@ provide("copyNodeToClipboard", (node: Parameters<typeof copyNodeToClipboard>[0])
 provide("retainNodeFiles", true);
 provide("selectionConnection", shallowRef<NodeConnectionFeedback>());
 provide("saveNodeToAssets", (label: string, outputs: { label: string; output: NodeOutput }[]) => assetLibraryRef.value?.openSave(label, outputs));
+provide("saveNodeToSubjects", (label: string, outputs: { label: string; output: NodeOutput }[]) => subjectLibraryRef.value?.openSave(label, outputs));
+provide("externalNodeMentions", subjectMentions);
 let canvasController = new AbortController();
 let workspaceController = new AbortController();
 const createCanvasContext = useCanvasTools({
@@ -557,7 +565,7 @@ watch(
 
 // ACT: 切换显示面板不会卸载画布；仅清理交互，不中断本轮工具调用。
 watch(() => props.active, (active) => {
-  if (!active) assetsVisible.value = false;
+  if (!active) { assetsVisible.value = false; subjectsVisible.value = false; }
   edgeDisconnect.value = undefined;
   dragCopy = undefined;
   pointerPosition = undefined;
@@ -774,6 +782,7 @@ onMounted(() => {
   window.addEventListener("toonflow:plugin-installed", refreshInstalled);
   window.addEventListener("toonflow:node-config-updated", refreshNodeConfig);
   document.addEventListener("paste", pasteNode);
+  void loadSubjects().catch(error => console.error("加载主体库失败", error));
   void loadRemoteNodes();
 });
 onBeforeUnmount(() => {

@@ -221,7 +221,7 @@ async function loadEntries() {
   try {
     const { data } = await axios.get<{ data: { entries: AssetEntry[] } }>("/api/assets/list");
     if (request !== loadRequest) return;
-    entries.value = data.data.entries;
+    entries.value = data.data.entries.filter(entry => entry.path !== "subjects");
     await nextTick();
     if (request === loadRequest) assetTree.value?.filter(searchQuery.value);
   } catch (error) {
