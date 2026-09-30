@@ -66,7 +66,72 @@ function detectMimeType(bytes: Uint8Array, fallback: string) {
   return ({ "image/jpg": "image/jpeg", "audio/mp3": "audio/mpeg", "audio/x-wav": "audio/wav", "audio/wave": "audio/wav", "audio/x-flac": "audio/flac" } as Record<string, string>)[mimeType] ?? mimeType;
 }
 
-export async function readReference(cwd: string, reference: MediaReference, mediaType: string, signal?: AbortSignal): Promise<Extract<MediaInput, { type: "base64" }>> {
+type ReferenceMedia = Extract<MediaInput, { type: "base64" }> & { sourcePath: string; width?: number; height?: number };
+
+function readUInt24LE(bytes: Buffer, offset: number) {
+  return (bytes[offset]! | (bytes[offset + 1]! << 8) | (bytes[offset + 2]! << 16)) >>> 0;
+}
+
+function jpegSize(bytes: Buffer) {
+  let offset = 2;
+  while (offset + 4 <= bytes.length) {
+    if (bytes[offset] !== 0xff) { offset++; continue; }
+    while (offset < bytes.length && bytes[offset] === 0xff) offset++;
+    const marker = bytes[offset++]!;
+    if (marker === 0xd8 || marker === 0xd9 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) continue;
+    if (offset + 2 > bytes.length) return;
+    const length = bytes.readUInt16BE(offset);
+    if (length < 2 || offset + length > bytes.length) return;
+    const isStartOfFrame = (marker >= 0xc0 && marker <= 0xc3) || (marker >= 0xc5 && marker <= 0xc7)
+      || (marker >= 0xc9 && marker <= 0xcb) || (marker >= 0xcd && marker <= 0xcf);
+    if (isStartOfFrame && offset + 7 <= bytes.length) return { height: bytes.readUInt16BE(offset + 3), width: bytes.readUInt16BE(offset + 5) };
+    offset += length;
+  }
+}
+
+function webpSize(bytes: Buffer) {
+  if (bytes.length < 25) return;
+  const chunk = bytes.toString("ascii", 12, 16);
+  if (chunk === "VP8X") return { width: readUInt24LE(bytes, 24) + 1, height: readUInt24LE(bytes, 27) + 1 };
+  if (chunk === "VP8 " && bytes.length >= 30) return { width: bytes.readUInt16LE(26) & 0x3fff, height: bytes.readUInt16LE(28) & 0x3fff };
+  if (chunk === "VP8L" && bytes.length >= 25) {
+    const bits = bytes.readUInt32LE(21);
+    return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
+  }
+}
+
+function imageSize(bytes: Buffer, mimeType: string) {
+  if (mimeType === "image/png" && bytes.length >= 24) return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
+  if (mimeType === "image/jpeg") return jpegSize(bytes);
+  if (mimeType === "image/gif" && bytes.length >= 10) return { width: bytes.readUInt16LE(6), height: bytes.readUInt16LE(8) };
+  if (mimeType === "image/bmp" && bytes.length >= 26) return { width: Math.abs(bytes.readInt32LE(18)), height: Math.abs(bytes.readInt32LE(22)) };
+  if (mimeType === "image/webp") return webpSize(bytes);
+}
+
+function suggestedSize(image: ReferenceMedia & { width: number; height: number }) {
+  const targetHeight = Math.min(6000, Math.max(300, image.height));
+  if (targetHeight === image.height) return "";
+  const scale = targetHeight / image.height;
+  return "，建议调整为约 " + Math.max(1, Math.round(image.width * scale)) + "×" + targetHeight + "px";
+}
+
+function enrichImageHeightError(error: unknown, references: (ReferenceMedia | undefined)[], modelLabel: string) {
+  const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
+  if (!/(?:素材|图片|图像)?\s*高度.*?(?:300|3\s*00).*?(?:6000|6\s*000)|height.*300.*6000/i.test(message)) return error;
+  const details = [...new Map(references.filter((item): item is ReferenceMedia & { width: number; height: number } =>
+    !!item?.width && !!item.height && (item.height < 300 || item.height > 6000)).map(item => [item.sourcePath, item])).values()];
+  const lines = details.length
+    ? details.map(item => "- " + item.sourcePath + "：" + item.width + "×" + item.height + "px" + suggestedSize(item))
+    : ["- 未能读取参考图尺寸，请检查图片格式，并确保高度在 300–6000px 范围内。"];
+  const enriched = new Error(
+    message + "\n模型：" + modelLabel + "\n涉及参考图：\n" + lines.join("\n") + "\n处理建议：保持原宽高比调整图片高度后重新生成。",
+    error instanceof Error ? { cause: error } : undefined,
+  );
+  if (error && typeof error === "object" && "status" in error) Object.assign(enriched, { status: (error as { status?: number }).status });
+  return enriched;
+}
+
+export async function readReference(cwd: string, reference: MediaReference, mediaType: string, signal?: AbortSignal): Promise<ReferenceMedia> {
   signal?.throwIfAborted();
   const { path } = await resolveWorkspacePath(cwd, reference.path);
   const info = await stat(path);
@@ -75,7 +140,8 @@ export async function readReference(cwd: string, reference: MediaReference, medi
   if (!bytes.length || bytes.length > maxMediaSize) invalid("参考媒体为空或超过 100 MB");
   const mimeType = detectMimeType(bytes, reference.mimeType);
   if (!mimeType.startsWith(`${mediaType}/`)) invalid(`参考媒体类型须为 ${mediaType}`);
-  return { type: "base64", data: bytes.toString("base64"), mimeType };
+  const size = mediaType === "image" ? imageSize(bytes, mimeType) : undefined;
+  return { type: "base64", data: bytes.toString("base64"), mimeType, sourcePath: reference.path, ...(size ?? {}) };
 }
 
 async function downloadAsset(url: string, signal?: AbortSignal) {
@@ -148,22 +214,29 @@ export async function generateMedia(
   if (rules.some(rule => rule.field === "apiKey") && (typeof provider.config.apiKey !== "string" || !provider.config.apiKey.trim())) invalid("请先在媒体模型设置中配置供应商 API Key");
   const references = async (items: MediaReference[] | undefined, type: string) => items ? Promise.all(items.map(item => readReference(directory, item, type, signal))) : undefined;
   const images = await references(request.images, "image");
+  const videos = mediaType === "video" ? await references(request.videos, "video") : undefined;
+  const audios = mediaType === "image" ? undefined : await references(request.audios, "audio");
+  const firstFrame = mediaType === "video" && request.firstFrame ? await readReference(directory, request.firstFrame, "image", signal) : undefined;
+  const lastFrame = mediaType === "video" && request.lastFrame ? await readReference(directory, request.lastFrame, "image", signal) : undefined;
   signal?.throwIfAborted();
-  const assets = mediaType === "audio"
-    ? await provider.generateAudio!({
-      model: request.modelId, text: request.prompt, audios: await references(request.audios, "audio"),
-      voice: request.voice, speed: request.speed, volume: request.volume, format: request.format, sampleRate: request.sampleRate,
-    })
-    : mediaType === "image"
-    ? await provider.generateImage!({ model: request.modelId, prompt: request.prompt, images, ratio: request.ratio, size: request.size })
-    : await provider.generateVideo!({
-      model: request.modelId, prompt: request.prompt, images,
-      videos: await references(request.videos, "video"), audios: await references(request.audios, "audio"),
-      firstFrame: request.firstFrame ? await readReference(directory, request.firstFrame, "image", signal) : undefined,
-      lastFrame: request.lastFrame ? await readReference(directory, request.lastFrame, "image", signal) : undefined,
-      ratio: request.ratio, resolution: request.resolution, duration: request.duration,
-      generateAudio: request.generateAudio, mode: request.mode,
-    });
+  let assets;
+  try {
+    assets = mediaType === "audio"
+      ? await provider.generateAudio!({
+        model: request.modelId, text: request.prompt, audios,
+        voice: request.voice, speed: request.speed, volume: request.volume, format: request.format, sampleRate: request.sampleRate,
+      })
+      : mediaType === "image"
+      ? await provider.generateImage!({ model: request.modelId, prompt: request.prompt, images, ratio: request.ratio, size: request.size })
+      : await provider.generateVideo!({
+        model: request.modelId, prompt: request.prompt, images,
+        videos, audios, firstFrame, lastFrame,
+        ratio: request.ratio, resolution: request.resolution, duration: request.duration,
+        generateAudio: request.generateAudio, mode: request.mode,
+      });
+  } catch (error) {
+    throw enrichImageHeightError(error, [...(images ?? []), firstFrame, lastFrame], `${providerInfo.label} / ${model.label}`);
+  }
   if (!Array.isArray(assets) || !assets.length) invalid("供应商未返回生成结果");
   const written: string[] = [];
   const result: GeneratedMedia[] = [];
