@@ -1,6 +1,15 @@
 export type PluginInstallType = "node" | "tool" | "skill" | "provider" | "agent";
 export type PluginInstallRequest = { type: PluginInstallType; url: string; fileName: string };
 
+export type desktopUpdateAttempt = {
+  attemptId: string;
+  runtimeId: string;
+  channel: string;
+  targetVersion: string;
+  targetHash: string;
+  failure?: string;
+};
+
 export type updateSnapshot = {
   version: string;
   channel: string;
@@ -12,6 +21,15 @@ export type updateSnapshot = {
   updateReady: boolean;
   updating: boolean;
   canUpdate: boolean;
+  installFailure?: {
+    attemptId: string;
+    targetVersion: string;
+    targetHash: string;
+    currentVersion: string;
+    currentHash: string;
+    message: string;
+    downloadUrl: string;
+  };
 };
 
 export interface DesktopRuntime {
@@ -26,8 +44,9 @@ export interface DesktopRuntime {
   openDevTools(): void;
   updater: {
     getLocalInfo(): Promise<{ version: string; channel: string; hash: string; baseUrl: string }>;
-    updateInfo(): { version?: string; hash?: string; error?: string; updateAvailable?: boolean; updateReady?: boolean } | undefined;
+    updateInfo(): { version?: string; hash?: string; error?: string; installError?: string; updateAvailable?: boolean; updateReady?: boolean } | undefined;
     checkForUpdate(): Promise<{ error?: string }>;
+    confirmStartup?(failed?: boolean): void | Promise<void>;
     downloadUpdate?(): Promise<void>;
     applyUpdate?(): Promise<void>;
   };

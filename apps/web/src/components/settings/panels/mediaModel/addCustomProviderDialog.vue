@@ -99,6 +99,8 @@ import logoUrl from "@toonflow/assets/logo.svg";
 import messageMarkdown from "@/components/messageMarkdown.vue";
 import { invalidateNodeModels } from "@toonflow/nodes-scaffold/nodeAi";
 import tfRouterSource from "@toonflow/providers/media/tfRouter?raw";
+import apiMartSource from "@toonflow/providers/media/apiMart?raw";
+import metaSource from "@toonflow/providers/media/meta?raw";
 import type { MediaProvider } from "./types";
 import { providerPrompt } from "./providerPrompt";
 import { saveSettings } from "@/stores/settings";
@@ -107,10 +109,10 @@ import { writeClipboardText } from "@/lib/clipboard";
 const { mode = "custom" } = defineProps<{ mode?: "builtin" | "custom" }>();
 const visible = defineModel<boolean>({ default: false });
 const emit = defineEmits<{ added: [provider: MediaProvider] }>();
-const providerSources: Record<string, string> = { tfRouter: tfRouterSource };
+const providerSources: Record<string, string> = { tfRouter: tfRouterSource, apiMart: apiMartSource, meta: metaSource };
 const selectedProvider = ref<string>(mediaProviders[0]?.id ?? "");
 const activeProvider = computed(() => mediaProviders.find(provider => provider.id === selectedProvider.value));
-const models = computed(() => activeProvider.value?.models ?? []);
+const models = computed<MediaProvider["models"]>(() => activeProvider.value?.models ?? []);
 const providerReadme = computed(() => {
   const provider = activeProvider.value;
   return provider && "readme" in provider && typeof provider.readme === "string" ? provider.readme : "";
@@ -130,7 +132,7 @@ const formError = ref("");
 const formApi = shallowRef<Api>();
 const addedProvider = shallowRef<MediaProvider>();
 const formOptions = computed<Options>(() => ({ form: { labelPosition: "top", disabled: saving.value }, submitBtn: false, resetBtn: false }));
-const providerRules = computed(() => formCreate.copyRules(activeProvider.value?.rules ?? []));
+const providerRules = computed(() => formCreate.copyRules([...(activeProvider.value?.rules ?? [])]));
 const source = computed(() => mode === "builtin" ? providerSources[selectedProvider.value] ?? "" : activeTab.value === "file" ? fileSource.value : code.value);
 
 watch([activeTab, selectedProvider], () => {

@@ -13,7 +13,7 @@ import { showNativeSplash } from "@toonflow/startup";
 import Electrobun, { ApplicationMenu, BrowserWindow, PATHS, Screen, Utils, Updater } from "electrobun/main";
 import { parseInstallUrl } from "./protocol";
 import saveFile, { selectSaveFile } from "./saveFile";
-import createWindowsUpdater from "./update/windowsUpdater";
+import createWindowsUpdater, { confirmWindowsUpdateStartup } from "./update/windowsUpdater";
 
 const execFileAsync = promisify(execFile);
 const pendingInstalls: PluginInstallRequest[] = [];
@@ -205,6 +205,8 @@ async function start() {
           void restoreInstallRegistration(installDirectory);
         }
         if (failed) {
+          if (process.platform === "win32") confirmWindowsUpdateStartup(PATHS.RESOURCES_FOLDER, true);
+          else await (Updater as DesktopRuntime["updater"]).confirmStartup?.(true);
           deliverInstall = undefined;
           return;
         }
@@ -218,9 +220,11 @@ async function start() {
           deliverInstall(pendingInstalls[0]!);
           pendingInstalls.shift();
         }
+        if (process.platform === "win32") confirmWindowsUpdateStartup(PATHS.RESOURCES_FOLDER);
+        else await (Updater as DesktopRuntime["updater"]).confirmStartup?.();
       },
       openDevTools() { mainWindow.webview.openDevTools(); },
-      // ACT: 仅 Windows 使用 2.0 的两阶段退出；Intel Mac 继续保留原 SDK 更新器。
+      // ACT: Windows 使用两阶段退出；Intel Mac 由兼容入口适配 1.18.1 更新器。
       updater: process.platform === "win32" ? createWindowsUpdater(PATHS.RESOURCES_FOLDER, Utils as unknown as Parameters<typeof createWindowsUpdater>[1]) : Updater,
     } satisfies DesktopRuntime;
     if (process.platform === "win32") {
@@ -265,6 +269,10 @@ async function start() {
   } catch (error) {
     splash?.close();
     console.error("桌面启动失败：", error);
+    if (process.platform === "win32") {
+      try { confirmWindowsUpdateStartup(PATHS.RESOURCES_FOLDER, true); }
+      catch (resultError) { console.error("更新启动结果写入失败：", resultError); }
+    }
     Utils.quit(1);
   }
 }

@@ -55,7 +55,7 @@ async function uploadImage(context: ProviderContext, apiKey: string, baseUrl: st
   const boundary = `----toonflow${Date.now().toString(16)}${Math.random().toString(16).slice(2)}`;
   const body = new Blob([
     `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="upload.${ext}"\r\nContent-Type: ${input.mimeType}\r\n\r\n`,
-    bytes as unknown as BlobPart,
+    new Uint8Array(bytes),
     `\r\n--${boundary}--\r\n`,
   ]);
   const response = await context.tool.fetch(`${baseUrl}/uploads/images`, {

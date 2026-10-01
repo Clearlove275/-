@@ -45,9 +45,13 @@ async function pollVideo(context: ProviderContext, baseUrl: string, apiKey: stri
       signal,
     });
     if (!response.ok) throw new Error(`查询任务失败：HTTP ${response.status}`);
-    const data = await response.json();
+    const data = await response.json() as { task?: { status?: string; content?: { url?: string } } };
     const status = data?.task?.status;
-    if (status === "succeeded") return data.task.content.url;
+    if (status === "succeeded") {
+      const url = data.task?.content?.url;
+      if (!url) throw new Error("视频生成成功但未返回视频地址");
+      return url;
+    }
     if (status === "failed") throw new Error(context.tool.errorMessage?.(data) || "视频生成失败");
     await wait(signal, 5000);
   }
@@ -106,7 +110,7 @@ export default {
       signal,
     });
     if (!submitResponse.ok) throw new Error(`提交任务失败：HTTP ${submitResponse.status}`);
-    const submitData = await submitResponse.json();
+    const submitData = await submitResponse.json() as { task_id?: string };
     const taskId = submitData?.task_id;
     if (!taskId) throw new Error("提交任务未返回任务 ID");
 
