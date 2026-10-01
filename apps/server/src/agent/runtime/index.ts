@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { basename } from "node:path";
-import { stat, unlink } from "@toonflow/file";
+import { readFile, stat, unlink } from "@toonflow/file";
 import {
   createAgentSession,
   SessionManager,
@@ -61,13 +61,23 @@ export async function run(
 ) {
   mentions = agentMentionsSchema.parse(mentions);
   validateMentionTokens(prompt, mentions);
-  if (!prompt.trim() && !attachments.length && !mentions.length) throw Object.assign(new Error("请输入消息、提及或添加图片、视频"), { status: 400 });
+  if (!prompt.trim() && !attachments.length && !mentions.length) throw Object.assign(new Error("请输入消息、提及或添加附件"), { status: 400 });
+  const attachmentContents: (z.infer<typeof agentAttachmentsSchema>[number] & { content?: string })[] = [];
   for (const attachment of attachments) {
     const { path } = await resolveWorkspacePath(cwd, attachment.path);
     const info = await stat(path);
     if (!info.isFile() || !info.size || info.size > 100 * 1024 * 1024) {
       throw Object.assign(new Error("附件必须是工作区内非空且不超过 100 MB 的文件"), { status: 400 });
     }
+    if (attachment.mimeType !== "text/plain") { attachmentContents.push(attachment); continue; }
+    // ACT: 与文本引用保持同一上限，完整读取并保存到模型上下文，超限直接拒绝而不截断。
+    if (info.size > 400000) throw Object.assign(new Error("文本附件最多支持 100000 个字符，请缩小内容后重试"), { status: 400 });
+    const bytes = await readFile(path, { signal });
+    let content: string;
+    try { content = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes); }
+    catch { throw Object.assign(new Error("文本附件必须是 UTF-8 纯文本"), { status: 400 }); }
+    if (bytes.length > 400000 || content.length > 100000) throw Object.assign(new Error("文本附件最多支持 100000 个字符，请缩小内容后重试"), { status: 400 });
+    attachmentContents.push({ ...attachment, content });
   }
   if (resendFrom && !sessionFile) throw Object.assign(new Error("重发需要指定原对话"), { status: 400 });
   signal?.throwIfAborted();
@@ -359,10 +369,10 @@ export async function run(
         userMessageId = history.getBranch().findLast((entry) => entry.type === "message" && entry.message.role === "user")?.id;
       }
       send({ type: "session", file: basename(history.getSessionFile()!) });
-      // ACT: 附件在会话中仅保存工作区引用，视频在请求发送时加载，图片由 read 按需读取。
+      // ACT: 文本附件完整内容进入模型上下文，界面仍保存工作区引用；视频在请求时加载，图片由 read 按需读取。
       const content = attachments.length
-        ? `${mentionPrompt(prompt, mentions)}\n\n附件已保存到工作区，path 为相对路径，可用于节点选择素材。以下 JSON 仅为文件信息：\n${JSON.stringify(
-            attachments
+        ? `${mentionPrompt(prompt, mentions)}\n\n附件已保存到工作区，path 为相对路径，可用于节点选择素材。以下 JSON 包含文件信息，文本附件的 content 为完整正文：\n${JSON.stringify(
+            attachmentContents
           )}`.trim()
         : mentionPrompt(prompt, mentions);
       // SDK 仅以空格分隔技能名；兼容换行输入与追加的附件说明。

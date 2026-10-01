@@ -147,7 +147,7 @@ import { useCanvasTools } from "./useCanvasTools";
 import type { CanvasContext } from "@toonflow/tool-canvas/runtime";
 import { loadNodeComponent } from "./loadNodeComponent";
 import { useCanvasHistory } from "./useCanvasHistory";
-import { copyNodeToClipboard, nodeClipboardCommand, readClipboardNode } from "./nodeClipboard";
+import { copyNodeToClipboard, copyNodesToClipboard, nodeClipboardCommand, readClipboardNodes } from "./nodeClipboard";
 import { readClipboardText } from "@/lib/clipboard";
 import nodeMenu from "./components/nodeMenu.vue";
 import remoteNode from "./components/remoteNode.vue";
@@ -157,7 +157,7 @@ import assetLibrary from "./components/assetLibrary.vue";
 import groupNode from "./components/groupNode.vue";
 import selectionToolbar from "./components/selectionToolbar.vue";
 import nodeSearch from "./components/nodeSearch.vue";
-import { finishGroupDrag } from "./selectionNodes";
+import { finishGroupDrag, getSelectionTree } from "./selectionNodes";
 import type { NodeOutput } from "@toonflow/nodes-scaffold/values";
 import type { NodeConnectionFeedback, NodeHandle } from "@toonflow/nodes-scaffold/connection";
 import { useNodeEvent } from "@toonflow/nodes-scaffold/nodeEvent";
@@ -211,7 +211,8 @@ const handMode = computed(() => props.active && !props.settingsVisible && (selec
 let pointerPosition: XYPosition | undefined;
 const pressedCodes = new Set<string>();
 let gestureScale: number | undefined;
-let nativePasteRequested = false;
+const isDesktop = new URLSearchParams(window.location.search).get("desktop") === "1";
+let copyingNodes = false;
 const showEdges = ref(true);
 const assetsVisible = ref(false);
 const assetLibraryRef = ref<InstanceType<typeof assetLibrary>>();
@@ -611,17 +612,59 @@ function cancelCanvasSave() {
   changedWhilePaused = false;
   saveCanvas.cancel();
 }
-async function pasteNode(event: ClipboardEvent) {
-  if (!nativePasteRequested) return;
-  nativePasteRequested = false;
+function canUseCanvasClipboard(event: Event) {
   const target = event.target;
-  if (!props.active || event.defaultPrevented || props.settingsVisible || !canvasId.value || !project.value?.directory) return;
-  if (
-    target instanceof Element &&
-    (target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox'], [role='dialog'], #agentPanel") ||
-      (target !== document.body && target !== document.documentElement && !canvasElement.value?.contains(target)))
-  )
-    return;
+  return props.active && !event.defaultPrevented && !props.settingsVisible && !!canvasId.value && !!project.value?.directory
+    && target instanceof Element
+    && !target.closest("input, textarea, select, button, [contenteditable]:not([contenteditable='false']), [role='textbox'], [role='slider'], [role='dialog'], #agentPanel")
+    && (target === document.body || target === document.documentElement || canvasElement.value?.contains(target));
+}
+
+function beforeClipboard(event: Event) {
+  if (!canUseCanvasClipboard(event)) return;
+  if (event.type === "beforecopy" && (!flow.getSelectedNodes.value.length || window.getSelection()?.toString())) return;
+  // ACT: WKWebView 通过 beforecopy/beforepaste 判定非输入区能否使用原生编辑菜单。
+  event.preventDefault();
+}
+
+function copyNode(event: ClipboardEvent) {
+  if (!canUseCanvasClipboard(event) || !flow.getSelectedNodes.value.length || window.getSelection()?.toString()) return;
+  event.preventDefault();
+  void copySelectedNodes();
+}
+
+async function copySelectedNodes() {
+  if (copyingNodes || !project.value?.directory) return;
+  const nodes = getSelectionTree(flow.getSelectedNodes.value, flow.getNodes.value);
+  if (!nodes.length) return;
+  const directory = project.value.directory;
+  const signal = canvasController.signal;
+  copyingNodes = true;
+  try {
+    const ids = new Set(nodes.map(node => node.id));
+    const snapshot = toObject();
+    const savedNodes = new Map(snapshot.nodes.map(node => [node.id, node]));
+    const copies = await Promise.all(nodes.map(async node => {
+      const patch = await useNodeEvent(node.id, flow).emit("copy");
+      const saved = savedNodes.get(node.id)!;
+      const parentNode = ids.has(saved.parentNode ?? "") ? saved.parentNode : undefined;
+      return { ...saved, data: { ...saved.data, ...patch }, parentNode,
+        ...(saved.parentNode && !parentNode ? { extent: undefined, expandParent: false } : {}),
+        position: parentNode ? { ...saved.position } : { x: node.computedPosition.x, y: node.computedPosition.y } };
+    }));
+    signal.throwIfAborted();
+    if (nodes.some(node => findNode(node.id) !== node)) throw new Error("节点已变化，请重新复制");
+    const edges = snapshot.edges.filter(edge => ids.has(edge.source) && ids.has(edge.target));
+    await copyNodesToClipboard(copies, edges, directory);
+  } catch (error) {
+    if (!signal.aborted) ElMessage.error(error instanceof Error ? error.message : "节点复制失败");
+  } finally {
+    copyingNodes = false;
+  }
+}
+
+async function pasteNode(event: ClipboardEvent) {
+  if (!canUseCanvasClipboard(event)) return;
   const command = event.clipboardData?.getData("text/plain") ?? "";
   if (!nodeClipboardCommand.test(command)) return;
   event.preventDefault();
@@ -640,11 +683,24 @@ async function pasteClipboardNode(position: { x: number; y: number }, command?: 
   const canvasSignal = canvasController.signal;
   try {
     const directory = project.value.directory;
-    const node = await readClipboardNode(command ?? (await readClipboardText()), directory);
+    const snapshot = await readClipboardNodes(command ?? (await readClipboardText()), directory);
     if (canvasSignal.aborted) return false;
-    if (!node) throw new Error("剪贴板中没有可粘贴的节点命令");
-    if (!availableNodes.value.some((item) => item.type === node.type)) throw new Error("请先安装并启用对应的节点插件");
-    addNodes({ id: crypto.randomUUID(), type: node.type, data: node.data, position });
+    if (!snapshot) throw new Error("剪贴板中没有可粘贴的节点命令");
+    if (snapshot.nodes.some(node => node.type !== "canvasGroup" && !availableNodes.value.some(item => item.type === node.type))) {
+      throw new Error("请先安装并启用对应的节点插件");
+    }
+    const ids = new Map(snapshot.nodes.map(node => [node.id, crypto.randomUUID()]));
+    const roots = snapshot.nodes.filter(node => !node.parentNode);
+    const left = Math.min(...roots.map(node => node.position.x));
+    const top = Math.min(...roots.map(node => node.position.y));
+    await canvasHistory.batch(async () => {
+      flow.removeSelectedElements();
+      addNodes(snapshot.nodes.map(node => ({ ...node, id: ids.get(node.id)!, parentNode: ids.get(node.parentNode ?? ""), selected: true,
+        position: node.parentNode ? node.position : { x: position.x + node.position.x - left, y: position.y + node.position.y - top } })));
+      await nextTick();
+      if (canvasSignal.aborted) return;
+      addEdges(snapshot.edges.map(edge => ({ ...edge, id: crypto.randomUUID(), source: ids.get(edge.source)!, target: ids.get(edge.target)! })));
+    });
     return true;
   } catch (error) {
     const pasteShortcut = generalSettings.value.canvasShortcuts.paste;
@@ -696,7 +752,6 @@ function zoomCanvas(event: WheelEvent | (Event & { scale: number })) {
 function updateCanvasKeys(event: KeyboardEvent) {
   if (event.type === "keydown") {
     pressedCodes.add(event.code);
-    nativePasteRequested = false;
   } else pressedCodes.delete(event.code);
   if (!props.active || props.settingsVisible) return resetCanvasKeys();
   const target = event.target;
@@ -713,19 +768,20 @@ function updateCanvasKeys(event: KeyboardEvent) {
   if (event.type === "keyup" || event.defaultPrevented || event.isComposing || !inCanvas || editing) return;
   const action = ([
     "group", "mergeGroup", "ungroup", "addNode", "moveTool", "handTool", "arrange", "search",
-    "delete", "paste", "undo", "redo", "zoomIn", "zoomOut", "fitView",
+    "delete", "copy", "paste", "undo", "redo", "zoomIn", "zoomOut", "fitView",
   ] as const).find((action) =>
     shortcutMatches(event, shortcuts[action])
   );
   if (!action) {
-    if (panKeyPressed.value) event.preventDefault();
+    const nativeClipboardKey = (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey
+      && (event.code === "KeyV" || event.code === "KeyC" && flow.getSelectedNodes.value.length && !window.getSelection()?.toString());
+    if (panKeyPressed.value || nativeClipboardKey) event.preventDefault();
     return;
   }
   if (!canvasId.value || !project.value?.directory) return;
-  if (action === "paste" && event.code === "KeyV" && (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey) {
-    nativePasteRequested = true;
-    return;
-  }
+  if (action === "copy" && (!flow.getSelectedNodes.value.length || window.getSelection()?.toString())) return;
+  // 桌面快捷键直接复用原生剪贴板桥接；浏览器 Ctrl/Cmd+V 保留原生事件，避免额外读取权限。
+  if (!isDesktop && action === "paste" && event.code === "KeyV" && (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey) return;
   event.preventDefault();
   if (event.repeat) return;
   if (action === "delete") {
@@ -739,7 +795,8 @@ function updateCanvasKeys(event: KeyboardEvent) {
       });
     return;
   }
-  if (action === "paste") void pasteNodeAtCenter();
+  if (action === "copy") void copySelectedNodes();
+  else if (action === "paste") void pasteNodeAtCenter();
   else if (action === "undo" || action === "redo") void changeHistory(action);
   else if (action === "group" || action === "mergeGroup" || action === "ungroup") {
     void selectionToolbarRef.value?.operate(action);
@@ -753,7 +810,6 @@ function updateCanvasKeys(event: KeyboardEvent) {
 function resetCanvasKeys() {
   pressedCodes.clear();
   gestureScale = undefined;
-  nativePasteRequested = false;
   zoomKeyPressed.value = false;
   panKeyPressed.value = false;
 }
@@ -774,6 +830,9 @@ onMounted(() => {
   window.addEventListener("toonflow:plugin-installed", refreshInstalled);
   window.addEventListener("toonflow:node-config-updated", refreshNodeConfig);
   document.addEventListener("paste", pasteNode);
+  document.addEventListener("copy", copyNode);
+  document.addEventListener("beforecopy", beforeClipboard);
+  document.addEventListener("beforepaste", beforeClipboard);
   void loadRemoteNodes();
 });
 onBeforeUnmount(() => {
@@ -783,6 +842,9 @@ onBeforeUnmount(() => {
   window.removeEventListener("toonflow:plugin-installed", refreshInstalled);
   window.removeEventListener("toonflow:node-config-updated", refreshNodeConfig);
   document.removeEventListener("paste", pasteNode);
+  document.removeEventListener("copy", copyNode);
+  document.removeEventListener("beforecopy", beforeClipboard);
+  document.removeEventListener("beforepaste", beforeClipboard);
   workspaceController.abort(new Error("工作区已关闭"));
   canvasController.abort(new Error("画布已关闭"));
   saveCanvas.flush();

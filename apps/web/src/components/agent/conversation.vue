@@ -100,7 +100,7 @@
         @lostpointercapture="stopSenderResize"
         @keydown.up.prevent="setSenderHeight((sender?.chatElement.rollBox.clientHeight ?? 44) + 16)"
         @keydown.down.prevent="setSenderHeight((sender?.chatElement.rollBox.clientHeight ?? 44) - 16)" />
-      <attachmentList v-if="draftAttachments.length" class="draftAttachments" :attachments="draftAttachments" :directory="directory" removable @remove="draftAttachments.splice($event, 1)" />
+      <attachmentList v-if="draftAttachments.length" class="draftAttachments" :attachments="draftAttachments" :directory="directory" removable restorable :disabled="locked" @remove="draftAttachments.splice($event, 1)" @restore="restoreTextAttachment" />
       <div ref="senderElement" class="senderEditor" @keydown.capture="handleSenderKeydown"></div>
       <teleport v-for="target in draftMentionTargets" :key="target.key" :to="target.element"><mentionThumbnail v-bind="mentionThumbnailProps(target.mention)" :directory="directory"><icon-photo :size="14" /></mentionThumbnail></teleport>
       <mentionContent ref="draftMentionPreview" :mentions="draftMentions" :directory="directory" removable @remove="removeDraftMention" />
@@ -169,6 +169,7 @@ import mentionThumbnail from "./mentionThumbnail.vue";
 import { mentionName, mentionParts, mentionPlainText, mentionThumbnailProps } from "./mentionText";
 import toolMessage from "./toolMessage.vue";
 import attachmentList from "./attachmentList.vue";
+import { createPastedTextFile, readTextAttachment } from "./textAttachments";
 import useWorkspaceFiles from "@/lib/workspaceFiles";
 import { writeClipboardText } from "@/lib/clipboard";
 import anonymousData from "@/lib/anonymousData";
@@ -200,7 +201,8 @@ const contextUsage = ref(props.initialSession?.contextUsage);
 const busy = ref(false);
 const compacting = ref(false);
 const deletingId = ref<string>();
-const locked = computed(() => props.disabled || busy.value || deletingId.value !== undefined);
+const restoringAttachment = ref(false);
+const locked = computed(() => props.disabled || busy.value || deletingId.value !== undefined || restoringAttachment.value);
 const editingId = ref<string>();
 const draftMentions = ref<AgentMention[]>([]);
 const draftMentionTargets = shallowRef<{ key: symbol; element: HTMLElement; mention: AgentMention }[]>([]);
@@ -673,19 +675,52 @@ async function sendMessage(source?: AgentMessage) {
   }
 }
 
+async function restoreTextAttachment(index: number) {
+  const instance = sender;
+  const attachment = draftAttachments.value[index];
+  if (!instance || locked.value || !props.active || attachment?.mimeType !== "text/plain") return;
+  restoringAttachment.value = true;
+  try {
+    const text = await readTextAttachment(attachment, directory);
+    if (sender !== instance || !props.active || props.disabled || !draftAttachments.value.includes(attachment)) return;
+    instance.focus("last");
+    await instance.setText(`${instance.isEmpty(false) ? "" : "\n"}${text}`);
+    if (sender === instance) draftAttachments.value = draftAttachments.value.filter(item => item !== attachment);
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : "还原文本附件失败，请重试");
+  } finally {
+    restoringAttachment.value = false;
+  }
+}
+
 function pasteAttachments(event: ClipboardEvent) {
   const files = Array.from(event.clipboardData?.files ?? []);
+  if (!files.length) {
+    try {
+      const file = createPastedTextFile(event.clipboardData?.getData("text/plain") ?? "");
+      if (file) files.push(file);
+    } catch (error) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      ElMessage.warning(error instanceof Error ? error.message : "无法添加文本附件");
+      return;
+    }
+  }
   if (!files.length) return;
   event.preventDefault();
   event.stopImmediatePropagation();
   if (locked.value) return;
   for (const file of files) {
-    if (!/^(image|video)\//.test(file.type)) {
-      ElMessage.warning("只支持图片和视频文件");
+    if (!/^(image|video)\//.test(file.type) && file.type !== "text/plain") {
+      ElMessage.warning("只支持图片、视频和纯文本文件");
       continue;
     }
     if (!file.size || file.size > 100 * 1024 * 1024) {
       ElMessage.warning("附件不能为空且不能超过 100 MB");
+      continue;
+    }
+    if (file.type === "text/plain" && file.size > 400000) {
+      ElMessage.warning("文本附件不能超过 400000 字节");
       continue;
     }
     if (draftAttachments.value.length >= 20) {
@@ -763,6 +798,7 @@ watch(() => !props.initialSession?.parentFile && !!workspaceStore.pendingAgentMe
   const instance = sender;
   if (!ready || !message || !instance || message.directory !== directory) return;
   workspaceStore.pendingAgentMessage = null;
+  draftAttachments.value = [...message.attachments ?? []];
   await fillPrompt(message.prompt);
   if (sender === instance && props.active) void sendMessage();
 }, { flush: "post" });

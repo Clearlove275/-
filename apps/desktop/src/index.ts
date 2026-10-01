@@ -10,7 +10,7 @@ import { promisify } from "node:util";
 import { dlopen, ptr } from "bun:ffi";
 import type { DesktopRuntime, PluginInstallRequest } from "@toonflow/server/desktop";
 import { showNativeSplash } from "@toonflow/startup";
-import Electrobun, { BrowserWindow, PATHS, Screen, Utils, Updater } from "electrobun/main";
+import Electrobun, { ApplicationMenu, BrowserWindow, PATHS, Screen, Utils, Updater } from "electrobun/main";
 import { parseInstallUrl } from "./protocol";
 import saveFile, { selectSaveFile } from "./saveFile";
 import createWindowsUpdater from "./update/windowsUpdater";
@@ -85,6 +85,29 @@ async function start() {
     });
     setLocaleFallback(() => normalizeLocale(startupSettings?.settings?.ui?.language)
       ?? detectLocale([Intl.DateTimeFormat().resolvedOptions().locale]));
+    if (process.platform === "darwin") {
+      // ACT: WKWebView 的 Command 编辑快捷键由原生菜单角色交给当前响应者处理。
+      ApplicationMenu.setApplicationMenu([
+        { label: "Toonflow", submenu: [
+          { role: "about" },
+          { type: "separator" },
+          { role: "hide" },
+          { role: "hideOthers" },
+          { role: "showAll" },
+          { type: "separator" },
+          { role: "quit" },
+        ] },
+        { label: t`编辑`, submenu: [
+          { role: "undo", label: t`撤销` },
+          { role: "redo", label: t`重做` },
+          { type: "separator" },
+          { role: "cut", label: t`剪切` },
+          { role: "copy", label: t`复制` },
+          { role: "paste", label: t`粘贴` },
+          { role: "selectAll", label: t`全选` },
+        ] },
+      ]);
+    }
     try {
       if (startupSettings?.settings?.ui?.startupAnimation !== false) {
         splash = await showNativeSplash(resolve(PATHS.VIEWS_FOLDER, "../startup"), () => {
