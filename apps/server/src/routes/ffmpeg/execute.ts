@@ -4,6 +4,7 @@ import type { BrowserFfmpegRequest } from "@toonflow/ffmpeg";
 import { validateFields } from "@/lib/middleware";
 import { success } from "@/lib/responseFormat";
 import u from "@/utils";
+import { translateError, validationOptions } from "@/lib/i18n";
 
 const callSchema = z.object({
   method: z.string().min(1).max(64), args: z.array(z.json()).max(128),
@@ -28,7 +29,7 @@ const requests = new Map<string, AbortController>();
 
 export default Router().post("/", validateFields(inputSchema.shape), async (req, res) => {
   u.mcpControl.assertAppRequest(req);
-  const input = inputSchema.parse(req.body) as BrowserFfmpegRequest;
+  const input = inputSchema.parse(req.body, validationOptions()) as BrowserFfmpegRequest;
   const cwd = await u.workspace.resolveWorkspace(req, input.directory);
   const requestKey = `${cwd}\0${input.requestId}`;
   if (input.operation.method === "cancel") {
@@ -56,6 +57,11 @@ export default Router().post("/", validateFields(inputSchema.shape), async (req,
     res.flushHeaders();
     heartbeat = setInterval(() => { if (!res.destroyed) res.write(": keepalive\n\n"); }, 1000);
     await u.ffmpeg.executeRemoteFfmpeg(factory, input, event => {
+      const failure = event.event === "error" ? event.args[0] as { message?: unknown; i18nMessage?: unknown } | undefined : undefined;
+      if (failure && typeof failure.message === "string") {
+        const { i18nMessage, ...details } = failure;
+        event = { ...event, args: [{ ...details, message: translateError(failure) }, ...event.args.slice(1)] };
+      }
       if (!res.destroyed) res.write(`data: ${JSON.stringify(event)}\n\n`);
     }, controller.signal);
     res.end();

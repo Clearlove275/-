@@ -1,9 +1,11 @@
 import axios from "axios";
 import { toValue, type MaybeRefOrGetter } from "vue";
 import { useWorkspaceStore } from "@/stores/workspace";
+import { registerApiLanguage } from "@/lib/i18n";
 
 type WorkspaceEntry = { name: string; path: string; type: "file" | "directory" };
 const client = axios.create({ baseURL: "/api/workspaces/files", headers: { "x-toonflow-workspace": "1" } });
+registerApiLanguage(client);
 const fileUrls = new Map<string, { directory: string; path: string; url: Promise<string>; users: number }>();
 
 function cachePath(path: string) {

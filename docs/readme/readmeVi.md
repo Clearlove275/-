@@ -10,24 +10,42 @@
   </a>
   &nbsp;|&nbsp;
   <a href="https://atomgit.com/HBAI-Ltd/Toonflow-app">
-    <img src="./atomgitLogo.svg" alt="AtomGit" height="20" />
+    <img src="../images/atomgitLogo.svg" alt="AtomGit" height="20" />
   </a>
 </p>
 
 <p align="center">
-  <a href="../README.md">简体中文</a> |
-  <a href="./README.zhtw.md">繁體中文</a> |
-  <a href="./README.en.md">English</a> |
-  <a href="./README.th.md">ไทย</a> |
+  <a href="../../README.md">简体中文</a> |
+  <a href="./readmeZhTw.md">繁體中文</a> |
+  <a href="./readmeEn.md">English</a> |
+  <a href="./readmeJa.md">日本語</a> |
+  <a href="./readmeRu.md">Русский</a> |
   <strong>Tiếng Việt</strong> |
-  <a href="./README.ja.md">日本語</a> |
-  <a href="./README.ru.md">Русский</a>
+  <a href="./readmeTh.md">ไทย</a>
+  <br />
+  <a href="./readmeKo.md">한국어</a> |
+  <a href="./readmeHi.md">हिन्दी</a> |
+  <a href="./readmeId.md">Bahasa Indonesia</a> |
+  <a href="./readmeMs.md">Bahasa Melayu</a> |
+  <a href="./readmeFil.md">Filipino</a> |
+  <a href="./readmeBn.md">বাংলা</a> |
+  <a href="./readmeUr.md">اردو</a>
+  <br />
+  <a href="./readmeTa.md">தமிழ்</a> |
+  <a href="./readmeTe.md">తెలుగు</a> |
+  <a href="./readmeMr.md">मराठी</a> |
+  <a href="./readmePa.md">ਪੰਜਾਬੀ</a> |
+  <a href="./readmeAr.md">العربية</a> |
+  <a href="./readmeFa.md">فارسی</a> |
+  <a href="./readmeTr.md">Türkçe</a>
 </p>
+
+> 🌐 **Hỗ trợ 21 ngôn ngữ giao diện** · [Xem các ngôn ngữ được hỗ trợ](#languages)
 
 <div align="center">
 
 <p align="center">
-  <img src="./logo.png" alt="Biểu trưng Toonflow" width="120" height="120" />
+  <img src="../images/logo.png" alt="Biểu trưng Toonflow" width="120" height="120" />
 </p>
 
 <a href="https://git.io/typing-svg">
@@ -41,7 +59,7 @@
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/stargazers">
     <img src="https://img.shields.io/github/stars/HBAI-Ltd/Toonflow-app?style=for-the-badge&logo=github" alt="Huy hiệu số sao" />
   </a>
-  <a href="../LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="Huy hiệu giấy phép MIT" />
   </a>
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/releases">
@@ -93,13 +111,13 @@
   <table>
     <tr>
       <td width="50%" align="center">
-        <a href="./gStar.png">
-          <img src="./gStar.png" alt="Chứng nhận Toonflow AtomGit G-Star No.540" width="100%" />
+        <a href="../images/gStar.png">
+          <img src="../images/gStar.png" alt="Chứng nhận Toonflow AtomGit G-Star No.540" width="100%" />
         </a>
       </td>
       <td width="50%" align="center">
-        <a href="./gvp.jpg">
-          <img src="./gvp.jpg" alt="Chứng nhận Toonflow Gitee GVP" width="100%" />
+        <a href="../images/gvp.jpg">
+          <img src="../images/gvp.jpg" alt="Chứng nhận Toonflow Gitee GVP" width="100%" />
         </a>
       </td>
     </tr>
@@ -123,19 +141,19 @@ Xin cảm ơn các đối tác sau đã hỗ trợ dự án mã nguồn mở Too
 <table>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="./sponsors/metaso.svg" alt="Metaso" height="28" valign="middle" /> <strong>Metaso</strong></a>
+      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="../images/sponsors/metaso.svg" alt="Metaso" height="28" valign="middle" /> <strong>Metaso</strong></a>
       <br />
       <sub>Cung cấp dịch vụ tạo video MiniMax H3 với chi phí hợp lý: 768P chỉ 0.09 nhân dân tệ/giây, 2K chỉ 0.15 nhân dân tệ/giây; hỗ trợ 2K gốc, đồng bộ âm thanh và hình ảnh, API tương thích giao thức OpenAI, đồng thời hỗ trợ ComfyUI và canvas vô hạn mà không cần tự triển khai GPU. <a href="https://metaso.cn/minimax-h3/?s=toon">Đăng ký qua liên kết riêng</a> để nhận tín dụng tặng kèm và ưu đãi độc quyền. Liên hệ hợp tác kinh doanh qua WeChat: metasota12.</sub>
     </td>
     <td width="50%" valign="top">
-      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="./sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
+      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="../images/sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
       <br />
-      <sub>Cảm ơn APIMart đã tài trợ tài nguyên tính toán cho dự án! Nền tảng API giá thấp chuyên tạo ảnh và video bằng AI, với GPT-Image-2 chỉ từ $0.006/ảnh, 1 đô la có thể tạo hơn 160 ảnh. Ảnh và video dùng chung một API bất đồng bộ: gửi tác vụ để nhận ID, nhận kết quả qua callback; xử lý hàng chục nghìn ảnh theo lô mà không hết thời gian chờ, đổi mô hình không cần sửa mã, thanh toán theo mức sử dụng và không có phí tháng. Đăng ký qua <a href="https://go.apimart.ai/gh-toonflow-app">liên kết này</a> để bắt đầu sử dụng.</sub>
+      <sub>Cảm ơn APIMart đã tài trợ cho dự án! Nền tảng API giá thấp chuyên tạo ảnh và video bằng AI, với GPT-Image-2 chỉ từ $0.006/ảnh, 1 đô la có thể tạo hơn 160 ảnh. Ảnh và video dùng chung một API bất đồng bộ: gửi tác vụ để nhận ID, nhận kết quả qua callback; xử lý 10.000 ảnh theo lô mà không hết thời gian chờ, đổi mô hình không cần sửa mã, thanh toán theo mức sử dụng và không có phí tháng. Đăng ký qua <a href="https://go.apimart.ai/gh-toonflow-app">liên kết này</a> để bắt đầu sử dụng.</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="./sponsors/compShare.png" alt="CompShare" height="28" valign="middle" /> <strong>CompShare</strong></a>
+      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="../images/sponsors/compShare.png" alt="CompShare" height="28" valign="middle" /> <strong>CompShare</strong></a>
       <br />
       <sub>CompShare cung cấp dịch vụ tạo video H3 với chi phí hợp lý, hỗ trợ tạo video từ văn bản, chỉ định khung hình đầu và cuối, cùng chế độ tham chiếu toàn diện. Hỗ trợ video dài tối đa 30 giây với chất lượng 2K gốc; 768P chỉ 0.08 nhân dân tệ/giây. Hỗ trợ gọi API, xử lý số lượng lớn yêu cầu đồng thời cho doanh nghiệp và tự yêu cầu xuất hóa đơn.</sub>
       <br /><br />
@@ -149,7 +167,7 @@ Xin cảm ơn các đối tác sau đã hỗ trợ dự án mã nguồn mở Too
 <summary><strong>👉Trở thành nhà tài trợ👈</strong></summary>
 
 <p align="center">
-  <img src="./businessQr.png" alt="Mã QR WeChat dành cho hợp tác kinh doanh" width="200" />
+  <img src="../images/businessQr.png" alt="Mã QR WeChat dành cho hợp tác kinh doanh" width="200" />
 </p>
 
 <p align="center"><sub>Kênh liên hệ này chỉ dành cho hợp tác kinh doanh, không hỗ trợ giải đáp vấn đề sử dụng. Bạn có thể trao đổi trong nhóm cộng đồng về cách sử dụng, hoặc gửi đề xuất tính năng và báo lỗi qua biểu mẫu phản hồi. Cảm ơn bạn đã thông cảm.</sub></p>
@@ -170,6 +188,13 @@ Toonflow là nền tảng sáng tạo AI mã nguồn mở dành cho sản xuất
 | 🧩 **Chợ plugin** | Mở rộng các nút, công cụ và khả năng sáng tạo thông qua [chợ plugin](https://api.toonflow.net/console/plugIn). |
 | 🤖 **Agent mở** | Cho phép tùy chỉnh prompt và công cụ, đồng thời hỗ trợ A2A để tùy biến hành vi Agent và phối hợp với Agent bên ngoài. |
 | 🔧 **Tự do kết nối mô hình** | Cấu hình API bên thứ ba hoặc kết nối ComfyUI và LLM chạy cục bộ. |
+| 🌐 **Hỗ trợ đa ngôn ngữ** | Giao diện hỗ trợ 21 ngôn ngữ. |
+
+<a id="languages"></a>
+
+### Hỗ trợ đa ngôn ngữ
+
+Các ngôn ngữ được hỗ trợ: 简体中文, 繁體中文, English, 日本語, Русский, Tiếng Việt, ไทย, 한국어, हिन्दी, Bahasa Indonesia, Bahasa Melayu, Filipino, বাংলা, اردو, தமிழ், తెలుగు, मराठी, ਪੰਜਾਬੀ, العربية, فارسی, Türkçe.
 
 ---
 
@@ -177,25 +202,25 @@ Toonflow là nền tảng sáng tạo AI mã nguồn mở dành cho sản xuất
 
 <div align="center">
 
-<a href="./screenshots/projectHome.png"><img src="./screenshots/projectHome.png" alt="Trang chủ dự án và sáng tạo từ ý tưởng trong Toonflow" width="80%" /></a><br /><sub>Trang chủ dự án và sáng tạo từ ý tưởng</sub>
+<a href="../images/screenshots/projectHome.png"><img src="../images/screenshots/projectHome.png" alt="Trang chủ dự án và sáng tạo từ ý tưởng trong Toonflow" width="80%" /></a><br /><sub>Trang chủ dự án và sáng tạo từ ý tưởng</sub>
 
-<a href="./screenshots/quickStart.png"><img src="./screenshots/quickStart.png" alt="Khởi động lần đầu và cấu hình nhanh Toonflow" width="80%" /></a><br /><sub>Khởi động lần đầu và cấu hình nhanh</sub>
+<a href="../images/screenshots/quickStart.png"><img src="../images/screenshots/quickStart.png" alt="Khởi động lần đầu và cấu hình nhanh Toonflow" width="80%" /></a><br /><sub>Khởi động lần đầu và cấu hình nhanh</sub>
 
-<a href="./screenshots/canvasDark.png"><img src="./screenshots/canvasDark.png" alt="Canvas giao diện tối và trợ lý AI của Toonflow" width="80%" /></a><br /><sub>Canvas sáng tạo · Giao diện tối</sub>
+<a href="../images/screenshots/canvasDark.png"><img src="../images/screenshots/canvasDark.png" alt="Canvas giao diện tối và trợ lý AI của Toonflow" width="80%" /></a><br /><sub>Canvas sáng tạo · Giao diện tối</sub>
 
-<a href="./screenshots/canvasLight.png"><img src="./screenshots/canvasLight.png" alt="Canvas giao diện sáng và trợ lý AI của Toonflow" width="80%" /></a><br /><sub>Canvas sáng tạo · Giao diện sáng</sub>
+<a href="../images/screenshots/canvasLight.png"><img src="../images/screenshots/canvasLight.png" alt="Canvas giao diện sáng và trợ lý AI của Toonflow" width="80%" /></a><br /><sub>Canvas sáng tạo · Giao diện sáng</sub>
 
-<a href="./screenshots/assetCanvas.png"><img src="./screenshots/assetCanvas.png" alt="Canvas tài nguyên nhân vật, bối cảnh và đạo cụ của Toonflow" width="80%" /></a><br /><sub>Tài nguyên nhân vật, bối cảnh và đạo cụ</sub>
+<a href="../images/screenshots/assetCanvas.png"><img src="../images/screenshots/assetCanvas.png" alt="Canvas tài nguyên nhân vật, bối cảnh và đạo cụ của Toonflow" width="80%" /></a><br /><sub>Tài nguyên nhân vật, bối cảnh và đạo cụ</sub>
 
-<a href="./screenshots/directorStudio.png"><img src="./screenshots/directorStudio.png" alt="Bàn đạo diễn 3D và xem trước cảnh quay trong Toonflow" width="80%" /></a><br /><sub>Bàn đạo diễn 3D và xem trước cảnh quay</sub>
+<a href="../images/screenshots/directorStudio.png"><img src="../images/screenshots/directorStudio.png" alt="Bàn đạo diễn 3D và xem trước cảnh quay trong Toonflow" width="80%" /></a><br /><sub>Bàn đạo diễn 3D và xem trước cảnh quay</sub>
 
-<a href="./screenshots/characterImageGeneration.png"><img src="./screenshots/characterImageGeneration.png" alt="Tạo ảnh nhân vật từ ba góc nhìn trong Toonflow" width="80%" /></a><br /><sub>Nhân vật ở ba góc nhìn và tạo ảnh</sub>
+<a href="../images/screenshots/characterImageGeneration.png"><img src="../images/screenshots/characterImageGeneration.png" alt="Tạo ảnh nhân vật từ ba góc nhìn trong Toonflow" width="80%" /></a><br /><sub>Nhân vật ở ba góc nhìn và tạo ảnh</sub>
 
-<a href="./screenshots/videoGeneration.png"><img src="./screenshots/videoGeneration.png" alt="Tạo video từ nhiều tư liệu tham chiếu trong Toonflow" width="80%" /></a><br /><sub>Tạo video từ nhiều tư liệu tham chiếu</sub>
+<a href="../images/screenshots/videoGeneration.png"><img src="../images/screenshots/videoGeneration.png" alt="Tạo video từ nhiều tư liệu tham chiếu trong Toonflow" width="80%" /></a><br /><sub>Tạo video từ nhiều tư liệu tham chiếu</sub>
 
-<a href="./screenshots/nodeMenu.png"><img src="./screenshots/nodeMenu.png" alt="Menu nút và thao tác nhóm trong Toonflow" width="80%" /></a><br /><sub>Menu nút và thao tác nhóm</sub>
+<a href="../images/screenshots/nodeMenu.png"><img src="../images/screenshots/nodeMenu.png" alt="Menu nút và thao tác nhóm trong Toonflow" width="80%" /></a><br /><sub>Menu nút và thao tác nhóm</sub>
 
-<a href="./screenshots/pluginMarket.png"><img src="./screenshots/pluginMarket.png" alt="Chợ plugin Toonflow" width="80%" /></a><br /><sub>Chợ plugin</sub>
+<a href="../images/screenshots/pluginMarket.png"><img src="../images/screenshots/pluginMarket.png" alt="Chợ plugin Toonflow" width="80%" /></a><br /><sub>Chợ plugin</sub>
 
 </div>
 
@@ -249,7 +274,7 @@ Xem thêm trong [hướng dẫn sử dụng](https://qcn7xdsqgc4z.feishu.cn/docx
 
 ### 4.2 Cài đặt bằng Docker
 
-Trước tiên, cài Git, [Docker Engine](https://docs.docker.com/engine/install/) và Docker Compose. Trên Windows / macOS, có thể dùng chế độ container Linux của Docker Desktop. Kho mã cung cấp [Dockerfile](../Dockerfile), [cấu hình Compose](../compose.yaml) và [quy tắc loại trừ khi build](../.dockerignore), sử dụng Bun 1.3.14 để build và tích hợp FFmpeg trong image.
+Trước tiên, cài Git, [Docker Engine](https://docs.docker.com/engine/install/) và Docker Compose. Trên Windows / macOS, có thể dùng chế độ container Linux của Docker Desktop. Kho mã cung cấp [Dockerfile](../../Dockerfile), [cấu hình Compose](../../compose.yaml) và [quy tắc loại trừ khi build](../../.dockerignore), sử dụng Bun 1.3.14 để build và tích hợp FFmpeg trong image.
 
 <details>
 <summary><strong>Mở các bước cài đặt bằng Docker</strong></summary>
@@ -455,7 +480,7 @@ TF-Router là nền tảng trung chuyển mô hình chính thức do Toonflow t�
 
 Trợ lý hỗ trợ tham gia nhóm:
 
-<img src="./qr.png" alt="Mã QR cộng đồng Toonflow" height="400"/>
+<img src="../images/qr.png" alt="Mã QR cộng đồng Toonflow" height="400"/>
 
 Bạn cũng có thể nhấp vào biểu tượng để tham gia Discord:
 
@@ -473,7 +498,7 @@ Hoặc nhấp vào liên kết mời: [https://discord.gg/HEjKmpNpAZ](https://di
 
 ## 9. 📜 Giấy phép mã nguồn mở
 
-Toonflow sử dụng [giấy phép MIT](../LICENSE). Các gói phụ thuộc và tư liệu bên thứ ba tuân theo giấy phép và thông báo bản quyền tương ứng.
+Toonflow sử dụng [giấy phép MIT](../../LICENSE). Các gói phụ thuộc và tư liệu bên thứ ba tuân theo giấy phép và thông báo bản quyền tương ứng.
 
 [![Lịch sử số sao của Toonflow](https://api.star-history.com/svg?repos=HBAI-Ltd/Toonflow-app&type=Date)](https://www.star-history.com/#HBAI-Ltd/Toonflow-app&Date)
 

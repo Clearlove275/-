@@ -20,6 +20,7 @@
           v-model="draftKey"
           class="setupInput"
           type="password"
+          dir="ltr"
           showPassword
           placeholder="粘贴 API Key"
           :disabled="saving"
@@ -54,6 +55,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale } from "@toonflow/i18n/vue";
 import { computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, watch, type Component } from "vue";
 import axios from "axios";
 import { IconCreditCard, IconExternalLink, IconRefresh } from "@tabler/icons-vue";
@@ -82,7 +84,7 @@ const saving = ref(false);
 const setupError = ref("");
 const fetchingModels = ref(false);
 const draftModels = shallowRef<CustomProviderModel[]>();
-const numberFormat = new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY", minimumFractionDigits: 2, maximumFractionDigits: 6 });
+const numberFormat = computed(() => new Intl.NumberFormat(locale.value, { style: "currency", currency: "CNY", minimumFractionDigits: 2, maximumFractionDigits: 6 }));
 let controller: AbortController | undefined;
 let rechargeKey = "";
 

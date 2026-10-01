@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import { realpath, stat, mkdir, readdir, lstat, rm, rmdir, readFile } from "@toonflow/file";
 import { z } from "zod";
@@ -122,7 +123,7 @@ export async function getMcpTools(): Promise<McpTool[]> {
     return [];
   });
   for (const definition of definitions) {
-    if (tools.some(tool => tool.name === definition.name)) throw new Error(`MCP 工具名称重复：${definition.name}`);
+    if (tools.some(tool => tool.name === definition.name)) throw new Error(t`MCP 工具名称重复：${definition.name}`);
     tools.push(wrapTool(definition.name, [definition.description, ...(definition.promptGuidelines ?? [])].join("\n"), definition.parameters, async (args, target, signal) => {
       const { connection, directory } = await resolveTarget(target);
       if (["write", "edit"].includes(definition.name) && typeof args.path === "string") await assertFileNotOpen(directory!, args.path);
@@ -134,7 +135,7 @@ export async function getMcpTools(): Promise<McpTool[]> {
       if (!current) throw new Error("工具已禁用，或所需 Toonflow 页面未连接，请重新读取工具列表");
       // ACT: 现有插件依赖 createTools 注入的宿主能力；MCP 没有 Pi 对话，访问会话能力时明确报错。
       const context = new Proxy({ cwd: directory, mode: "rpc", hasUI: false, model: undefined, signal }, {
-        get(value, key) { if (Reflect.has(value, key)) return Reflect.get(value, key); throw new Error(`MCP 不提供内置 Agent 会话能力：${String(key)}`); },
+        get(value, key) { if (Reflect.has(value, key)) return Reflect.get(value, key); throw new Error(t`MCP 不提供内置 Agent 会话能力：${String(key)}`); },
       }) as unknown as ExtensionContext;
       return current.execute(crypto.randomUUID(), args, signal, undefined, context);
     }));

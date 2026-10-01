@@ -10,24 +10,42 @@
   </a>
   &nbsp;|&nbsp;
   <a href="https://atomgit.com/HBAI-Ltd/Toonflow-app">
-    <img src="./atomgitLogo.svg" alt="AtomGit" height="20" />
+    <img src="../images/atomgitLogo.svg" alt="AtomGit" height="20" />
   </a>
 </p>
 
 <p align="center">
-  <a href="../README.md">简体中文</a> |
-  <a href="./README.zhtw.md">繁體中文</a> |
+  <a href="../../README.md">简体中文</a> |
+  <a href="./readmeZhTw.md">繁體中文</a> |
   <strong>English</strong> |
-  <a href="./README.th.md">ไทย</a> |
-  <a href="./README.vi.md">Tiếng Việt</a> |
-  <a href="./README.ja.md">日本語</a> |
-  <a href="./README.ru.md">Русский</a>
+  <a href="./readmeJa.md">日本語</a> |
+  <a href="./readmeRu.md">Русский</a> |
+  <a href="./readmeVi.md">Tiếng Việt</a> |
+  <a href="./readmeTh.md">ไทย</a>
+  <br />
+  <a href="./readmeKo.md">한국어</a> |
+  <a href="./readmeHi.md">हिन्दी</a> |
+  <a href="./readmeId.md">Bahasa Indonesia</a> |
+  <a href="./readmeMs.md">Bahasa Melayu</a> |
+  <a href="./readmeFil.md">Filipino</a> |
+  <a href="./readmeBn.md">বাংলা</a> |
+  <a href="./readmeUr.md">اردو</a>
+  <br />
+  <a href="./readmeTa.md">தமிழ்</a> |
+  <a href="./readmeTe.md">తెలుగు</a> |
+  <a href="./readmeMr.md">मराठी</a> |
+  <a href="./readmePa.md">ਪੰਜਾਬੀ</a> |
+  <a href="./readmeAr.md">العربية</a> |
+  <a href="./readmeFa.md">فارسی</a> |
+  <a href="./readmeTr.md">Türkçe</a>
 </p>
+
+> 🌐 **21 interface languages** · [View supported languages](#languages)
 
 <div align="center">
 
 <p align="center">
-  <img src="./logo.png" alt="Toonflow Logo" width="120" height="120" />
+  <img src="../images/logo.png" alt="Toonflow Logo" width="120" height="120" />
 </p>
 
 <a href="https://git.io/typing-svg">
@@ -41,7 +59,7 @@
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/stargazers">
     <img src="https://img.shields.io/github/stars/HBAI-Ltd/Toonflow-app?style=for-the-badge&logo=github" alt="Stars Badge" />
   </a>
-  <a href="../LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License Badge" />
   </a>
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/releases">
@@ -93,13 +111,13 @@
   <table>
     <tr>
       <td width="50%" align="center">
-        <a href="./gStar.png">
-          <img src="./gStar.png" alt="Toonflow AtomGit G-Star Certificate No.540" width="100%" />
+        <a href="../images/gStar.png">
+          <img src="../images/gStar.png" alt="Toonflow AtomGit G-Star Certificate No.540" width="100%" />
         </a>
       </td>
       <td width="50%" align="center">
-        <a href="./gvp.jpg">
-          <img src="./gvp.jpg" alt="Toonflow Gitee GVP Certificate" width="100%" />
+        <a href="../images/gvp.jpg">
+          <img src="../images/gvp.jpg" alt="Toonflow Gitee GVP Certificate" width="100%" />
         </a>
       </td>
     </tr>
@@ -123,19 +141,19 @@ Thank you to the following partners for supporting the Toonflow open-source proj
 <table>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="./sponsors/metaso.svg" alt="Metaso" height="28" valign="middle" /> <strong>Metaso</strong></a>
+      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="../images/sponsors/metaso.svg" alt="Metaso" height="28" valign="middle" /> <strong>Metaso</strong></a>
       <br />
       <sub>Cost-effective MiniMax H3 video generation: just ¥0.09/second at 768P and ¥0.15/second at 2K (CNY). Supports native 2K, synchronized audio and video, an OpenAI-compatible API, ComfyUI, and infinite canvases, without deploying your own GPU. <a href="https://metaso.cn/minimax-h3/?s=toon">Register through this dedicated link</a> to receive bonus credits and exclusive offers. For business inquiries, contact metasota12 on WeChat.</sub>
     </td>
     <td width="50%" valign="top">
-      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="./sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
+      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="../images/sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
       <br />
-      <sub>Thank you to APIMart for sponsoring this project's compute resources! APIMart is an affordable API platform for AI image and video generation. GPT-Image-2 starts at $0.006 per image, delivering 160+ images for $1. Images and videos share one asynchronous API: submit a task, receive its ID, and get results through a callback. Process batches of 10,000 images without timeouts and switch models without changing code. Pay as you go, with no monthly fees. <a href="https://go.apimart.ai/gh-toonflow-app">Register here</a> to get started.</sub>
+      <sub>Thank you to APIMart for sponsoring this project! APIMart is an affordable API platform for AI image and video generation. GPT-Image-2 starts at $0.006 per image, delivering 160+ images for $1. Images and videos share one asynchronous API: submit a task, receive its ID, and get results through a callback. Process batches of 10,000 images without timeouts and switch models without changing code. Pay as you go, with no monthly fees. <a href="https://go.apimart.ai/gh-toonflow-app">Register here</a> to get started.</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="./sponsors/compShare.png" alt="CompShare" height="28" valign="middle" /> <strong>CompShare</strong></a>
+      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="../images/sponsors/compShare.png" alt="CompShare" height="28" valign="middle" /> <strong>CompShare</strong></a>
       <br />
       <sub>CompShare offers cost-effective H3 video generation, including text-to-video, first- and last-frame control, and all-in-one reference modes. Generate videos up to 30 seconds long in native 2K, with 768P priced at just CNY 0.08 per second. Supports API access, high concurrency for enterprises, and self-service invoicing.</sub>
       <br /><br />
@@ -149,7 +167,7 @@ Thank you to the following partners for supporting the Toonflow open-source proj
 <summary><strong>👉 Become a Sponsor 👈</strong></summary>
 
 <p align="center">
-  <img src="./businessQr.png" alt="WeChat QR code for business inquiries" width="200" />
+  <img src="../images/businessQr.png" alt="WeChat QR code for business inquiries" width="200" />
 </p>
 
 <p align="center"><sub>This contact is for business inquiries only and does not provide technical support. For usage questions, please join the community groups. Submit feature requests and bugs through the feedback form. Thank you for your understanding.</sub></p>
@@ -170,6 +188,13 @@ Toonflow is an open-source AI creation platform for short dramas, animated comic
 | 🧩 **Plugin marketplace** | Extend nodes, tools, and creative capabilities through the [Plugin Marketplace](https://api.toonflow.net/console/plugIn). |
 | 🤖 **Open Agent** | Open access to prompts, tools, and A2A to customize Agent behavior and collaborate with external Agents. |
 | 🔧 **Flexible model integration** | Configure third-party APIs or connect local ComfyUI instances and LLMs. |
+| 🌐 **Multilingual support** | Supports 21 interface languages. |
+
+<a id="languages"></a>
+
+### Multilingual support
+
+Supported languages: 简体中文, 繁體中文, English, 日本語, Русский, Tiếng Việt, ไทย, 한국어, हिन्दी, Bahasa Indonesia, Bahasa Melayu, Filipino, বাংলা, اردو, தமிழ், తెలుగు, मराठी, ਪੰਜਾਬੀ, العربية, فارسی, Türkçe.
 
 ---
 
@@ -177,25 +202,25 @@ Toonflow is an open-source AI creation platform for short dramas, animated comic
 
 <div align="center">
 
-<a href="./screenshots/projectHome.png"><img src="./screenshots/projectHome.png" alt="Toonflow project home and idea creation" width="80%" /></a><br /><sub>Project home and idea creation</sub>
+<a href="../images/screenshots/projectHome.png"><img src="../images/screenshots/projectHome.png" alt="Toonflow project home and idea creation" width="80%" /></a><br /><sub>Project home and idea creation</sub>
 
-<a href="./screenshots/quickStart.png"><img src="./screenshots/quickStart.png" alt="Toonflow first launch and quick setup" width="80%" /></a><br /><sub>First launch and quick setup</sub>
+<a href="../images/screenshots/quickStart.png"><img src="../images/screenshots/quickStart.png" alt="Toonflow first launch and quick setup" width="80%" /></a><br /><sub>First launch and quick setup</sub>
 
-<a href="./screenshots/canvasDark.png"><img src="./screenshots/canvasDark.png" alt="Toonflow dark canvas and AI assistant" width="80%" /></a><br /><sub>Creative canvas · Dark theme</sub>
+<a href="../images/screenshots/canvasDark.png"><img src="../images/screenshots/canvasDark.png" alt="Toonflow dark canvas and AI assistant" width="80%" /></a><br /><sub>Creative canvas · Dark theme</sub>
 
-<a href="./screenshots/canvasLight.png"><img src="./screenshots/canvasLight.png" alt="Toonflow light canvas and AI assistant" width="80%" /></a><br /><sub>Creative canvas · Light theme</sub>
+<a href="../images/screenshots/canvasLight.png"><img src="../images/screenshots/canvasLight.png" alt="Toonflow light canvas and AI assistant" width="80%" /></a><br /><sub>Creative canvas · Light theme</sub>
 
-<a href="./screenshots/assetCanvas.png"><img src="./screenshots/assetCanvas.png" alt="Toonflow canvas for character, scene, and prop assets" width="80%" /></a><br /><sub>Character, scene, and prop assets</sub>
+<a href="../images/screenshots/assetCanvas.png"><img src="../images/screenshots/assetCanvas.png" alt="Toonflow canvas for character, scene, and prop assets" width="80%" /></a><br /><sub>Character, scene, and prop assets</sub>
 
-<a href="./screenshots/directorStudio.png"><img src="./screenshots/directorStudio.png" alt="Toonflow 3D director's studio and shot previsualization" width="80%" /></a><br /><sub>3D director's studio and shot previsualization</sub>
+<a href="../images/screenshots/directorStudio.png"><img src="../images/screenshots/directorStudio.png" alt="Toonflow 3D director's studio and shot previsualization" width="80%" /></a><br /><sub>3D director's studio and shot previsualization</sub>
 
-<a href="./screenshots/characterImageGeneration.png"><img src="./screenshots/characterImageGeneration.png" alt="Toonflow three-view character sheets and image generation" width="80%" /></a><br /><sub>Three-view character sheets and image generation</sub>
+<a href="../images/screenshots/characterImageGeneration.png"><img src="../images/screenshots/characterImageGeneration.png" alt="Toonflow three-view character sheets and image generation" width="80%" /></a><br /><sub>Three-view character sheets and image generation</sub>
 
-<a href="./screenshots/videoGeneration.png"><img src="./screenshots/videoGeneration.png" alt="Toonflow video generation with multiple reference assets" width="80%" /></a><br /><sub>Video generation with multiple reference assets</sub>
+<a href="../images/screenshots/videoGeneration.png"><img src="../images/screenshots/videoGeneration.png" alt="Toonflow video generation with multiple reference assets" width="80%" /></a><br /><sub>Video generation with multiple reference assets</sub>
 
-<a href="./screenshots/nodeMenu.png"><img src="./screenshots/nodeMenu.png" alt="Toonflow node menu and grouping operations" width="80%" /></a><br /><sub>Node menu and grouping operations</sub>
+<a href="../images/screenshots/nodeMenu.png"><img src="../images/screenshots/nodeMenu.png" alt="Toonflow node menu and grouping operations" width="80%" /></a><br /><sub>Node menu and grouping operations</sub>
 
-<a href="./screenshots/pluginMarket.png"><img src="./screenshots/pluginMarket.png" alt="Toonflow Plugin Marketplace" width="80%" /></a><br /><sub>Plugin Marketplace</sub>
+<a href="../images/screenshots/pluginMarket.png"><img src="../images/screenshots/pluginMarket.png" alt="Toonflow Plugin Marketplace" width="80%" /></a><br /><sub>Plugin Marketplace</sub>
 
 </div>
 
@@ -249,7 +274,7 @@ For more instructions, see the [User Guide](https://qcn7xdsqgc4z.feishu.cn/docx/
 
 ### 4.2 Docker Installation
 
-Install Git, [Docker Engine](https://docs.docker.com/engine/install/), and Docker Compose first. On Windows and macOS, you can use Docker Desktop in Linux container mode. The repository includes a [Dockerfile](../Dockerfile), [Compose configuration](../compose.yaml), and [build exclusions](../.dockerignore). The image is built with Bun 1.3.14 and includes FFmpeg.
+Install Git, [Docker Engine](https://docs.docker.com/engine/install/), and Docker Compose first. On Windows and macOS, you can use Docker Desktop in Linux container mode. The repository includes a [Dockerfile](../../Dockerfile), [Compose configuration](../../compose.yaml), and [build exclusions](../../.dockerignore). The image is built with Bun 1.3.14 and includes FFmpeg.
 
 <details>
 <summary><strong>Expand Docker installation steps</strong></summary>
@@ -380,7 +405,7 @@ TF-Router is Toonflow's official, self-operated model gateway. You are welcome t
 > Two rewrites, a provider system, and a workflow we are proud of.
 > We thought that would be enough.
 > But it was not.
-> Some people told us they wanted to add their own module to Toonflow, but spent hours trying to understand how to change it.
+> Some people told us they wanted to add their own module to Toonflow, but still could not figure out how to change it after hours of trying.
 > Some told us the community was too small and they could not find help when they ran into problems.
 > Some told us the commercial terms prevented them from putting their projects into use.
 > We heard you.
@@ -455,7 +480,7 @@ TF-Router is Toonflow's official, self-operated model gateway. You are welcome t
 
 Scan the QR code to contact the group invitation assistant:
 
-<img src="./qr.png" alt="Toonflow community QR code" height="400"/>
+<img src="../images/qr.png" alt="Toonflow community QR code" height="400"/>
 
 You can also click the icon to join Discord:
 
@@ -473,7 +498,7 @@ Or use the invitation link: [https://discord.gg/HEjKmpNpAZ](https://discord.gg/H
 
 ## 9. 📜 Open-Source License
 
-Toonflow is licensed under the [MIT License](../LICENSE). Third-party dependencies and assets remain subject to their respective licenses and copyright notices.
+Toonflow is licensed under the [MIT License](../../LICENSE). Third-party dependencies and assets remain subject to their respective licenses and copyright notices.
 
 [![Toonflow Star History](https://api.star-history.com/svg?repos=HBAI-Ltd/Toonflow-app&type=Date)](https://www.star-history.com/#HBAI-Ltd/Toonflow-app&Date)
 

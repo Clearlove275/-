@@ -1,3 +1,5 @@
+import { setLocaleFallback, t, translateMessage } from "@toonflow/server/i18n";
+import { detectLocale, normalizeLocale } from "@toonflow/i18n";
 import { once } from "node:events";
 import { execFile } from "node:child_process";
 import { existsSync, writeAtomicSync } from "@toonflow/file";
@@ -20,7 +22,7 @@ function openUrl(url: string) {
   const request = parseInstallUrl(url);
   if (deliverInstall) deliverInstall(request);
   else if (!pendingInstalls.some(item => item.type === request.type && item.url === request.url)) {
-    if (pendingInstalls.length >= 20) throw new Error("待确认的安装请求过多，请稍后重试");
+    if (pendingInstalls.length >= 20) throw new Error(t`待确认的安装请求过多，请稍后重试`);
     pendingInstalls.push(request);
   }
 }
@@ -28,7 +30,7 @@ function openUrl(url: string) {
 Electrobun.events.on("open-url", event => {
   try { openUrl(event.data.url); }
   catch (error) {
-    void Utils.showMessageBox({ type: "error", title: "安装链接无效", message: error instanceof Error ? error.message : "无法打开安装链接" });
+    void Utils.showMessageBox({ type: "error", title: t`安装链接无效`, message: translateMessage(error instanceof Error ? error.message : "无法打开安装链接") });
   }
 });
 
@@ -81,6 +83,8 @@ async function start() {
       if (error.code !== "ENOENT") console.error("读取启动设置失败，使用默认启动动画：", error);
       return null;
     });
+    setLocaleFallback(() => normalizeLocale(startupSettings?.settings?.ui?.language)
+      ?? detectLocale([Intl.DateTimeFormat().resolvedOptions().locale]));
     try {
       if (startupSettings?.settings?.ui?.startupAnimation !== false) {
         splash = await showNativeSplash(resolve(PATHS.VIEWS_FOLDER, "../startup"), () => {
@@ -99,7 +103,7 @@ async function start() {
     process.env.toonflowDesktop = "1";
     const { createApp } = await import("@toonflow/server/app");
     const { hash } = await file(resolve(PATHS.RESOURCES_FOLDER, "version.json")).json();
-    if (typeof hash !== "string" || !hash) throw new Error("应用构建标识缺失，无法同步内置插件");
+    if (typeof hash !== "string" || !hash) throw new Error(t`应用构建标识缺失，无法同步内置插件`);
     const app = await createApp({
       webRoot: resolve(PATHS.VIEWS_FOLDER, "mainview"),
       dataDirectory,
@@ -143,7 +147,7 @@ async function start() {
       const target = new URL(url);
       if (target.protocol !== "http:" && target.protocol !== "https:") return;
       if (!Utils.openExternal(target.href)) {
-        void Utils.showMessageBox({ type: "error", title: "打开链接失败", message: "请检查默认浏览器设置后重试。" });
+        void Utils.showMessageBox({ type: "error", title: t`打开链接失败`, message: t`请检查默认浏览器设置后重试。` });
       }
     });
     // 页面重载时监听器随旧页面销毁，安装请求等新页面 ready 后再投递。
@@ -219,7 +223,7 @@ async function start() {
       };
       if (icons.some((icon) => !icon)) {
         closeIcons();
-        throw new Error("无法加载主窗口图标");
+        throw new Error(t`无法加载主窗口图标`);
       }
       icons.forEach((icon, type) => native.SendMessageW(window, 0x80, type, icon));
       mainWindow.on("close", closeIcons);

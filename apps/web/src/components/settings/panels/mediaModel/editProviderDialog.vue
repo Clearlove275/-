@@ -13,7 +13,7 @@
       <messageMarkdown v-if="provider?.readme" class="providerReadme" :content="provider.readme" />
       <el-form labelPosition="top" :disabled="saving">
         <el-form-item label="API Key">
-          <el-input v-model="apiKey" :prefixIcon="IconKey" type="password" showPassword autocomplete="off" aria-label="媒体供应商 API Key" />
+          <el-input v-model="apiKey" :prefixIcon="IconKey" type="password" dir="ltr" showPassword autocomplete="off" aria-label="媒体供应商 API Key" />
         </el-form-item>
       </el-form>
       <div class="modelHeader">
@@ -58,6 +58,8 @@
 </template>
 
 <script setup lang="ts">
+import { translate } from "@toonflow/i18n/vue";
+
 import axios from "axios";
 import { defineAsyncComponent, ref, shallowRef, watch, type Component } from "vue";
 import { IconPlus, IconTrash, IconDeviceFloppy, IconEdit, IconKey } from "@tabler/icons-vue";
@@ -77,7 +79,7 @@ const editingModelIndex = ref<number>();
 const saving = ref(false);
 const apiKey = ref("");
 const formError = ref("");
-const modelTypes = { image: "图片", video: "视频", audio: "音频", text: "文本" };
+const modelTypes = { get image() { return translate("图片"); }, get video() { return translate("视频"); }, get audio() { return translate("音频"); }, get text() { return translate("文本"); } };
 const modeLabels: Record<string, string> = {
   singleImage: "单图参考", multiReference: "多图参考", startEndRequired: "首尾帧必填",
   endFrameOptional: "尾帧可选", startFrameOptional: "首帧可选",
@@ -98,7 +100,7 @@ watch(visible, isVisible => {
 function modelTags(model: MediaProviderModel) {
   const modes = Array.isArray(model.mode) ? model.mode.flat().filter((mode): mode is string => typeof mode === "string") : [];
   return modes.map(mode => {
-    if (mode === "text") return model.type === "image" ? "文生图" : "文生视频";
+    if (mode === "text") return model.type === "image" ? translate("文生图") : translate("文生视频");
     const reference = /^(imageReference|videoReference|audioReference):(\d+)$/.exec(mode);
     return reference ? `${modeLabels[reference[1]!]} ×${reference[2]}` : modeLabels[mode] ?? mode;
   });

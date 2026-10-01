@@ -1,3 +1,4 @@
+import { t, translateMessage } from "@/lib/i18n";
 import { mkdir, readFile, realpath, stat, unlink } from "@toonflow/file";
 import { join, relative } from "node:path";
 import { mediaProviders, type Provider } from "@toonflow/providers";
@@ -74,14 +75,14 @@ export async function readReference(cwd: string, reference: MediaReference, medi
   const bytes = await readFile(path, { signal });
   if (!bytes.length || bytes.length > maxMediaSize) invalid("参考媒体为空或超过 100 MB");
   const mimeType = detectMimeType(bytes, reference.mimeType);
-  if (!mimeType.startsWith(`${mediaType}/`)) invalid(`参考媒体类型须为 ${mediaType}`);
+  if (!mimeType.startsWith(`${mediaType}/`)) invalid(t`参考媒体类型须为 ${mediaType}`);
   return { type: "base64", data: bytes.toString("base64"), mimeType };
 }
 
 async function downloadAsset(url: string, signal?: AbortSignal) {
   if (!/^https?:\/\//i.test(url)) invalid("生成结果必须使用 HTTP 或 HTTPS 地址");
   const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error(`下载生成结果失败（HTTP ${response.status}）`);
+  if (!response.ok) throw new Error(t`下载生成结果失败（HTTP ${response.status}）`);
   if (Number(response.headers.get("content-length")) > maxMediaSize) {
     await response.body?.cancel();
     invalid("生成文件不能超过 100 MB");
@@ -143,7 +144,7 @@ export async function generateMedia(
   const configurations = record(conf.get("settings", {}).mediaProviderConfigs);
   const provider = await loadMediaProviderSource(providerInfo.source, record(configurations[providerInfo.id]), signal, undefined, directory);
   const generate = mediaType === "image" ? provider.generateImage : mediaType === "video" ? provider.generateVideo : provider.generateAudio;
-  if (typeof generate !== "function") invalid(`此供应商不支持${{ image: "图片", video: "视频", audio: "音频" }[mediaType]}生成`);
+  if (typeof generate !== "function") invalid(t`此供应商不支持${translateMessage({ image: "图片", video: "视频", audio: "音频" }[mediaType])}生成`);
   const rules = Array.isArray(provider.rules) ? provider.rules : [];
   if (rules.some(rule => rule.field === "apiKey") && (typeof provider.config.apiKey !== "string" || !provider.config.apiKey.trim())) invalid("请先在媒体模型设置中配置供应商 API Key");
   const references = async (items: MediaReference[] | undefined, type: string) => items ? Promise.all(items.map(item => readReference(directory, item, type, signal))) : undefined;

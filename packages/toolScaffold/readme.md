@@ -14,7 +14,7 @@
 
 `import { z } from "zod"` 无需修改：构建时将 `zod` 转为外部模块 `toonflow:tool-zod`，Server 在加载工具前通过 Bun 虚拟模块提供完整的 Zod 4 导出。仅共享精确的 `zod` 导入，子路径仍随工具打包。发布这些新产物时须同步更新 Server；旧版自带 Zod 的工具仍可加载。
 
-在仓库根目录运行 `bun run build:tools` 会清空 `build/tools` 后构建全部工具，不改动 `data/tools`；`dev:desktop` 会先执行 `dev:plugins` 同步开发产物。在“设置 → 工具”中安装 `.tool.js`、启停、卸载或编辑配置；配置写入 `data/settings.json` 的 `toolConfigs`，下一次发送消息时生效。桌面构建会携带默认工具，首次启动初始化后，用户卸载的工具不会因普通重启而自动恢复。
+在仓库根目录运行 `bun run build:tools` 会清空 `build/tools` 后构建全部工具，不改动 `data/tools`；`dev:desktop` 会先执行 `dev:plugins` 同步开发产物。在“设置 → 插件市场”中安装 `.tool.js`、启停、卸载或编辑配置；配置写入 `data/settings.json` 的 `toolConfigs`，下一次发送消息时生效。桌面构建会携带默认工具，首次启动初始化后，用户卸载的工具不会因普通重启而自动恢复。
 
 文件首行 `/*! toonflowTool:<JSON> */` 包含 `ToolMetadata`，其中 `version` 为工具版本，随单个 `.tool.js` 文件安装和分享。服务端可以读取这段数据而不执行插件；旧工具没有版本时仍可加载，列表返回空字符串表示未知版本，不推断或补造版本号。
 

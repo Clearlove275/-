@@ -236,6 +236,8 @@
 </template>
 
 <script setup lang="ts">
+import { translate } from "@toonflow/i18n/vue";
+
 import { computed, nextTick, onBeforeUnmount, onDeactivated, ref } from "vue";
 import { debounce } from "lodash-es";
 import { ElMessage, ElMessageBox, type InputInstance } from "element-plus";
@@ -480,7 +482,7 @@ const headingLevels = [1, 2, 3, 4, 5, 6] as const;
 type HeadingLevel = (typeof headingLevels)[number];
 const textStyle = computed(() => {
   const level = headingLevels.find((level) => editor.value?.isActive("heading", { level }));
-  return level ? `标题 ${level}` : "正文";
+  return level ? translate("标题 {0}", { 0: level }) : translate("正文");
 });
 const searchStatus = computed(() => {
   const search = editor.value?.storage.findAndReplace;
@@ -514,11 +516,11 @@ const alignmentTools = [
   { value: "justify", label: "两端对齐", icon: IconAlignJustified },
 ];
 const tableTools = [
-  { command: "addRowAfter", label: "在下方插入行" },
-  { command: "addColumnAfter", label: "在右侧插入列" },
-  { command: "deleteRow", label: "删除当前行" },
-  { command: "deleteColumn", label: "删除当前列" },
-  { command: "deleteTable", label: "删除表格" },
+  { command: "addRowAfter", get label() { return translate("在下方插入行"); } },
+  { command: "addColumnAfter", get label() { return translate("在右侧插入列"); } },
+  { command: "deleteRow", get label() { return translate("删除当前行"); } },
+  { command: "deleteColumn", get label() { return translate("删除当前列"); } },
+  { command: "deleteTable", get label() { return translate("删除表格"); } },
 ] as const;
 
 function setTextStyle(level: HeadingLevel | 0) {

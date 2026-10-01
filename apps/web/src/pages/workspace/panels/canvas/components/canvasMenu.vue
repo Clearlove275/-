@@ -40,6 +40,7 @@
 
 <script setup lang="ts">
 import axios from "axios";
+import { translate } from "@toonflow/i18n/vue";
 import { computed, inject, nextTick, ref, shallowRef, watch, type ShallowRef } from "vue";
 import { Panel, useVueFlow, type FlowExportObject } from "@vue-flow/core";
 import { ElMessage, ElMessageBox, type InputInstance } from "element-plus";
@@ -77,7 +78,7 @@ watch(canvases, () => {
   if (boundCanvas.value) activeCanvasId.value = canvases.value.includes(boundCanvas.value) ? boundCanvas.value.id : "";
 }, { flush: "sync" });
 const canvasListVisible = ref(false);
-const activeCanvasName = computed(() => canvases.value.find(canvas => canvas.id === activeCanvasId.value)?.name || "选择画布");
+const activeCanvasName = computed(() => canvases.value.find(canvas => canvas.id === activeCanvasId.value)?.name || translate("选择画布"));
 const busy = ref(false);
 const loadError = ref("");
 const editingId = ref<string | null>(null);

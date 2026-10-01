@@ -126,7 +126,7 @@
             <el-text v-if="installLabel(plugin) === '已安装'" type="info" size="small">已安装</el-text>
             <el-popconfirm
               v-else-if="pluginTypes[plugin.type].path"
-              :title="`${installLabel(plugin)}${pluginTypes[plugin.type].label}“${plugin.displayName}”（${plugin.fileName}）？`"
+              :title="`${translate(installLabel(plugin))}${pluginTypes[plugin.type].label}“${plugin.displayName}”（${plugin.fileName}）？`"
               width="280"
               :confirmButtonText="installLabel(plugin)"
               cancelButtonText="取消"
@@ -137,8 +137,8 @@
                   type="primary"
                   :loading="pendingPlugins.has(plugin.key)"
                   :disabled="loading || pendingPlugins.has(plugin.key)"
-                  :aria-label="`${installLabel(plugin)} ${plugin.displayName}`">
-                  {{ installLabel(plugin) }}
+                  :aria-label="`${translate(installLabel(plugin))} ${plugin.displayName}`">
+                  {{ translate(installLabel(plugin)) }}
                 </el-button>
               </template>
             </el-popconfirm>
@@ -152,8 +152,8 @@
                 tabindex="0"
                 :aria-disabled="collectingPlugins.has(plugin.key)"
                 :aria-pressed="plugin.isCollected === true"
-                :aria-label="`${plugin.isCollected ? '取消收藏' : '收藏'} ${plugin.displayName}`"
-                :title="plugin.isCollected ? '取消收藏' : '收藏'"
+                :aria-label="`${plugin.isCollected ? '取消收藏' : '添加收藏'} ${plugin.displayName}`"
+                :title="plugin.isCollected ? '取消收藏' : '添加收藏'"
                 @click="toggleCollection(plugin)"
                 @keydown.enter.prevent="toggleCollection(plugin)"
                 @keydown.space.prevent="toggleCollection(plugin)" />
@@ -291,6 +291,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate } from "@toonflow/i18n/vue";
 import axios from "axios";
 import parse from "semver/functions/parse";
 import { computed, defineAsyncComponent, markRaw, onMounted, onBeforeUnmount, ref, watch } from "vue";
@@ -320,7 +321,7 @@ const pluginTypes = {
   tool: { label: "工具", path: "tools", icon: IconTool, tagType: "warning" },
   agent: { label: "Agent", path: agentMarketEnabled ? "agents" : null, icon: IconSparkles2, tagType: "danger" },
 } as const;
-const tabs = { discover: "发现插件", installed: "已安装", ffmpeg: "FFmpeg" } as const;
+const tabs = { get discover() { return translate("发现插件"); }, get installed() { return translate("已安装"); }, ffmpeg: "FFmpeg" } as const;
 const activeTab = ref<keyof typeof tabs>("discover");
 const isMarketTab = computed(() => activeTab.value === "discover");
 const marketPage = ref(1);
@@ -693,7 +694,7 @@ async function installMarketPlugin(plugin: Plugin) {
     const { data } = await axios.post(`/api/${path}/install`, { url: plugin.url, fileName: plugin.fileName }, { headers: requestHeaders });
     if (data.code !== 200) throw new Error(data.message || "安装插件失败");
     window.dispatchEvent(new CustomEvent("toonflow:plugin-installed", { detail: { type: plugin.type, name: data.data.name } }));
-    ElMessage.success(`${plugin.displayName}已${action}`);
+    ElMessage.success(action === "更新" ? `${plugin.displayName}已更新` : `${plugin.displayName}已安装`);
   } catch (error) {
     ElMessage.error(errorMessage(error, "安装插件失败，请重试"));
   } finally {
@@ -773,7 +774,7 @@ async function updatePlugin(plugin: Plugin, action: "setEnabled" | "uninstall", 
   )
     return;
   pendingPlugins.value.add(plugin.key);
-  const actionLabel = action === "uninstall" ? "卸载插件" : "更新插件状态";
+  const actionLabel = action === "uninstall" ? translate("卸载插件") : translate("更新插件状态");
   try {
     const url = `/api/${pluginTypes[plugin.type].path}/${action}`;
     const { data } =

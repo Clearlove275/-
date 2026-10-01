@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { constants, copyFile, mkdir, stat, unlink } from "@toonflow/file";
 import { extname } from "node:path";
 import { isDeepStrictEqual } from "node:util";
@@ -86,7 +87,7 @@ export async function snapshotMentions(cwd: string, mentions: AgentMention[], sa
         const info = await stat(source);
         if (!info.isFile() || !info.size || info.size > 100 * 1024 * 1024) throw new Error("须为非空且不超过 100 MB 的文件");
       } catch (error) {
-        throw Object.assign(new Error(`引用「${mention.label}」不可用：${error instanceof Error ? error.message : "文件读取失败"}`), { status: 400 });
+        throw Object.assign(new Error(t`引用「${mention.label}」不可用：${error instanceof Error ? error.message : "文件读取失败"}`), { status: 400 });
       }
       if (!media || previous) { result.push(mention); continue; }
       const extension = extname(source);
@@ -100,7 +101,7 @@ export async function snapshotMentions(cwd: string, mentions: AgentMention[], sa
         created.push(target.path);
         signal?.throwIfAborted();
         const info = await stat(target.path);
-        if (!info.size || info.size > 100 * 1024 * 1024) throw new Error(`引用「${mention.label}」复制后为空或超过 100 MB`);
+        if (!info.size || info.size > 100 * 1024 * 1024) throw new Error(t`引用「${mention.label}」复制后为空或超过 100 MB`);
       } finally { release(); }
       result.push({ ...mention, value: { url: path, mimeType: media.mimeType } });
     }

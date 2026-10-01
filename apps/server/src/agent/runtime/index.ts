@@ -23,6 +23,7 @@ import {
 } from "@/agent/runtime/sessions";
 import { isMemoryEnabled } from "@/utils/personalization";
 import { lockWorkspaceFiles, resolveWorkspacePath } from "@/utils/workspace/files";
+import { t } from "@/lib/i18n";
 
 type AgentOptions = {
   prompt: string;
@@ -257,7 +258,7 @@ export async function run(
       if (event.type === "compaction_start" || event.type === "compaction_end") {
         send({ type: "compaction", active: event.type === "compaction_start" });
         if (event.type === "compaction_end" && event.errorMessage) {
-          compactionError = `上下文压缩失败：${event.errorMessage}`;
+          compactionError = t`上下文压缩失败：${event.errorMessage}`;
         }
       }
       if (event.type === "message_start" && event.message.role === "assistant") {

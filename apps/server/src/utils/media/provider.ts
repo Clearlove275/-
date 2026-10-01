@@ -1,3 +1,4 @@
+import { t, translateMessage, validationOptions } from "@/lib/i18n";
 import { createHash } from "node:crypto";
 import { lstat, mkdir, readFile, readdir, unlink } from "@toonflow/file";
 import { dirname, join } from "node:path";
@@ -126,7 +127,7 @@ function parseProvider(source: string) {
   if (Buffer.byteLength(source, "utf8") > 2 * 1024 * 1024) invalid("供应商文件不能超过 2 MB");
   let module: ReturnType<typeof parse>;
   try { module = parse(source, { sourceType: "module", plugins: ["typescript"] }); }
-  catch (err) { return invalid(`供应商 TypeScript 语法错误：${err instanceof Error ? err.message : String(err)}`); }
+  catch (err) { return invalid(t`供应商 TypeScript 语法错误：${err instanceof Error ? err.message : String(err)}`); }
   const exported = module.program.body.find(item => item.type === "ExportDefaultDeclaration");
   if (!exported || exported.type !== "ExportDefaultDeclaration") {
     const legacy = module.program.body.some(item => {
@@ -146,7 +147,7 @@ function parseProvider(source: string) {
   function value(name: string) {
     const property = entries.get(name);
     if (!property) return undefined;
-    if (property.type !== "ObjectProperty" || (property.shorthand && name !== "version")) invalid(`${name} 必须直接使用字面量`);
+    if (property.type !== "ObjectProperty" || (property.shorthand && name !== "version")) invalid(t`${name} 必须直接使用字面量`);
     let expression = unwrap(property.value as Expression);
     if (name === "version" && expression.type === "Identifier") {
       const identifier = expression.name;
@@ -170,8 +171,8 @@ function parseProvider(source: string) {
     const url = new URL(value);
     return !url.username && !url.password && !url.hash;
   }).safeParse(modelsUrl).success) invalid("模型列表地址须为不含凭据或片段的 HTTP URL");
-  const models = mediaModelsSchema.safeParse(value("models") ?? []);
-  if (!models.success) invalid(models.error.issues.map(issue => issue.message).join("；"));
+  const models = mediaModelsSchema.safeParse(value("models") ?? [], validationOptions());
+  if (!models.success) invalid(models.error.issues.map(issue => translateMessage(issue.message)).join("; "));
   return { object, modelProperty: entries.get("models"), id: id as string, label, version: version?.trim(), readme, modelsUrl: modelsUrl as string | undefined, models: models.data };
 }
 
@@ -228,7 +229,7 @@ export async function listMediaProviders() {
       } catch (error) {
         // ACT: 元数据损坏不影响其他供应商；仍保留原文版本，允许用户明确删除。
         const { source, ...file } = current;
-        return { ...file, label: current.id, version: "", readme: "", models: [], loadError: error instanceof Error ? error.message : "供应商文件无法读取" };
+        return { ...file, label: current.id, version: "", readme: "", models: [], loadError: translateMessage(error instanceof Error ? error.message : "供应商文件无法读取") };
       }
     }));
 }
@@ -241,7 +242,7 @@ export async function addMediaProvider(source: string) {
   const release = lockWorkspaceFiles([path]);
   try { await writeWorkspaceFile(path, source, true); }
   catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "EEXIST") invalid(`媒体供应商“${result.label}”已安装，请在「设置 → 媒体模型」中编辑，或先删除后重新安装。`, 409);
+    if ((error as NodeJS.ErrnoException).code === "EEXIST") invalid(t`媒体供应商“${result.label}”已安装，请在「设置 → 媒体模型」中编辑，或先删除后重新安装。`, 409);
     throw error;
   }
   finally { release(); }
@@ -250,8 +251,8 @@ export async function addMediaProvider(source: string) {
 
 export async function saveMediaProvider(fileName: string, models: z.infer<typeof mediaModelsSchema>, revision: string, expectedApiKey?: string) {
   if (!mediaProviderFileSchema.safeParse(fileName).success) invalid("供应商文件名无效");
-  const checked = mediaModelsSchema.safeParse(models);
-  if (!checked.success) invalid(checked.error.issues.map(issue => issue.message).join("；"));
+  const checked = mediaModelsSchema.safeParse(models, validationOptions());
+  if (!checked.success) invalid(checked.error.issues.map(issue => translateMessage(issue.message)).join("; "));
   const path = await directory();
   if (!path) invalid("供应商文件不存在", 404);
   const release = lockWorkspaceFiles([join(path, fileName)]);
@@ -288,7 +289,7 @@ export async function refreshMediaProviderModels(fileName: string, revision?: st
     headers: { Accept: "application/json", ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}) },
     signal: AbortSignal.timeout(30000), redirect: "error",
   });
-  if (!response.ok) throw new Error(`获取媒体模型列表失败（HTTP ${response.status}）`);
+  if (!response.ok) throw new Error(t`获取媒体模型列表失败（HTTP ${response.status}）`);
   const result = z.object({ data: z.array(mediaModelsSchema.element.partial({ label: true, type: true })).max(2000) }).parse(await response.json());
   if (!result.data.length) throw new Error("未获取到媒体模型，保留原有列表");
   const requestedType = z.enum(["text", "image", "video", "audio"]).safeParse(new URL(provider.modelsUrl).searchParams.get("type"));
@@ -297,7 +298,7 @@ export async function refreshMediaProviderModels(fileName: string, revision?: st
     const previous = provider.models.find(item => item.id === id)
       ?? (provider.id === tfRouter.id ? tfRouter.models.find(item => item.id === id) : undefined);
     const type = model.type ?? (requestedType.success ? requestedType.data : previous?.type);
-    if (!type) invalid(`模型 ${id} 缺少 type，请在返回数据或 modelsUrl 的 type 参数中指定`);
+    if (!type) invalid(t`模型 ${id} 缺少 type，请在返回数据或 modelsUrl 的 type 参数中指定`);
     // ACT: 只有 ID 的列表沿用同名模型参数，新模型不猜测生成能力。
     return { ...previous, ...model, id, label: model.label ?? previous?.label
       ?? (typeof model.display_name === "string" ? model.display_name : typeof model.displayName === "string" ? model.displayName : id), type };

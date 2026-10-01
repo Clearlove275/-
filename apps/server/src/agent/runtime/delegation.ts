@@ -8,6 +8,7 @@ import { addUsage, emptyUsage, type SubAgentResult } from "@/agent/runtime/subAg
 import { createCanvasContext } from "@/agent/bridge/canvas";
 import { createQuestionContext } from "@/agent/bridge/question";
 import { resolveWorkspacePath } from "@/utils/workspace/files";
+import { translateError, translateMessage } from "@/lib/i18n";
 
 export async function runDelegatedAgent(options: {
   cwd: string; parentFile: string; name: string; task: string;
@@ -33,7 +34,7 @@ export async function runDelegatedAgent(options: {
     result.status = childSignal.aborted ? "cancelled" : "completed";
   } catch (error) {
     result.status = childSignal.aborted ? "cancelled" : (error as { code?: string })?.code === "AGENT_LENGTH" ? "limited" : "error";
-    result.result = error instanceof Error ? error.message : "子任务执行失败";
+    result.result = error instanceof Error ? translateError(error) : translateMessage("子任务执行失败");
     if (result.status !== "limited") await updateSubAgent(cwd, parentFile, { ...agent, status: result.status, result: result.result });
     send({ type: "error", message: result.result });
   } finally {

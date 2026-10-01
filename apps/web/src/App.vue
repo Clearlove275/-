@@ -1,25 +1,37 @@
 <template>
-  <el-config-provider :locale="zhCn">
-    <router-view v-slot="{ Component: currentComponent }">
-      <transition name="el-fade-in">
-        <component :is="currentComponent" />
-      </transition>
-    </router-view>
-    <ffmpegRequired />
-    <updateBox
-      v-if="updateBoxBuild"
-      v-model="updateBoxVisible"
-      :version="updateBoxBuild.version"
-      :buildCode="updateBoxBuild.hash"
-      @opened="rememberUpdateBox"
-      @close="rememberUpdateBox" />
+  <el-config-provider :locale="elementLocale">
+    <config-provider :globalConfig="tdesignLocale">
+      <router-view v-slot="{ Component: currentComponent }">
+        <transition name="el-fade-in">
+          <component :is="currentComponent" />
+        </transition>
+      </router-view>
+      <ffmpegRequired />
+      <updateBox
+        v-if="updateBoxBuild"
+        v-model="updateBoxVisible"
+        :version="updateBoxBuild.version"
+        :buildCode="updateBoxBuild.hash"
+        @opened="rememberUpdateBox"
+        @close="rememberUpdateBox" />
+    </config-provider>
   </el-config-provider>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, shallowRef, watch, watchEffect } from "vue";
+import { computed, onBeforeUnmount, ref, shallowRef, watch, watchEffect } from "vue";
 import { ElMessage, useZIndex } from "element-plus";
-import zhCn from "element-plus/es/locale/lang/zh-cn";
+import { elementLocales } from "@toonflow/i18n/elementPlus";
+import { ConfigProvider, type GlobalConfigProvider } from "tdesign-vue-next";
+import tdesignZhCn from "tdesign-vue-next/es/locale/zh_CN";
+import tdesignZhTw from "tdesign-vue-next/es/locale/zh_TW";
+import tdesignEn from "tdesign-vue-next/es/locale/en_US";
+import tdesignJa from "tdesign-vue-next/es/locale/ja_JP";
+import tdesignRu from "tdesign-vue-next/es/locale/ru_RU";
+import tdesignKo from "tdesign-vue-next/es/locale/ko_KR";
+import tdesignAr from "tdesign-vue-next/es/locale/ar_KW";
+import { locale } from "@toonflow/i18n/vue";
+import { chatLocale } from "@/lib/i18n";
 import { saveSettings, settings, uiSettings } from "@/stores/settings";
 import { desktopUpdateSnapshot } from "@/stores/desktopUpdate";
 import { useMcpControl } from "@/lib/mcpControl";
@@ -28,6 +40,15 @@ import updateBox from "@/components/updateBox.vue";
 import "element-plus/theme-chalk/dark/css-vars.css";
 
 useMcpControl();
+
+// ACT: TDesign 缺少的语言使用英语基底，聊天控件由应用字典补齐。
+const tdesignLocales = {
+  "zh-CN": tdesignZhCn, "zh-TW": tdesignZhTw, en: tdesignEn, ja: tdesignJa, ru: tdesignRu, vi: tdesignEn, th: tdesignEn, ko: tdesignKo, hi: tdesignEn,
+  id: tdesignEn, ms: tdesignEn, fil: tdesignEn, bn: tdesignEn, ur: tdesignEn, ta: tdesignEn, te: tdesignEn, mr: tdesignEn, pa: tdesignEn, ar: tdesignAr, fa: tdesignEn, tr: tdesignEn,
+};
+const elementLocale = computed(() => elementLocales[locale.value]);
+// ACT: TDesign 自带语言包声明为 readonly，而 ConfigProvider 的只读使用接口声明为可写。
+const tdesignLocale = computed(() => ({ ...tdesignLocales[locale.value], chat: chatLocale.value }) as unknown as GlobalConfigProvider);
 
 const updateBoxVisible = ref(false);
 const updateBoxBuild = shallowRef<{ version: string; hash: string }>();
@@ -104,6 +125,22 @@ watchEffect(() => {
 html {
   background-color: var(--el-bg-color);
   color: var(--el-text-color-primary);
+}
+
+// ACT: RTL 只改变界面阅读方向，画布坐标、代码和技术值保留从左到右。
+.vue-flow,
+pre,
+code,
+input[type="url"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[inputmode="numeric"],
+input[inputmode="decimal"],
+.projectPath,
+.locationPath {
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 // 主题切换圆形扩散动效，坐标由触发点写入 --themeX/--themeY/--themeR。

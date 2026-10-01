@@ -10,24 +10,42 @@
   </a>
   &nbsp;|&nbsp;
   <a href="https://atomgit.com/HBAI-Ltd/Toonflow-app">
-    <img src="./atomgitLogo.svg" alt="AtomGit" height="20" />
+    <img src="../images/atomgitLogo.svg" alt="AtomGit" height="20" />
   </a>
 </p>
 
 <p align="center">
-  <a href="../README.md">简体中文</a> |
-  <a href="./README.zhtw.md">繁體中文</a> |
-  <a href="./README.en.md">English</a> |
-  <a href="./README.th.md">ไทย</a> |
-  <a href="./README.vi.md">Tiếng Việt</a> |
+  <a href="../../README.md">简体中文</a> |
+  <a href="./readmeZhTw.md">繁體中文</a> |
+  <a href="./readmeEn.md">English</a> |
   <strong>日本語</strong> |
-  <a href="./README.ru.md">Русский</a>
+  <a href="./readmeRu.md">Русский</a> |
+  <a href="./readmeVi.md">Tiếng Việt</a> |
+  <a href="./readmeTh.md">ไทย</a>
+  <br />
+  <a href="./readmeKo.md">한국어</a> |
+  <a href="./readmeHi.md">हिन्दी</a> |
+  <a href="./readmeId.md">Bahasa Indonesia</a> |
+  <a href="./readmeMs.md">Bahasa Melayu</a> |
+  <a href="./readmeFil.md">Filipino</a> |
+  <a href="./readmeBn.md">বাংলা</a> |
+  <a href="./readmeUr.md">اردو</a>
+  <br />
+  <a href="./readmeTa.md">தமிழ்</a> |
+  <a href="./readmeTe.md">తెలుగు</a> |
+  <a href="./readmeMr.md">मराठी</a> |
+  <a href="./readmePa.md">ਪੰਜਾਬੀ</a> |
+  <a href="./readmeAr.md">العربية</a> |
+  <a href="./readmeFa.md">فارسی</a> |
+  <a href="./readmeTr.md">Türkçe</a>
 </p>
+
+> 🌐 **21言語に対応** · [対応言語を見る](#languages)
 
 <div align="center">
 
 <p align="center">
-  <img src="./logo.png" alt="Toonflow ロゴ" width="120" height="120" />
+  <img src="../images/logo.png" alt="Toonflow ロゴ" width="120" height="120" />
 </p>
 
 <a href="https://git.io/typing-svg">
@@ -41,7 +59,7 @@
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/stargazers">
     <img src="https://img.shields.io/github/stars/HBAI-Ltd/Toonflow-app?style=for-the-badge&logo=github" alt="スター数" />
   </a>
-  <a href="../LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT ライセンス" />
   </a>
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/releases">
@@ -93,13 +111,13 @@
   <table>
     <tr>
       <td width="50%" align="center">
-        <a href="./gStar.png">
-          <img src="./gStar.png" alt="Toonflow AtomGit G-Star 認定証 No.540" width="100%" />
+        <a href="../images/gStar.png">
+          <img src="../images/gStar.png" alt="Toonflow AtomGit G-Star 認定証 No.540" width="100%" />
         </a>
       </td>
       <td width="50%" align="center">
-        <a href="./gvp.jpg">
-          <img src="./gvp.jpg" alt="Toonflow Gitee GVP 認定証" width="100%" />
+        <a href="../images/gvp.jpg">
+          <img src="../images/gvp.jpg" alt="Toonflow Gitee GVP 認定証" width="100%" />
         </a>
       </td>
     </tr>
@@ -123,19 +141,19 @@ Toonflow オープンソースプロジェクトをご支援くださるパー�
 <table>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="./sponsors/metaso.svg" alt="秘塔（Metaso）" height="28" valign="middle" /> <strong>秘塔（Metaso）</strong></a>
+      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="../images/sponsors/metaso.svg" alt="秘塔（Metaso）" height="28" valign="middle" /> <strong>秘塔（Metaso）</strong></a>
       <br />
       <sub>コストパフォーマンスに優れた MiniMax H3 動画生成サービスを提供。768P は 1 秒あたりわずか 0.09 人民元、2K は 0.15 人民元。ネイティブ 2K、音声と映像の同期に対応し、API は OpenAI プロトコルと互換性があります。ComfyUI や無限キャンバスにも対応し、GPU を自分で用意する必要はありません。<a href="https://metaso.cn/minimax-h3/?s=toon">専用リンクから登録</a>すると、無料利用枠と限定特典を受け取れます。ビジネスに関するお問い合わせは WeChat の metasota12 まで。</sub>
     </td>
     <td width="50%" valign="top">
-      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="./sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
+      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="../images/sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
       <br />
-      <sub>本プロジェクトへの計算リソースのご支援に感謝します！APIMart は AI 画像・動画生成に特化した低価格 API プラットフォームです。GPT-Image-2 は 1 枚あたり $0.006 からで、1 ドルで 160 枚以上の画像を生成できます。画像と動画に共通の非同期 API を使用し、タスクを送信して ID を取得すると、結果はコールバックで受け取れます。1 万枚の一括処理でもタイムアウトせず、モデルを変更してもコードの修正は不要。従量課金制で月額料金はありません。こちらの<a href="https://go.apimart.ai/gh-toonflow-app">登録リンク</a>から登録して利用を開始できます。</sub>
+      <sub>APIMart による本プロジェクトへのご支援に感謝します！APIMart は AI 画像・動画生成に特化した低価格 API プラットフォームです。GPT-Image-2 は 1 枚あたり $0.006 からで、1 ドルで 160 枚以上の画像を生成できます。画像と動画に共通の非同期 API を使用し、タスクを送信して ID を取得すると、結果はコールバックで受け取れます。1 万枚の一括処理でもタイムアウトせず、モデルを変更してもコードの修正は不要。従量課金制で月額料金はありません。こちらの<a href="https://go.apimart.ai/gh-toonflow-app">登録リンク</a>から登録して利用を開始できます。</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="./sponsors/compShare.png" alt="优云智算（CompShare）" height="28" valign="middle" /> <strong>优云智算（CompShare）</strong></a>
+      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="../images/sponsors/compShare.png" alt="优云智算（CompShare）" height="28" valign="middle" /> <strong>优云智算（CompShare）</strong></a>
       <br />
       <sub>优云智算（CompShare）は、コストパフォーマンスに優れた H3 動画生成サービスを提供しています。テキストからの動画生成、開始・終了フレームの指定、オムニリファレンスに対応。最長 30 秒の動画とネイティブ 2K 画質をサポートし、768P は 1 秒あたりわずか 0.08 人民元です。API 呼び出し、企業向けの大量同時処理、セルフサービスでの請求書発行にも対応しています。</sub>
       <br /><br />
@@ -149,7 +167,7 @@ Toonflow オープンソースプロジェクトをご支援くださるパー�
 <summary><strong>👉スポンサーになる👈</strong></summary>
 
 <p align="center">
-  <img src="./businessQr.png" alt="ビジネス提携用 WeChat QR コード" width="200" />
+  <img src="../images/businessQr.png" alt="ビジネス提携用 WeChat QR コード" width="200" />
 </p>
 
 <p align="center"><sub>こちらの連絡先はビジネス提携専用で、使い方などのサポートは行っていません。使い方に関するご質問はコミュニティグループでご相談ください。機能要望や不具合はフィードバックフォームからお送りいただけます。ご理解のほどよろしくお願いいたします。</sub></p>
@@ -170,6 +188,13 @@ Toonflow はショートドラマ、モーションコミック、ショート�
 | 🧩 **プラグインマーケット** | [プラグインマーケット](https://api.toonflow.net/console/plugIn)からノード、ツール、制作機能を追加できます。 |
 | 🤖 **オープンな Agent** | プロンプト、ツール、A2A のオープンな仕組みにより、Agent の動作のカスタマイズと外部連携に対応します。 |
 | 🔧 **モデルを自由に接続** | サードパーティーの API に加え、ローカルの ComfyUI や LLM も接続できます。 |
+| 🌐 **多言語対応** | 21の表示言語に対応。 |
+
+<a id="languages"></a>
+
+### 多言語対応
+
+対応言語：简体中文、繁體中文、English、日本語、Русский、Tiếng Việt、ไทย、한국어、हिन्दी、Bahasa Indonesia、Bahasa Melayu、Filipino、বাংলা、اردو、தமிழ்、తెలుగు、मराठी、ਪੰਜਾਬੀ、العربية、فارسی、Türkçe。
 
 ---
 
@@ -177,25 +202,25 @@ Toonflow はショートドラマ、モーションコミック、ショート�
 
 <div align="center">
 
-<a href="./screenshots/projectHome.png"><img src="./screenshots/projectHome.png" alt="Toonflow プロジェクトホームとアイデアからの制作" width="80%" /></a><br /><sub>プロジェクトホームとアイデアからの制作</sub>
+<a href="../images/screenshots/projectHome.png"><img src="../images/screenshots/projectHome.png" alt="Toonflow プロジェクトホームとアイデアからの制作" width="80%" /></a><br /><sub>プロジェクトホームとアイデアからの制作</sub>
 
-<a href="./screenshots/quickStart.png"><img src="./screenshots/quickStart.png" alt="Toonflow 初回起動とクイック設定" width="80%" /></a><br /><sub>初回起動とクイック設定</sub>
+<a href="../images/screenshots/quickStart.png"><img src="../images/screenshots/quickStart.png" alt="Toonflow 初回起動とクイック設定" width="80%" /></a><br /><sub>初回起動とクイック設定</sub>
 
-<a href="./screenshots/canvasDark.png"><img src="./screenshots/canvasDark.png" alt="Toonflow ダークテーマのキャンバスと AI アシスタント" width="80%" /></a><br /><sub>制作キャンバス · ダークテーマ</sub>
+<a href="../images/screenshots/canvasDark.png"><img src="../images/screenshots/canvasDark.png" alt="Toonflow ダークテーマのキャンバスと AI アシスタント" width="80%" /></a><br /><sub>制作キャンバス · ダークテーマ</sub>
 
-<a href="./screenshots/canvasLight.png"><img src="./screenshots/canvasLight.png" alt="Toonflow ライトテーマのキャンバスと AI アシスタント" width="80%" /></a><br /><sub>制作キャンバス · ライトテーマ</sub>
+<a href="../images/screenshots/canvasLight.png"><img src="../images/screenshots/canvasLight.png" alt="Toonflow ライトテーマのキャンバスと AI アシスタント" width="80%" /></a><br /><sub>制作キャンバス · ライトテーマ</sub>
 
-<a href="./screenshots/assetCanvas.png"><img src="./screenshots/assetCanvas.png" alt="Toonflow キャラクター・シーン・小道具の素材キャンバス" width="80%" /></a><br /><sub>キャラクター・シーン・小道具の素材</sub>
+<a href="../images/screenshots/assetCanvas.png"><img src="../images/screenshots/assetCanvas.png" alt="Toonflow キャラクター・シーン・小道具の素材キャンバス" width="80%" /></a><br /><sub>キャラクター・シーン・小道具の素材</sub>
 
-<a href="./screenshots/directorStudio.png"><img src="./screenshots/directorStudio.png" alt="Toonflow 3D 演出台とカメラショットのプレビュー" width="80%" /></a><br /><sub>3D 演出台とカメラショットのプレビュー</sub>
+<a href="../images/screenshots/directorStudio.png"><img src="../images/screenshots/directorStudio.png" alt="Toonflow 3D 演出台とカメラショットのプレビュー" width="80%" /></a><br /><sub>3D 演出台とカメラショットのプレビュー</sub>
 
-<a href="./screenshots/characterImageGeneration.png"><img src="./screenshots/characterImageGeneration.png" alt="Toonflow キャラクター三面図の画像生成" width="80%" /></a><br /><sub>キャラクター三面図と画像生成</sub>
+<a href="../images/screenshots/characterImageGeneration.png"><img src="../images/screenshots/characterImageGeneration.png" alt="Toonflow キャラクター三面図の画像生成" width="80%" /></a><br /><sub>キャラクター三面図と画像生成</sub>
 
-<a href="./screenshots/videoGeneration.png"><img src="./screenshots/videoGeneration.png" alt="Toonflow 複数の参考素材を使った動画生成" width="80%" /></a><br /><sub>複数の参考素材を使った動画生成</sub>
+<a href="../images/screenshots/videoGeneration.png"><img src="../images/screenshots/videoGeneration.png" alt="Toonflow 複数の参考素材を使った動画生成" width="80%" /></a><br /><sub>複数の参考素材を使った動画生成</sub>
 
-<a href="./screenshots/nodeMenu.png"><img src="./screenshots/nodeMenu.png" alt="Toonflow ノードメニューとグループ操作" width="80%" /></a><br /><sub>ノードメニューとグループ操作</sub>
+<a href="../images/screenshots/nodeMenu.png"><img src="../images/screenshots/nodeMenu.png" alt="Toonflow ノードメニューとグループ操作" width="80%" /></a><br /><sub>ノードメニューとグループ操作</sub>
 
-<a href="./screenshots/pluginMarket.png"><img src="./screenshots/pluginMarket.png" alt="Toonflow プラグインマーケット" width="80%" /></a><br /><sub>プラグインマーケット</sub>
+<a href="../images/screenshots/pluginMarket.png"><img src="../images/screenshots/pluginMarket.png" alt="Toonflow プラグインマーケット" width="80%" /></a><br /><sub>プラグインマーケット</sub>
 
 </div>
 
@@ -249,7 +274,7 @@ sudo spctl --master-disable
 
 ### 4.2 Docker でのインストール
 
-まず Git、[Docker Engine](https://docs.docker.com/engine/install/)、Docker Compose をインストールしてください。Windows / macOS では Docker Desktop の Linux コンテナモードを利用できます。リポジトリには [Dockerfile](../Dockerfile)、[Compose 設定](../compose.yaml)、[ビルド除外設定](../.dockerignore)が含まれています。Bun 1.3.14 を使用してビルドし、イメージには FFmpeg も含まれます。
+まず Git、[Docker Engine](https://docs.docker.com/engine/install/)、Docker Compose をインストールしてください。Windows / macOS では Docker Desktop の Linux コンテナモードを利用できます。リポジトリには [Dockerfile](../../Dockerfile)、[Compose 設定](../../compose.yaml)、[ビルド除外設定](../../.dockerignore)が含まれています。Bun 1.3.14 を使用してビルドし、イメージには FFmpeg も含まれます。
 
 <details>
 <summary><strong>Docker のインストール手順を開く</strong></summary>
@@ -455,7 +480,7 @@ TF-Router は Toonflow が運営する公式モデルゲートウェイです。
 
 グループ参加の案内アカウント：
 
-<img src="./qr.png" alt="Toonflow コミュニティ参加用 QR コード" height="400"/>
+<img src="../images/qr.png" alt="Toonflow コミュニティ参加用 QR コード" height="400"/>
 
 アイコンをクリックして Discord に参加することもできます。
 
@@ -473,7 +498,7 @@ TF-Router は Toonflow が運営する公式モデルゲートウェイです。
 
 ## 9. 📜 オープンソースライセンス
 
-Toonflow は [MIT ライセンス](../LICENSE)を採用しています。サードパーティーの依存パッケージや素材には、それぞれのライセンスと著作権表示が適用されます。
+Toonflow は [MIT ライセンス](../../LICENSE)を採用しています。サードパーティーの依存パッケージや素材には、それぞれのライセンスと著作権表示が適用されます。
 
 [![Toonflow のスター数の推移](https://api.star-history.com/svg?repos=HBAI-Ltd/Toonflow-app&type=Date)](https://www.star-history.com/#HBAI-Ltd/Toonflow-app&Date)
 

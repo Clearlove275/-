@@ -15,7 +15,7 @@
         <div class="formGrid">
           <el-form-item label="Provider ID" prop="id"><el-input v-model="form.id" placeholder="例如 myProvider" /></el-form-item>
           <el-form-item label="显示名称" prop="label"><el-input v-model="form.label" placeholder="供应商的显示名称" /></el-form-item>
-          <el-form-item label="API 地址" prop="apiUrl"><el-input v-model="form.apiUrl" placeholder="https://api.example.com/v1" /></el-form-item>
+          <el-form-item label="API 地址" prop="apiUrl"><el-input v-model="form.apiUrl" dir="ltr" placeholder="https://api.example.com/v1" /></el-form-item>
           <el-form-item label="API 协议" prop="protocol">
             <el-select v-model="form.protocol" aria-label="API 协议">
               <el-option v-for="protocol in protocols" :key="protocol" :label="protocol" :value="protocol" />
@@ -23,7 +23,7 @@
           </el-form-item>
         </div>
         <el-form-item label="API 密钥" prop="apiKey">
-          <el-input v-model="form.apiKey" type="password" showPassword autocomplete="off" placeholder="本地无鉴权服务可留空" />
+          <el-input v-model="form.apiKey" type="password" dir="ltr" showPassword autocomplete="off" placeholder="本地无鉴权服务可留空" />
         </el-form-item>
         <div class="modelHeader">
           <el-text tag="strong">模型列表</el-text>

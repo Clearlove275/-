@@ -84,7 +84,7 @@
           </div>
         </div>
         <el-text v-if="storageError" type="danger" role="alert">{{ storageError }}</el-text>
-        <el-text v-else-if="storageMessage" type="success" role="status">{{ storageMessage }}</el-text>
+        <el-text v-else-if="storageMessage" type="success" role="status">{{ translate(storageMessage) }}</el-text>
         <div v-for="entry in storageEntries" :key="entry.key" class="storageItem">
           <div class="storageHeader">
             <span class="storageKey">{{ entry.key || '（空键名）' }}</span>
@@ -110,7 +110,7 @@
     </div>
     <providerDebugDialog v-if="providerDebugVisible" v-model="providerDebugVisible" />
     <systemPromptDialog v-if="systemPromptVisible" v-model="systemPromptVisible" />
-    <updateBox v-if="updateBoxVisible" v-model="updateBoxVisible" :version="updateBoxBuild.version" :buildCode="updateBoxBuild.hash" />
+    <updateBox v-if="updateBoxVisible" v-model="updateBoxVisible" :version="updateBoxBuild.version" :buildCode="updateBoxBuild.hash || translate('未提供')" />
     <div v-if="developerLocked" class="developerConfirm">
       <icon-code :size="28" aria-hidden="true" />
       <h3>确认进入开发者选项</h3>
@@ -121,6 +121,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale, msg, translate, type MessageDescriptor } from "@toonflow/i18n/vue";
 import { computed, defineAsyncComponent, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useDeveloperStore } from "@/stores/developer";
@@ -145,7 +146,7 @@ const systemPromptVisible = ref(false);
 const updateBox = defineAsyncComponent(() => import("@/components/updateBox.vue"));
 const updateBoxVisible = ref(false);
 const openingUpdateBox = ref(false);
-const updateBoxBuild = ref({ version: import.meta.env.appVersion ?? "", hash: import.meta.env.DEV ? "dev" : "未提供" });
+const updateBoxBuild = ref({ version: import.meta.env.appVersion ?? "", hash: import.meta.env.DEV ? "dev" : "" });
 const developerLocked = computed(() => !developerStore.developerConfirmed);
 const customUpdateUrl = ref(typeof settings.value.desktopUpdateCustomUrl === "string" ? settings.value.desktopUpdateCustomUrl : "");
 const savingUpdateUrl = ref(false);
@@ -213,9 +214,9 @@ function confirmDeveloper() {
 }
 
 const installTypes = {
-  node: { label: "节点", accept: ".umd.js", example: "imageNode.umd.js", description: "选择脚手架打包的 .umd.js 文件。" },
-  skill: { label: "技能", accept: ".zip,.md,.tar,.tar.gz,.tgz", example: "skill.zip", description: "支持包含技能与资源的 .zip 包、SKILL.md，以及 .tar、.tar.gz、.tgz 包。" },
-  tool: { label: "工具", accept: ".tool.js", example: "mediaGeneration.tool.js", description: "选择脚手架打包的 .tool.js 文件。" },
+  node: { get label() { return translate("节点"); }, accept: ".umd.js", example: "imageNode.umd.js", get description() { return translate("选择脚手架打包的 .umd.js 文件。"); } },
+  skill: { get label() { return translate("技能"); }, accept: ".zip,.md,.tar,.tar.gz,.tgz", example: "skill.zip", get description() { return translate("支持包含技能与资源的 .zip 包、SKILL.md，以及 .tar、.tar.gz、.tgz 包。"); } },
+  tool: { get label() { return translate("工具"); }, accept: ".tool.js", example: "mediaGeneration.tool.js", get description() { return translate("选择脚手架打包的 .tool.js 文件。"); } },
 };
 const installType = ref<keyof typeof installTypes>("node");
 const selectedInstaller = computed(() => installTypes[installType.value]);
@@ -238,7 +239,7 @@ const storageFileInput = ref<HTMLInputElement>();
 const importingStorage = ref(false);
 const writingStorage = ref(false);
 const storageBusy = computed(() => importingStorage.value || writingStorage.value || resettingHello.value);
-const storageMessage = ref("");
+const storageMessage = ref<string | MessageDescriptor>("");
 
 function readStorage() {
   return Object.fromEntries(Object.keys(localStorage).map(key => [key, localStorage.getItem(key) ?? ""]));
@@ -277,7 +278,7 @@ async function importStorage(event: Event) {
     const entries = Object.entries(data) as [string, string][];
     saveStorage(entries);
     loadStorage();
-    storageMessage.value = `已导入 ${entries.length} 项，重新加载页面后生效。`;
+    storageMessage.value = msg`已导入 ${entries.length} 项，重新加载页面后生效。`;
   } catch (err) {
     storageError.value = err instanceof Error ? err.message : "导入缓存失败";
   } finally {
@@ -322,7 +323,7 @@ function writeStorage(entry: { key: string; value: string }, value: string | nul
     saveStorage([[entry.key, value]]);
     if (editingKey.value === entry.key) editingKey.value = null;
     loadStorage();
-    storageMessage.value = "已保存，重新加载页面后生效。";
+    storageMessage.value = msg`已保存，重新加载页面后生效。`;
   } catch (err) {
     storageError.value = err instanceof Error ? err.message : "更新缓存失败";
   } finally {
@@ -375,7 +376,7 @@ async function openDevTools() {
   opening.value = true;
   requestError.value = "";
   try {
-    const response = await fetch("/api/desktop/devtools", { method: "POST", headers: { "x-toonflow-desktop": "1" } });
+    const response = await fetch("/api/desktop/devtools", { method: "POST", headers: { "x-toonflow-desktop": "1", "Accept-Language": locale.value } });
     if (!response.ok) throw new Error((await response.json()).message || "打开开发者工具失败，请重试。");
   } catch (error) {
     requestError.value = error instanceof Error ? error.message : "打开开发者工具失败，请重试。";

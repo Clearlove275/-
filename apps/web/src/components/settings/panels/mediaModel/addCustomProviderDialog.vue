@@ -66,7 +66,7 @@
             <el-text class="fieldHint" type="info" size="small">支持 .ts 文件，最大 1 MB。</el-text>
           </el-form-item>
           <el-form-item v-else label="供应商代码">
-            <el-input v-model="code" class="sourceInput" type="textarea" :rows="10" resize="none" aria-label="供应商代码" />
+            <el-input v-model="code" class="sourceInput" type="textarea" dir="ltr" :rows="10" resize="none" aria-label="供应商代码" />
           </el-form-item>
         </el-form>
         <el-alert class="providerTips" title="没有供应商文件？可以让 AI 帮你生成" type="info" :closable="false" showIcon>

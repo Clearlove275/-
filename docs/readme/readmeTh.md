@@ -10,24 +10,42 @@
   </a>
   &nbsp;|&nbsp;
   <a href="https://atomgit.com/HBAI-Ltd/Toonflow-app">
-    <img src="./atomgitLogo.svg" alt="AtomGit" height="20" />
+    <img src="../images/atomgitLogo.svg" alt="AtomGit" height="20" />
   </a>
 </p>
 
 <p align="center">
-  <a href="../README.md">简体中文</a> |
-  <a href="./README.zhtw.md">繁體中文</a> |
-  <a href="./README.en.md">English</a> |
-  <strong>ไทย</strong> |
-  <a href="./README.vi.md">Tiếng Việt</a> |
-  <a href="./README.ja.md">日本語</a> |
-  <a href="./README.ru.md">Русский</a>
+  <a href="../../README.md">简体中文</a> |
+  <a href="./readmeZhTw.md">繁體中文</a> |
+  <a href="./readmeEn.md">English</a> |
+  <a href="./readmeJa.md">日本語</a> |
+  <a href="./readmeRu.md">Русский</a> |
+  <a href="./readmeVi.md">Tiếng Việt</a> |
+  <strong>ไทย</strong>
+  <br />
+  <a href="./readmeKo.md">한국어</a> |
+  <a href="./readmeHi.md">हिन्दी</a> |
+  <a href="./readmeId.md">Bahasa Indonesia</a> |
+  <a href="./readmeMs.md">Bahasa Melayu</a> |
+  <a href="./readmeFil.md">Filipino</a> |
+  <a href="./readmeBn.md">বাংলা</a> |
+  <a href="./readmeUr.md">اردو</a>
+  <br />
+  <a href="./readmeTa.md">தமிழ்</a> |
+  <a href="./readmeTe.md">తెలుగు</a> |
+  <a href="./readmeMr.md">मराठी</a> |
+  <a href="./readmePa.md">ਪੰਜਾਬੀ</a> |
+  <a href="./readmeAr.md">العربية</a> |
+  <a href="./readmeFa.md">فارسی</a> |
+  <a href="./readmeTr.md">Türkçe</a>
 </p>
+
+> 🌐 **รองรับภาษาของส่วนติดต่อผู้ใช้ 21 ภาษา** · [ดูภาษาที่รองรับ](#languages)
 
 <div align="center">
 
 <p align="center">
-  <img src="./logo.png" alt="โลโก้ Toonflow" width="120" height="120" />
+  <img src="../images/logo.png" alt="โลโก้ Toonflow" width="120" height="120" />
 </p>
 
 <a href="https://git.io/typing-svg">
@@ -41,7 +59,7 @@
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/stargazers">
     <img src="https://img.shields.io/github/stars/HBAI-Ltd/Toonflow-app?style=for-the-badge&logo=github" alt="ป้ายจำนวนดาว" />
   </a>
-  <a href="../LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="ป้ายสัญญาอนุญาต MIT" />
   </a>
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/releases">
@@ -93,13 +111,13 @@
   <table>
     <tr>
       <td width="50%" align="center">
-        <a href="./gStar.png">
-          <img src="./gStar.png" alt="ใบรับรอง Toonflow AtomGit G-Star No.540" width="100%" />
+        <a href="../images/gStar.png">
+          <img src="../images/gStar.png" alt="ใบรับรอง Toonflow AtomGit G-Star No.540" width="100%" />
         </a>
       </td>
       <td width="50%" align="center">
-        <a href="./gvp.jpg">
-          <img src="./gvp.jpg" alt="ใบรับรอง Toonflow Gitee GVP" width="100%" />
+        <a href="../images/gvp.jpg">
+          <img src="../images/gvp.jpg" alt="ใบรับรอง Toonflow Gitee GVP" width="100%" />
         </a>
       </td>
     </tr>
@@ -123,19 +141,19 @@
 <table>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="./sponsors/metaso.svg" alt="Metaso" height="28" valign="middle" /> <strong>Metaso</strong></a>
+      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="../images/sponsors/metaso.svg" alt="Metaso" height="28" valign="middle" /> <strong>Metaso</strong></a>
       <br />
       <sub>บริการสร้างวิดีโอ MiniMax H3 ที่คุ้มค่า: 768P ราคาเพียง 0.09 หยวน/วินาที และ 2K เพียง 0.15 หยวน/วินาที รองรับความละเอียด 2K แบบเนทีฟและเสียงที่สอดคล้องกับภาพ API เข้ากันได้กับโปรโตคอล OpenAI พร้อมรองรับ ComfyUI และแคนวาสไม่จำกัด โดยไม่ต้องติดตั้ง GPU เอง <a href="https://metaso.cn/minimax-h3/?s=toon">ลงทะเบียนผ่านลิงก์พิเศษ</a>เพื่อรับเครดิตฟรีและข้อเสนอเฉพาะ สำหรับความร่วมมือทางธุรกิจ ติดต่อ WeChat: metasota12</sub>
     </td>
     <td width="50%" valign="top">
-      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="./sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
+      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="../images/sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
       <br />
-      <sub>ขอขอบคุณ APIMart ที่สนับสนุนทรัพยากรประมวลผลให้โครงการนี้! แพลตฟอร์ม API ราคาประหยัดที่เน้นการสร้างภาพและวิดีโอด้วย AI โดย GPT-Image-2 เริ่มต้นเพียง $0.006/ภาพ และ 1 ดอลลาร์สร้างภาพได้มากกว่า 160 ภาพ ใช้ API แบบอะซิงโครนัสชุดเดียวสำหรับภาพและวิดีโอ ส่งงานเพื่อรับ ID และรับผลลัพธ์ผ่าน callback ประมวลผลภาพเป็นชุดนับหมื่นภาพโดยไม่หมดเวลารอ และเปลี่ยนโมเดลได้โดยไม่ต้องแก้โค้ด คิดค่าบริการตามการใช้งาน ไม่มีค่ารายเดือน เริ่มใช้งานได้ทันทีเมื่อลงทะเบียนผ่าน<a href="https://go.apimart.ai/gh-toonflow-app">ลิงก์นี้</a></sub>
+      <sub>ขอขอบคุณ APIMart ที่สนับสนุนโครงการนี้! แพลตฟอร์ม API ราคาประหยัดที่เน้นการสร้างภาพและวิดีโอด้วย AI โดย GPT-Image-2 เริ่มต้นเพียง $0.006/ภาพ และ 1 ดอลลาร์สร้างภาพได้มากกว่า 160 ภาพ ใช้ API แบบอะซิงโครนัสชุดเดียวสำหรับภาพและวิดีโอ ส่งงานเพื่อรับ ID และรับผลลัพธ์ผ่าน callback ประมวลผลภาพเป็นชุด 10,000 ภาพโดยไม่หมดเวลารอ และเปลี่ยนโมเดลได้โดยไม่ต้องแก้โค้ด คิดค่าบริการตามการใช้งาน ไม่มีค่ารายเดือน เริ่มใช้งานได้ทันทีเมื่อลงทะเบียนผ่าน<a href="https://go.apimart.ai/gh-toonflow-app">ลิงก์นี้</a></sub>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="./sponsors/compShare.png" alt="CompShare" height="28" valign="middle" /> <strong>CompShare</strong></a>
+      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="../images/sponsors/compShare.png" alt="CompShare" height="28" valign="middle" /> <strong>CompShare</strong></a>
       <br />
       <sub>CompShare ให้บริการสร้างวิดีโอ H3 ที่คุ้มค่า ครอบคลุมการสร้างวิดีโอจากข้อความ การกำหนดเฟรมเริ่มต้นและเฟรมสุดท้าย และการอ้างอิงแบบรอบด้าน รองรับวิดีโอยาวสูงสุด 30 วินาทีและความละเอียด 2K แบบเนทีฟ โดย 768P ราคาเพียง 0.08 หยวนต่อวินาที รองรับการเรียกใช้ API การประมวลผลคำขอพร้อมกันจำนวนมากสำหรับองค์กร และการขอใบกำกับภาษีด้วยตนเอง</sub>
       <br /><br />
@@ -149,7 +167,7 @@
 <summary><strong>👉ร่วมเป็นผู้สนับสนุน👈</strong></summary>
 
 <p align="center">
-  <img src="./businessQr.png" alt="รหัส QR ของ WeChat สำหรับความร่วมมือทางธุรกิจ" width="200" />
+  <img src="../images/businessQr.png" alt="รหัส QR ของ WeChat สำหรับความร่วมมือทางธุรกิจ" width="200" />
 </p>
 
 <p align="center"><sub>ช่องทางติดต่อนี้ใช้สำหรับประสานงานความร่วมมือทางธุรกิจเท่านั้น ไม่ให้บริการตอบคำถามการใช้งาน หากมีปัญหาการใช้งาน สามารถพูดคุยในกลุ่มชุมชน และส่งข้อเสนอหรือรายงานบั๊กผ่านแบบฟอร์มข้อเสนอแนะ ขอบคุณที่เข้าใจ</sub></p>
@@ -170,6 +188,13 @@ Toonflow คือแพลตฟอร์มสร้างสรรค์ด�
 | 🧩 **ตลาดปลั๊กอิน** | เพิ่มโหนด เครื่องมือ และความสามารถในการสร้างสรรค์ผ่าน[ตลาดปลั๊กอิน](https://api.toonflow.net/console/plugIn) |
 | 🤖 **Agent แบบเปิด** | เปิดให้ปรับแต่งพรอมป์ต์และเครื่องมือ พร้อมรองรับ A2A เพื่อกำหนดพฤติกรรมของ Agent และทำงานร่วมกับ Agent ภายนอก |
 | 🔧 **เชื่อมต่อโมเดลได้อย่างอิสระ** | กำหนดค่า API ของบุคคลที่สาม หรือเชื่อมต่อ ComfyUI และ LLM ที่ทำงานในเครื่อง |
+| 🌐 **รองรับหลายภาษา** | รองรับภาษาของส่วนติดต่อผู้ใช้ 21 ภาษา |
+
+<a id="languages"></a>
+
+### รองรับหลายภาษา
+
+ภาษาที่รองรับ: 简体中文, 繁體中文, English, 日本語, Русский, Tiếng Việt, ไทย, 한국어, हिन्दी, Bahasa Indonesia, Bahasa Melayu, Filipino, বাংলা, اردو, தமிழ், తెలుగు, मराठी, ਪੰਜਾਬੀ, العربية, فارسی, Türkçe.
 
 ---
 
@@ -177,25 +202,25 @@ Toonflow คือแพลตฟอร์มสร้างสรรค์ด�
 
 <div align="center">
 
-<a href="./screenshots/projectHome.png"><img src="./screenshots/projectHome.png" alt="หน้าแรกของโครงการ Toonflow และการสร้างสรรค์จากแรงบันดาลใจ" width="80%" /></a><br /><sub>หน้าแรกของโครงการและการสร้างสรรค์จากแรงบันดาลใจ</sub>
+<a href="../images/screenshots/projectHome.png"><img src="../images/screenshots/projectHome.png" alt="หน้าแรกของโครงการ Toonflow และการสร้างสรรค์จากแรงบันดาลใจ" width="80%" /></a><br /><sub>หน้าแรกของโครงการและการสร้างสรรค์จากแรงบันดาลใจ</sub>
 
-<a href="./screenshots/quickStart.png"><img src="./screenshots/quickStart.png" alt="การเปิด Toonflow ครั้งแรกและการตั้งค่าอย่างรวดเร็ว" width="80%" /></a><br /><sub>การเปิดใช้งานครั้งแรกและการตั้งค่าอย่างรวดเร็ว</sub>
+<a href="../images/screenshots/quickStart.png"><img src="../images/screenshots/quickStart.png" alt="การเปิด Toonflow ครั้งแรกและการตั้งค่าอย่างรวดเร็ว" width="80%" /></a><br /><sub>การเปิดใช้งานครั้งแรกและการตั้งค่าอย่างรวดเร็ว</sub>
 
-<a href="./screenshots/canvasDark.png"><img src="./screenshots/canvasDark.png" alt="แคนวาสธีมมืดและผู้ช่วย AI ของ Toonflow" width="80%" /></a><br /><sub>แคนวาสสร้างสรรค์ · ธีมมืด</sub>
+<a href="../images/screenshots/canvasDark.png"><img src="../images/screenshots/canvasDark.png" alt="แคนวาสธีมมืดและผู้ช่วย AI ของ Toonflow" width="80%" /></a><br /><sub>แคนวาสสร้างสรรค์ · ธีมมืด</sub>
 
-<a href="./screenshots/canvasLight.png"><img src="./screenshots/canvasLight.png" alt="แคนวาสธีมสว่างและผู้ช่วย AI ของ Toonflow" width="80%" /></a><br /><sub>แคนวาสสร้างสรรค์ · ธีมสว่าง</sub>
+<a href="../images/screenshots/canvasLight.png"><img src="../images/screenshots/canvasLight.png" alt="แคนวาสธีมสว่างและผู้ช่วย AI ของ Toonflow" width="80%" /></a><br /><sub>แคนวาสสร้างสรรค์ · ธีมสว่าง</sub>
 
-<a href="./screenshots/assetCanvas.png"><img src="./screenshots/assetCanvas.png" alt="แคนวาสทรัพยากรตัวละคร ฉาก และอุปกรณ์ประกอบของ Toonflow" width="80%" /></a><br /><sub>ทรัพยากรตัวละคร ฉาก และอุปกรณ์ประกอบ</sub>
+<a href="../images/screenshots/assetCanvas.png"><img src="../images/screenshots/assetCanvas.png" alt="แคนวาสทรัพยากรตัวละคร ฉาก และอุปกรณ์ประกอบของ Toonflow" width="80%" /></a><br /><sub>ทรัพยากรตัวละคร ฉาก และอุปกรณ์ประกอบ</sub>
 
-<a href="./screenshots/directorStudio.png"><img src="./screenshots/directorStudio.png" alt="โต๊ะผู้กำกับ 3D และการพรีวิซช็อตของ Toonflow" width="80%" /></a><br /><sub>โต๊ะผู้กำกับ 3D และการพรีวิซช็อต</sub>
+<a href="../images/screenshots/directorStudio.png"><img src="../images/screenshots/directorStudio.png" alt="โต๊ะผู้กำกับ 3D และการพรีวิซช็อตของ Toonflow" width="80%" /></a><br /><sub>โต๊ะผู้กำกับ 3D และการพรีวิซช็อต</sub>
 
-<a href="./screenshots/characterImageGeneration.png"><img src="./screenshots/characterImageGeneration.png" alt="การสร้างภาพตัวละครสามมุมมองด้วย Toonflow" width="80%" /></a><br /><sub>ภาพตัวละครสามมุมมองและการสร้างภาพ</sub>
+<a href="../images/screenshots/characterImageGeneration.png"><img src="../images/screenshots/characterImageGeneration.png" alt="การสร้างภาพตัวละครสามมุมมองด้วย Toonflow" width="80%" /></a><br /><sub>ภาพตัวละครสามมุมมองและการสร้างภาพ</sub>
 
-<a href="./screenshots/videoGeneration.png"><img src="./screenshots/videoGeneration.png" alt="การสร้างวิดีโอจากสื่ออ้างอิงหลายรายการด้วย Toonflow" width="80%" /></a><br /><sub>การสร้างวิดีโอจากสื่ออ้างอิงหลายรายการ</sub>
+<a href="../images/screenshots/videoGeneration.png"><img src="../images/screenshots/videoGeneration.png" alt="การสร้างวิดีโอจากสื่ออ้างอิงหลายรายการด้วย Toonflow" width="80%" /></a><br /><sub>การสร้างวิดีโอจากสื่ออ้างอิงหลายรายการ</sub>
 
-<a href="./screenshots/nodeMenu.png"><img src="./screenshots/nodeMenu.png" alt="เมนูโหนดและการจัดกลุ่มของ Toonflow" width="80%" /></a><br /><sub>เมนูโหนดและการจัดกลุ่ม</sub>
+<a href="../images/screenshots/nodeMenu.png"><img src="../images/screenshots/nodeMenu.png" alt="เมนูโหนดและการจัดกลุ่มของ Toonflow" width="80%" /></a><br /><sub>เมนูโหนดและการจัดกลุ่ม</sub>
 
-<a href="./screenshots/pluginMarket.png"><img src="./screenshots/pluginMarket.png" alt="ตลาดปลั๊กอินของ Toonflow" width="80%" /></a><br /><sub>ตลาดปลั๊กอิน</sub>
+<a href="../images/screenshots/pluginMarket.png"><img src="../images/screenshots/pluginMarket.png" alt="ตลาดปลั๊กอินของ Toonflow" width="80%" /></a><br /><sub>ตลาดปลั๊กอิน</sub>
 
 </div>
 
@@ -249,7 +274,7 @@ sudo spctl --master-disable
 
 ### 4.2 การติดตั้งด้วย Docker
 
-ติดตั้ง Git, [Docker Engine](https://docs.docker.com/engine/install/) และ Docker Compose ก่อน สำหรับ Windows / macOS สามารถใช้ Docker Desktop ในโหมดคอนเทนเนอร์ Linux ได้ ที่เก็บโค้ดมี [Dockerfile](../Dockerfile), [การกำหนดค่า Compose](../compose.yaml) และ[กฎยกเว้นไฟล์สำหรับการบิลด์](../.dockerignore) โดยบิลด์ด้วย Bun 1.3.14 และมี FFmpeg รวมอยู่ในอิมเมจ
+ติดตั้ง Git, [Docker Engine](https://docs.docker.com/engine/install/) และ Docker Compose ก่อน สำหรับ Windows / macOS สามารถใช้ Docker Desktop ในโหมดคอนเทนเนอร์ Linux ได้ ที่เก็บโค้ดมี [Dockerfile](../../Dockerfile), [การกำหนดค่า Compose](../../compose.yaml) และ[กฎยกเว้นไฟล์สำหรับการบิลด์](../../.dockerignore) โดยบิลด์ด้วย Bun 1.3.14 และมี FFmpeg รวมอยู่ในอิมเมจ
 
 <details>
 <summary><strong>แสดงขั้นตอนการติดตั้งด้วย Docker</strong></summary>
@@ -455,7 +480,7 @@ TF-Router คือแพลตฟอร์มตัวกลางสำหร�
 
 ผู้ช่วยสำหรับเข้าร่วมกลุ่ม:
 
-<img src="./qr.png" alt="รหัส QR ของชุมชน Toonflow" height="400"/>
+<img src="../images/qr.png" alt="รหัส QR ของชุมชน Toonflow" height="400"/>
 
 คลิกไอคอนเพื่อเข้าร่วม Discord ได้เช่นกัน:
 
@@ -473,7 +498,7 @@ TF-Router คือแพลตฟอร์มตัวกลางสำหร�
 
 ## 9. 📜 สัญญาอนุญาตโอเพนซอร์ส
 
-Toonflow ใช้[สัญญาอนุญาต MIT](../LICENSE) ส่วนแพ็กเกจและสื่อของบุคคลที่สามอยู่ภายใต้สัญญาอนุญาตและประกาศลิขสิทธิ์ของตน
+Toonflow ใช้[สัญญาอนุญาต MIT](../../LICENSE) ส่วนแพ็กเกจและสื่อของบุคคลที่สามอยู่ภายใต้สัญญาอนุญาตและประกาศลิขสิทธิ์ของตน
 
 [![ประวัติจำนวนดาวของ Toonflow](https://api.star-history.com/svg?repos=HBAI-Ltd/Toonflow-app&type=Date)](https://www.star-history.com/#HBAI-Ltd/Toonflow-app&Date)
 

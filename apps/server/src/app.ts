@@ -7,6 +7,9 @@ import buildRoute from "@/core";
 import { error } from "@/lib/responseFormat";
 import desktopRequest from "@/lib/desktop";
 import initializePlugins from "@/utils/plugins/initialize";
+import { languageRequest, resolveRequestLocale, runWithLocale, setLocaleFallback, translateError, translateMessage } from "@/lib/i18n";
+import { detectLocale, normalizeLocale } from "@toonflow/i18n";
+import { z } from "zod";
 
 const autoInstallProviders = ["tfRouter.ts", "apiMart.ts", "meta.ts"];
 
@@ -31,6 +34,9 @@ export async function createApp({
 }) {
   // conf 由下方的路由动态加载，必须先确定整个进程共用的数据目录。
   if (dataDirectory) process.env.TOONFLOW_DATA_DIR = resolve(dataDirectory);
+  const { default: conf } = await import("@/utils/conf");
+  setLocaleFallback(() => normalizeLocale((conf.get("settings", {}).ui as { language?: unknown } | undefined)?.language)
+    ?? detectLocale([Intl.DateTimeFormat().resolvedOptions().locale]));
   if (dataDirectory && toolsRoot)
     await initializePlugins(resolve(dataDirectory, "tools"), toolsRoot, /^[a-z][a-zA-Z0-9]*\.tool\.js$/, pluginRevision);
   if (dataDirectory && nodesRoot) await initializePlugins(resolve(dataDirectory, "nodes"), nodesRoot, /^[a-z][a-zA-Z0-9]*\.umd\.js$/, pluginRevision);
@@ -46,6 +52,7 @@ export async function createApp({
     app.use(logger("dev"));
   }
   app.use(cors());
+  app.use(languageRequest);
   app.use("/a2a", express.json({ limit: "2mb" }));
   app.use(["/api/workspaces/files/write", "/api/assets/save"], express.raw({ type: "application/octet-stream", limit: "100mb" }));
   app.use(express.json({ limit: "100mb" }));
@@ -62,7 +69,11 @@ export async function createApp({
     import("@/utils/mcp/control"),
     import("@/utils/mcp/resources"),
   ]);
-  app.use("/mcp", createMcpRouter({ getTools: getMcpTools, authorize: authorizeMcp, resources: skillResources }));
+  app.use("/mcp", createMcpRouter({ getTools: getMcpTools, authorize: authorizeMcp, resources: skillResources,
+    runInRequest: (request, operation) => runWithLocale(resolveRequestLocale(request.get("accept-language")), operation),
+    translate: translateMessage,
+    translateError,
+  }));
   const { createA2aRouter } = await import("@/agent/a2a");
   app.use("/a2a", createA2aRouter());
   app.use(express.static(webRoot));
@@ -71,6 +82,9 @@ export async function createApp({
   app.use((err: Error & { status?: number }, request: Request, response: Response, next: NextFunction) => {
     if (response.headersSent) return next(err);
     console.error(err);
+    if (err instanceof z.ZodError) {
+      return response.status(400).json(error("参数错误", err.issues.map(issue => ({ ...issue, message: translateMessage(issue.message) })), 400));
+    }
     const code = (err as NodeJS.ErrnoException).code;
     const status = err.status || ({ ENOENT: 404, ENOTDIR: 404, EEXIST: 409, ENOTEMPTY: 409, EACCES: 403, EPERM: 403 }[code ?? ""] ?? 500);
     const message =
@@ -82,7 +96,7 @@ export async function createApp({
         EACCES: "没有权限访问这个文件或文件夹。请检查权限，或换一个位置重试。",
         EPERM: "系统不允许这次操作。文件可能正在被其他程序使用，请关闭后重试。",
         EISDIR: "你选中的是文件夹，但这里需要的是文件。请重新选择具体文件。",
-      }[code ?? ""] ?? err.message;
+      }[code ?? ""] ?? translateError(err);
     response.status(status).json(error(message, code ? { code } : null, status));
   });
 

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { listMediaModels, generateMedia } from "@/utils/media/generation";
 import { createWorkspaceFfmpeg } from "@/utils/ffmpeg";
 import { basename, dirname, join, relative, resolve } from "node:path";
@@ -81,8 +82,8 @@ export async function createAgentTools(cwd: string, canvas?: CanvasContext, ques
     const config = validateToolConfig(plugin, item.config);
     const definitions = await plugin.createTools({ ...context, config });
     for (const tool of definitions) {
-      if (!tool.name || typeof tool.execute !== "function") throw new Error(`${item.displayName} 返回了无效的工具`);
-      if (names.has(tool.name)) throw new Error(`工具名称重复：${tool.name}`);
+      if (!tool.name || typeof tool.execute !== "function") throw new Error(t`${item.displayName} 返回了无效的工具`);
+      if (names.has(tool.name)) throw new Error(t`工具名称重复：${tool.name}`);
       names.add(tool.name);
       tools.push({
         ...tool,

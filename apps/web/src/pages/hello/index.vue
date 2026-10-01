@@ -1,5 +1,6 @@
 <template>
   <main class="hello" :class="{ configuring: view !== 'welcome' }">
+    <div class="pageLanguage"><languageSelect popover /></div>
     <section class="welcomePanel" aria-labelledby="welcomeTitle">
       <div v-if="view !== 'welcome'" class="providerContent">
         <header class="providerHeader">
@@ -72,6 +73,7 @@ import { useHelloStore } from "@/stores/hello";
 import anonymousData from "@/lib/anonymousData";
 import logoSvg from "@toonflow/assets/logo.svg?raw";
 import bg from "./bg.vue";
+import languageSelect from "@/components/languageSelect.vue";
 
 const languageModel = defineAsyncComponent(() => import("@/components/settings/panels/languageModel/index.vue"));
 const view = ref<"welcome" | "login" | "custom">("welcome");
@@ -225,6 +227,14 @@ onBeforeUnmount(() => {
   color: var(--el-text-color-primary);
   font-family: "Inter", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
 
+  .pageLanguage {
+    position: fixed;
+    top: 16px;
+    inset-inline-end: calc(50% + 8px);
+    z-index: 2;
+    max-width: calc(50% - 24px);
+  }
+
   .welcomePanel {
     display: grid;
     grid-template-rows: 1fr auto 1fr;
@@ -305,12 +315,15 @@ onBeforeUnmount(() => {
       .buttonIcon {
         width: 18px;
         height: 18px;
-        margin-right: 8px;
+        margin-inline-end: 8px;
       }
 
       .loginButton {
         width: 100%;
-        height: 50px;
+        height: auto;
+        min-height: 50px;
+        padding: 12px;
+        white-space: normal;
         border-radius: calc(var(--ui-radius) * 1.625);
         font-size: 16px;
         font-weight: 600;
@@ -330,9 +343,11 @@ onBeforeUnmount(() => {
         }
 
         .secondaryButton {
-          height: 36px;
+          height: auto;
+          min-height: 36px;
           margin: 0;
-          padding: 0 16px;
+          padding: 8px 16px;
+          white-space: normal;
           font-size: 13px;
         }
       }
@@ -417,6 +432,11 @@ onBeforeUnmount(() => {
 
   @media (max-width: 700px) {
     grid-template-columns: 1fr;
+
+    .pageLanguage {
+      inset-inline-end: 16px;
+      max-width: calc(100% - 32px);
+    }
 
     .welcomePanel {
       padding: 32px 20px;

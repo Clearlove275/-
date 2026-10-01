@@ -10,10 +10,13 @@
     "./remote": "./src/remote.ts",
     "./runtime": "./src/runtime.ts"
   },
-  "scripts": { "typecheck": "tsc" },
+  "scripts": {
+    "typecheck": "tsc"
+  },
   "dependencies": {
     "@toonflow/file": "workspace:*",
     "eventsource-parser": "3.1.1",
-    "@renmu/fluent-ffmpeg": "2.3.3"
+    "@renmu/fluent-ffmpeg": "2.3.3",
+    "@toonflow/i18n": "workspace:*"
   }
 }

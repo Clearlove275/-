@@ -65,7 +65,7 @@
               <span class="projectInfo">
                 <span class="projectName" :title="project.name">{{ project.name }}</span>
                 <span class="projectPath" :title="project.directory">{{ project.directory }}</span>
-                <span class="projectTime">最近打开 {{ new Date(project.lastOpenedAt).toLocaleString('zh-CN', { hour12: false }) }}</span>
+                <span class="projectTime">最近打开 {{ new Date(project.lastOpenedAt).toLocaleString(locale, { hour12: false }) }}</span>
               </span>
             </button>
             <div class="projectActions">
@@ -82,6 +82,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale, translate } from "@toonflow/i18n/vue";
 import axios from "axios";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, ref, watch } from "vue";
@@ -125,22 +126,28 @@ const placeholderPhrases = [
   "设计一支富有想象力的产品宣传片…",
   "从一句话开始，搭建你的创作工作流…",
 ];
-const promptPlaceholder = ref(placeholderPhrases[0]!);
+const promptPlaceholder = ref(translate(placeholderPhrases[0]!));
 
 onMounted(() => {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let phraseIndex = 0;
-  watch(() => !!prompt.value, (hasInput, _previous, onCleanup) => {
+  watch([() => !!prompt.value, locale], ([hasInput], _previous, onCleanup) => {
+    if (reduceMotion) {
+      promptPlaceholder.value = translate(placeholderPhrases[0]!);
+      return;
+    }
     if (hasInput) return;
+    const segmenter = new Intl.Segmenter(locale.value, { granularity: "grapheme" });
+    const phrases = placeholderPhrases.map(phrase => [...segmenter.segment(translate(phrase))].map(part => part.segment));
     let characterCount = 0;
     let deleting = false;
     let timer: ReturnType<typeof setTimeout>;
     promptPlaceholder.value = "";
 
     function typePlaceholder() {
-      const phrase = placeholderPhrases[phraseIndex]!;
+      const phrase = phrases[phraseIndex]!;
       characterCount += deleting ? -1 : 1;
-      promptPlaceholder.value = phrase.slice(0, characterCount);
+      promptPlaceholder.value = phrase.slice(0, characterCount).join("");
       let delay = deleting ? 35 : 85;
       if (characterCount === phrase.length) {
         deleting = true;
@@ -282,15 +289,18 @@ async function createProject(fromPrompt = true) {
 
       .starHint {
         top: 0;
-        right: calc(100% + 12px);
+        inset-inline-end: calc(100% + 12px);
         height: 100%;
+
+        &:dir(rtl) svg { transform: scaleX(-1); }
 
         @media (max-width: 560px) {
           top: calc(100% + 6px);
-          right: 0;
+          inset-inline-end: 0;
           height: auto;
 
           svg { transform: rotate(-45deg); }
+          &:dir(rtl) svg { transform: scaleX(-1) rotate(-45deg); }
         }
       }
     }

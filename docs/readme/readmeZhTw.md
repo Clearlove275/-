@@ -10,24 +10,42 @@
   </a>
   &nbsp;|&nbsp;
   <a href="https://atomgit.com/HBAI-Ltd/Toonflow-app">
-    <img src="./atomgitLogo.svg" alt="AtomGit" height="20" />
+    <img src="../images/atomgitLogo.svg" alt="AtomGit" height="20" />
   </a>
 </p>
 
 <p align="center">
-  <a href="../README.md">简体中文</a> |
+  <a href="../../README.md">简体中文</a> |
   <strong>繁體中文</strong> |
-  <a href="./README.en.md">English</a> |
-  <a href="./README.th.md">ไทย</a> |
-  <a href="./README.vi.md">Tiếng Việt</a> |
-  <a href="./README.ja.md">日本語</a> |
-  <a href="./README.ru.md">Русский</a>
+  <a href="./readmeEn.md">English</a> |
+  <a href="./readmeJa.md">日本語</a> |
+  <a href="./readmeRu.md">Русский</a> |
+  <a href="./readmeVi.md">Tiếng Việt</a> |
+  <a href="./readmeTh.md">ไทย</a>
+  <br />
+  <a href="./readmeKo.md">한국어</a> |
+  <a href="./readmeHi.md">हिन्दी</a> |
+  <a href="./readmeId.md">Bahasa Indonesia</a> |
+  <a href="./readmeMs.md">Bahasa Melayu</a> |
+  <a href="./readmeFil.md">Filipino</a> |
+  <a href="./readmeBn.md">বাংলা</a> |
+  <a href="./readmeUr.md">اردو</a>
+  <br />
+  <a href="./readmeTa.md">தமிழ்</a> |
+  <a href="./readmeTe.md">తెలుగు</a> |
+  <a href="./readmeMr.md">मराठी</a> |
+  <a href="./readmePa.md">ਪੰਜਾਬੀ</a> |
+  <a href="./readmeAr.md">العربية</a> |
+  <a href="./readmeFa.md">فارسی</a> |
+  <a href="./readmeTr.md">Türkçe</a>
 </p>
+
+> 🌐 **支援 21 種介面語言** · [查看支援的語言](#languages)
 
 <div align="center">
 
 <p align="center">
-  <img src="./logo.png" alt="Toonflow 標誌" width="120" height="120" />
+  <img src="../images/logo.png" alt="Toonflow 標誌" width="120" height="120" />
 </p>
 
 <a href="https://git.io/typing-svg">
@@ -41,7 +59,7 @@
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/stargazers">
     <img src="https://img.shields.io/github/stars/HBAI-Ltd/Toonflow-app?style=for-the-badge&logo=github" alt="星標徽章" />
   </a>
-  <a href="../LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT 授權徽章" />
   </a>
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/releases">
@@ -93,13 +111,13 @@
   <table>
     <tr>
       <td width="50%" align="center">
-        <a href="./gStar.png">
-          <img src="./gStar.png" alt="Toonflow AtomGit G-Star 認證證書 No.540" width="100%" />
+        <a href="../images/gStar.png">
+          <img src="../images/gStar.png" alt="Toonflow AtomGit G-Star 認證證書 No.540" width="100%" />
         </a>
       </td>
       <td width="50%" align="center">
-        <a href="./gvp.jpg">
-          <img src="./gvp.jpg" alt="Toonflow Gitee GVP 認證證書" width="100%" />
+        <a href="../images/gvp.jpg">
+          <img src="../images/gvp.jpg" alt="Toonflow Gitee GVP 認證證書" width="100%" />
         </a>
       </td>
     </tr>
@@ -123,19 +141,19 @@
 <table>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="./sponsors/metaso.svg" alt="秘塔" height="28" valign="middle" /> <strong>秘塔</strong></a>
+      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="../images/sponsors/metaso.svg" alt="秘塔" height="28" valign="middle" /> <strong>秘塔</strong></a>
       <br />
       <sub>提供高性價比的 MiniMax H3 影片生成服務：768P 僅人民幣 0.09 元/秒，2K 僅人民幣 0.15 元/秒；支援原生 2K、影音同步，API 相容 OpenAI 協定，同時支援 ComfyUI、無限畫布，無需自行部署 GPU。透過<a href="https://metaso.cn/minimax-h3/?s=toon">專屬連結註冊</a>即可領取贈送額度及專屬優惠，商務洽談可加微信 metasota12。</sub>
     </td>
     <td width="50%" valign="top">
-      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="./sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
+      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="../images/sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
       <br />
-      <sub>感謝 APIMart 贊助本專案的運算資源！專注於 AI 圖片與影片生成的平價 API 平台，GPT-Image-2 每張低至 $0.006，1 美元可生成 160+ 張圖片；圖片與影片共用一套非同步 API，提交任務取得 ID，透過回呼取得結果，批次處理上萬張也不逾時，切換模型無需修改程式碼，按用量計費、無月費。透過此<a href="https://go.apimart.ai/gh-toonflow-app">註冊連結</a>註冊即可使用。</sub>
+      <sub>感謝 APIMart 贊助本專案！專注於 AI 圖片與影片生成的平價 API 平台，GPT-Image-2 每張低至 $0.006，1 美元可生成 160+ 張圖片；圖片與影片共用一套非同步 API，提交任務取得 ID，透過回呼取得結果，批次處理上萬張也不逾時，切換模型無需修改程式碼，按用量計費、無月費。透過此<a href="https://go.apimart.ai/gh-toonflow-app">註冊連結</a>註冊即可使用。</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="./sponsors/compShare.png" alt="優雲智算" height="28" valign="middle" /> <strong>優雲智算</strong></a>
+      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="../images/sponsors/compShare.png" alt="優雲智算" height="28" valign="middle" /> <strong>優雲智算</strong></a>
       <br />
       <sub>優雲智算提供高性價比 H3 影片生成服務，涵蓋文字生成影片、首尾影格及全能參考。支援最長 30 秒影片、原生 2K 畫質，768P 僅人民幣 0.08 元/秒。支援 API 呼叫、企業高併發、自助開立發票。</sub>
       <br /><br />
@@ -149,7 +167,7 @@
 <summary><strong>👉成為贊助商👈</strong></summary>
 
 <p align="center">
-  <img src="./businessQr.png" alt="商務合作微信 QR Code" width="200" />
+  <img src="../images/businessQr.png" alt="商務合作微信 QR Code" width="200" />
 </p>
 
 <p align="center"><sub>此聯絡方式僅供商務合作洽談，不提供問題解答。使用問題歡迎在交流群交流，需求與 BUG 可透過回饋表提交。感謝理解。</sub></p>
@@ -170,6 +188,13 @@ Toonflow 是面向短劇、動態漫畫與短影片製作的開源 AI 創作平�
 | 🧩 **外掛市集** | 透過[外掛市集](https://api.toonflow.net/console/plugIn)擴充節點、工具與創作功能。 |
 | 🤖 **開放 Agent** | 開放提示詞、工具與 A2A，支援自訂 Agent 行為及外部協作。 |
 | 🔧 **自由串接模型** | 設定第三方 API，也可串接本機 ComfyUI 和 LLM。 |
+| 🌐 **多語言支援** | 支援 21 種介面語言。 |
+
+<a id="languages"></a>
+
+### 多語言支援
+
+支援的語言：简体中文、繁體中文、English、日本語、Русский、Tiếng Việt、ไทย、한국어、हिन्दी、Bahasa Indonesia、Bahasa Melayu、Filipino、বাংলা、اردو、தமிழ்、తెలుగు、मराठी、ਪੰਜਾਬੀ、العربية、فارسی、Türkçe。
 
 ---
 
@@ -177,25 +202,25 @@ Toonflow 是面向短劇、動態漫畫與短影片製作的開源 AI 創作平�
 
 <div align="center">
 
-<a href="./screenshots/projectHome.png"><img src="./screenshots/projectHome.png" alt="Toonflow 專案首頁與靈感創作" width="80%" /></a><br /><sub>專案首頁與靈感創作</sub>
+<a href="../images/screenshots/projectHome.png"><img src="../images/screenshots/projectHome.png" alt="Toonflow 專案首頁與靈感創作" width="80%" /></a><br /><sub>專案首頁與靈感創作</sub>
 
-<a href="./screenshots/quickStart.png"><img src="./screenshots/quickStart.png" alt="Toonflow 首次啟動與快速設定" width="80%" /></a><br /><sub>首次啟動與快速設定</sub>
+<a href="../images/screenshots/quickStart.png"><img src="../images/screenshots/quickStart.png" alt="Toonflow 首次啟動與快速設定" width="80%" /></a><br /><sub>首次啟動與快速設定</sub>
 
-<a href="./screenshots/canvasDark.png"><img src="./screenshots/canvasDark.png" alt="Toonflow 深色主題畫布與 AI 助手" width="80%" /></a><br /><sub>創作畫布 · 深色主題</sub>
+<a href="../images/screenshots/canvasDark.png"><img src="../images/screenshots/canvasDark.png" alt="Toonflow 深色主題畫布與 AI 助手" width="80%" /></a><br /><sub>創作畫布 · 深色主題</sub>
 
-<a href="./screenshots/canvasLight.png"><img src="./screenshots/canvasLight.png" alt="Toonflow 淺色主題畫布與 AI 助手" width="80%" /></a><br /><sub>創作畫布 · 淺色主題</sub>
+<a href="../images/screenshots/canvasLight.png"><img src="../images/screenshots/canvasLight.png" alt="Toonflow 淺色主題畫布與 AI 助手" width="80%" /></a><br /><sub>創作畫布 · 淺色主題</sub>
 
-<a href="./screenshots/assetCanvas.png"><img src="./screenshots/assetCanvas.png" alt="Toonflow 角色、場景與道具素材畫布" width="80%" /></a><br /><sub>角色、場景與道具素材</sub>
+<a href="../images/screenshots/assetCanvas.png"><img src="../images/screenshots/assetCanvas.png" alt="Toonflow 角色、場景與道具素材畫布" width="80%" /></a><br /><sub>角色、場景與道具素材</sub>
 
-<a href="./screenshots/directorStudio.png"><img src="./screenshots/directorStudio.png" alt="Toonflow 3D 導演台與鏡頭預演" width="80%" /></a><br /><sub>3D 導演台與鏡頭預演</sub>
+<a href="../images/screenshots/directorStudio.png"><img src="../images/screenshots/directorStudio.png" alt="Toonflow 3D 導演台與鏡頭預演" width="80%" /></a><br /><sub>3D 導演台與鏡頭預演</sub>
 
-<a href="./screenshots/characterImageGeneration.png"><img src="./screenshots/characterImageGeneration.png" alt="Toonflow 角色三視圖圖片生成" width="80%" /></a><br /><sub>角色三視圖與圖片生成</sub>
+<a href="../images/screenshots/characterImageGeneration.png"><img src="../images/screenshots/characterImageGeneration.png" alt="Toonflow 角色三視圖圖片生成" width="80%" /></a><br /><sub>角色三視圖與圖片生成</sub>
 
-<a href="./screenshots/videoGeneration.png"><img src="./screenshots/videoGeneration.png" alt="Toonflow 多參考素材影片生成" width="80%" /></a><br /><sub>多參考素材影片生成</sub>
+<a href="../images/screenshots/videoGeneration.png"><img src="../images/screenshots/videoGeneration.png" alt="Toonflow 多參考素材影片生成" width="80%" /></a><br /><sub>多參考素材影片生成</sub>
 
-<a href="./screenshots/nodeMenu.png"><img src="./screenshots/nodeMenu.png" alt="Toonflow 節點選單與群組操作" width="80%" /></a><br /><sub>節點選單與群組操作</sub>
+<a href="../images/screenshots/nodeMenu.png"><img src="../images/screenshots/nodeMenu.png" alt="Toonflow 節點選單與群組操作" width="80%" /></a><br /><sub>節點選單與群組操作</sub>
 
-<a href="./screenshots/pluginMarket.png"><img src="./screenshots/pluginMarket.png" alt="Toonflow 外掛市集" width="80%" /></a><br /><sub>外掛市集</sub>
+<a href="../images/screenshots/pluginMarket.png"><img src="../images/screenshots/pluginMarket.png" alt="Toonflow 外掛市集" width="80%" /></a><br /><sub>外掛市集</sub>
 
 </div>
 
@@ -249,7 +274,7 @@ sudo spctl --master-disable
 
 ### 4.2 Docker 安裝
 
-先安裝 Git、[Docker Engine](https://docs.docker.com/engine/install/) 和 Docker Compose；Windows / macOS 可使用 Docker Desktop 的 Linux 容器模式。儲存庫提供 [Dockerfile](../Dockerfile)、[Compose 設定](../compose.yaml) 和[建置排除規則](../.dockerignore)，以 Bun 1.3.14 建置，映像檔內含 FFmpeg。
+先安裝 Git、[Docker Engine](https://docs.docker.com/engine/install/) 和 Docker Compose；Windows / macOS 可使用 Docker Desktop 的 Linux 容器模式。儲存庫提供 [Dockerfile](../../Dockerfile)、[Compose 設定](../../compose.yaml) 和[建置排除規則](../../.dockerignore)，以 Bun 1.3.14 建置，映像檔內含 FFmpeg。
 
 <details>
 <summary><strong>展開 Docker 安裝步驟</strong></summary>
@@ -455,7 +480,7 @@ TF-Router 是 Toonflow 自營的官方模型中轉平台，歡迎使用。平台
 
 入群小幫手：
 
-<img src="./qr.png" alt="Toonflow 入群 QR Code" height="400"/>
+<img src="../images/qr.png" alt="Toonflow 入群 QR Code" height="400"/>
 
 也可以點擊圖示加入 Discord：
 
@@ -473,7 +498,7 @@ TF-Router 是 Toonflow 自營的官方模型中轉平台，歡迎使用。平台
 
 ## 9. 📜 開源授權
 
-Toonflow 採用 [MIT 授權條款](../LICENSE)。第三方相依套件與素材遵循各自的授權及著作權聲明。
+Toonflow 採用 [MIT 授權條款](../../LICENSE)。第三方相依套件與素材遵循各自的授權及著作權聲明。
 
 [![Toonflow 星標歷史](https://api.star-history.com/svg?repos=HBAI-Ltd/Toonflow-app&type=Date)](https://www.star-history.com/#HBAI-Ltd/Toonflow-app&Date)
 

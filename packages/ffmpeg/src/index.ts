@@ -1,3 +1,5 @@
+import { msg } from "@toonflow/i18n";
+import { messageError } from "@toonflow/i18n/errors";
 import { createHash } from "node:crypto";
 import { createReadStream, createWriteStream, chmod, lstat, mkdir, mkdtemp, realpath, rename, rm } from "@toonflow/file";
 import { file } from "@toonflow/file/bun";
@@ -38,11 +40,11 @@ async function readVersion(path: string, name: string, signal?: AbortSignal) {
   const [output, code] = await Promise.all([child.stdout.text(), child.exited]);
   signal?.throwIfAborted();
   const version = output.split(/\r?\n/, 1)[0];
-  if (code !== 0 || !version?.startsWith(`${name} version `)) throw new Error(`${name} 无法运行，请检查平台兼容性或重新下载`);
+  if (code !== 0 || !version?.startsWith(`${name} version `)) throw messageError(msg`${name} 无法运行，请检查平台兼容性或重新下载`);
   return version;
 }
 
-export async function getToolStatus(directory: string, mode: FfmpegMode) {
+export async function getToolStatus(directory: string, mode: FfmpegMode, formatError = (error: unknown) => error instanceof Error ? error.message : String(error)) {
   const entries = await Promise.all(toolNames.map(async (name) => {
     const downloaded = join(directory, executableName(name));
     const hasDownload = mode !== "system" && await file(downloaded).exists();
@@ -51,7 +53,7 @@ export async function getToolStatus(directory: string, mode: FfmpegMode) {
     try {
       return [name, { path, origin, version: path ? await readVersion(path, name) : null, error: path ? null : "未找到可用程序" }] as const;
     } catch (error) {
-      return [name, { path, origin, version: null, error: error instanceof Error ? error.message : String(error) }] as const;
+      return [name, { path, origin, version: null, error: formatError(error) }] as const;
     }
   }));
   return Object.fromEntries(entries) as Record<typeof toolNames[number], typeof entries[number][1]>;
@@ -62,14 +64,14 @@ async function checkDirectory(path: string) {
     if (error.code !== "ENOENT") throw error;
     return null;
   });
-  if (stat && (!stat.isDirectory() || stat.isSymbolicLink())) throw new Error(`安装目录必须是普通文件夹：${path}`);
+  if (stat && (!stat.isDirectory() || stat.isSymbolicLink())) throw messageError(msg`安装目录必须是普通文件夹：${path}`);
   return stat !== null;
 }
 
 export async function installFfmpeg(directory: string, sourceId: SourceId, signal: AbortSignal, report: (state: DownloadState) => void) {
   const source = downloadSources.find(item => item.id === sourceId);
   if (!source?.available) throw new Error("此下载源暂不可用，请选择其他下载源");
-  if (!build) throw new Error(`暂不支持自动下载 ${target} 版本`);
+  if (!build) throw messageError(msg`暂不支持自动下载 ${target} 版本`);
   signal = AbortSignal.any([signal, AbortSignal.timeout(15 * 60 * 1000)]);
   signal.throwIfAborted();
   const parent = dirname(resolve(directory));
@@ -89,7 +91,7 @@ export async function installFfmpeg(directory: string, sourceId: SourceId, signa
       const asset = build[name];
       report({ phase: "downloading", file: name, received: 0 });
       const response = await fetch(`${source.urlPrefix}${asset.fileName}`, { signal });
-      if (!response.ok || !response.body) throw new Error(`${name} 下载失败（HTTP ${response.status}）`);
+      if (!response.ok || !response.body) throw messageError(msg`${name} 下载失败（HTTP ${response.status}）`);
       const total = Number(response.headers.get("content-length")) || undefined;
       let received = 0;
       const hash = createHash("sha256");
@@ -104,7 +106,7 @@ export async function installFfmpeg(directory: string, sourceId: SourceId, signa
         },
       }), createWriteStream(compressed, { flags: "wx", signal }), { signal });
       report({ phase: "verifying", file: name, received, total });
-      if (hash.digest("hex") !== asset.sha256) throw new Error(`${name} 文件校验失败，请换源重试`);
+      if (hash.digest("hex") !== asset.sha256) throw messageError(msg`${name} 文件校验失败，请换源重试`);
       const binary = join(staged, executableName(name));
       let extracted = 0;
       await pipeline(createReadStream(compressed, { signal }), createGunzip(), new Transform({
@@ -128,7 +130,7 @@ export async function installFfmpeg(directory: string, sourceId: SourceId, signa
         try { await rename(previous, destination); }
         catch {
           preserveBackup = true;
-          throw new Error(`安装失败且无法恢复旧版本，旧文件保留在 ${previous}`, { cause: error });
+          throw messageError(msg`安装失败且无法恢复旧版本，旧文件保留在 ${previous}`, { cause: error });
         }
       }
       throw error;

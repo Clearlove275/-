@@ -1,3 +1,5 @@
+import { msg } from "@toonflow/i18n";
+import { messageError } from "@toonflow/i18n/errors";
 import { chainMethods, queryMethods, runMethods } from "./browserTypes";
 import type { BrowserFfmpegRequest, FfmpegCall, FfmpegRemoteEvent } from "./browserTypes";
 import type { FfmpegCommand, FfmpegFactory } from "./types";
@@ -12,7 +14,7 @@ const outputNames = new Set(["output", "addOutput", "save", "saveToFile", "conca
 
 function serializeError(error: unknown) {
   return error instanceof Error
-    ? { name: error.name, message: error.message, ...("code" in error ? { code: error.code } : {}) }
+    ? { name: error.name, message: error.message, ...("code" in error ? { code: error.code } : {}), ...("i18nMessage" in error ? { i18nMessage: error.i18nMessage } : {}) }
     : { name: "Error", message: String(error) };
 }
 
@@ -34,11 +36,11 @@ export async function executeRemoteFfmpeg(
   try {
     signal.throwIfAborted();
     for (const call of request.calls) {
-      if (!chainNames.has(call.method)) throw new Error(`FFmpeg 配置方法不可用：${call.method}`);
+      if (!chainNames.has(call.method)) throw messageError(msg`FFmpeg 配置方法不可用：${call.method}`);
     }
     const operation = request.operation;
     if (!queryNames.has(operation.method) && !runNames.has(operation.method)) {
-      throw new Error(`FFmpeg 执行方法不可用：${operation.method}`);
+      throw messageError(msg`FFmpeg 执行方法不可用：${operation.method}`);
     }
     let command = factory(request.options);
     for (const call of request.calls) command = invoke(command, call) as FfmpegCommand;

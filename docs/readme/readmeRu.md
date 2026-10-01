@@ -10,24 +10,42 @@
   </a>
   &nbsp;|&nbsp;
   <a href="https://atomgit.com/HBAI-Ltd/Toonflow-app">
-    <img src="./atomgitLogo.svg" alt="AtomGit" height="20" />
+    <img src="../images/atomgitLogo.svg" alt="AtomGit" height="20" />
   </a>
 </p>
 
 <p align="center">
-  <a href="../README.md">简体中文</a> |
-  <a href="./README.zhtw.md">繁體中文</a> |
-  <a href="./README.en.md">English</a> |
-  <a href="./README.th.md">ไทย</a> |
-  <a href="./README.vi.md">Tiếng Việt</a> |
-  <a href="./README.ja.md">日本語</a> |
-  <strong>Русский</strong>
+  <a href="../../README.md">简体中文</a> |
+  <a href="./readmeZhTw.md">繁體中文</a> |
+  <a href="./readmeEn.md">English</a> |
+  <a href="./readmeJa.md">日本語</a> |
+  <strong>Русский</strong> |
+  <a href="./readmeVi.md">Tiếng Việt</a> |
+  <a href="./readmeTh.md">ไทย</a>
+  <br />
+  <a href="./readmeKo.md">한국어</a> |
+  <a href="./readmeHi.md">हिन्दी</a> |
+  <a href="./readmeId.md">Bahasa Indonesia</a> |
+  <a href="./readmeMs.md">Bahasa Melayu</a> |
+  <a href="./readmeFil.md">Filipino</a> |
+  <a href="./readmeBn.md">বাংলা</a> |
+  <a href="./readmeUr.md">اردو</a>
+  <br />
+  <a href="./readmeTa.md">தமிழ்</a> |
+  <a href="./readmeTe.md">తెలుగు</a> |
+  <a href="./readmeMr.md">मराठी</a> |
+  <a href="./readmePa.md">ਪੰਜਾਬੀ</a> |
+  <a href="./readmeAr.md">العربية</a> |
+  <a href="./readmeFa.md">فارسی</a> |
+  <a href="./readmeTr.md">Türkçe</a>
 </p>
+
+> 🌐 **Поддержка 21 языка интерфейса** · [Поддерживаемые языки](#languages)
 
 <div align="center">
 
 <p align="center">
-  <img src="./logo.png" alt="Логотип Toonflow" width="120" height="120" />
+  <img src="../images/logo.png" alt="Логотип Toonflow" width="120" height="120" />
 </p>
 
 <a href="https://git.io/typing-svg">
@@ -41,7 +59,7 @@
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/stargazers">
     <img src="https://img.shields.io/github/stars/HBAI-Ltd/Toonflow-app?style=for-the-badge&logo=github" alt="Звёзды GitHub" />
   </a>
-  <a href="../LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="Лицензия MIT" />
   </a>
   <a href="https://github.com/HBAI-Ltd/Toonflow-app/releases">
@@ -93,13 +111,13 @@
   <table>
     <tr>
       <td width="50%" align="center">
-        <a href="./gStar.png">
-          <img src="./gStar.png" alt="Сертификат Toonflow AtomGit G-Star №540" width="100%" />
+        <a href="../images/gStar.png">
+          <img src="../images/gStar.png" alt="Сертификат Toonflow AtomGit G-Star №540" width="100%" />
         </a>
       </td>
       <td width="50%" align="center">
-        <a href="./gvp.jpg">
-          <img src="./gvp.jpg" alt="Сертификат Toonflow Gitee GVP" width="100%" />
+        <a href="../images/gvp.jpg">
+          <img src="../images/gvp.jpg" alt="Сертификат Toonflow Gitee GVP" width="100%" />
         </a>
       </td>
     </tr>
@@ -123,19 +141,19 @@
 <table>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="./sponsors/metaso.svg" alt="Metaso" height="28" valign="middle" /> <strong>Metaso</strong></a>
+      <a href="https://metaso.cn/minimax-h3/?s=toon"><img src="../images/sponsors/metaso.svg" alt="Metaso" height="28" valign="middle" /> <strong>Metaso</strong></a>
       <br />
       <sub>Доступная генерация видео с MiniMax H3: всего ¥0.09 за секунду в 768P и ¥0.15 за секунду в 2K (CNY, китайские юани). Поддерживаются нативное разрешение 2K, синхронизация звука и изображения, API, совместимый с протоколом OpenAI, ComfyUI и бесконечные холсты. Собственный GPU не требуется. <a href="https://metaso.cn/minimax-h3/?s=toon">Зарегистрируйтесь по специальной ссылке</a>, чтобы получить подарочные средства и эксклюзивные предложения. По вопросам сотрудничества обращайтесь в WeChat: metasota12.</sub>
     </td>
     <td width="50%" valign="top">
-      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="./sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
+      <a href="https://go.apimart.ai/gh-toonflow-app"><img src="../images/sponsors/apiMart.svg" alt="APIMart" height="28" valign="middle" /> <strong>APIMart</strong></a>
       <br />
-      <sub>Благодарим APIMart за предоставленные проекту вычислительные ресурсы! Это доступная API-платформа для генерации изображений и видео с ИИ. GPT-Image-2 стоит от $0.006 за изображение: более 160 изображений за $1. Для изображений и видео используется единый асинхронный API: отправьте задачу, получите её ID, а затем результат через обратный вызов. Обрабатывайте пакеты из 10,000 изображений без тайм-аутов и меняйте модели без изменения кода. Оплата по факту использования, без абонентской платы. Начать работу можно сразу после <a href="https://go.apimart.ai/gh-toonflow-app">регистрации по этой ссылке</a>.</sub>
+      <sub>Благодарим APIMart за поддержку проекта! Это доступная API-платформа для генерации изображений и видео с ИИ. GPT-Image-2 стоит от $0.006 за изображение: более 160 изображений за $1. Для изображений и видео используется единый асинхронный API: отправьте задачу, получите её ID, а затем результат через обратный вызов. Обрабатывайте пакеты из 10 000 изображений без тайм-аутов и меняйте модели без изменения кода. Оплата по факту использования, без абонентской платы. Начать работу можно сразу после <a href="https://go.apimart.ai/gh-toonflow-app">регистрации по этой ссылке</a>.</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="./sponsors/compShare.png" alt="CompShare" height="28" valign="middle" /> <strong>CompShare</strong></a>
+      <a href="https://www.compshare.cn/video-studio?ytag=GPU_YY_YX_git_toonflow"><img src="../images/sponsors/compShare.png" alt="CompShare" height="28" valign="middle" /> <strong>CompShare</strong></a>
       <br />
       <sub>CompShare предлагает доступную генерацию видео с H3: по тексту, с заданными первым и последним кадрами, а также в универсальном режиме работы с референсами. Поддерживаются видео длительностью до 30 секунд и нативное разрешение 2K; стоимость 768P — всего 0.08 китайского юаня за секунду. Доступны API, большое число одновременных запросов для корпоративных клиентов и самостоятельное оформление счетов.</sub>
       <br /><br />
@@ -149,7 +167,7 @@
 <summary><strong>👉 Стать спонсором 👈</strong></summary>
 
 <p align="center">
-  <img src="./businessQr.png" alt="QR-код WeChat для делового сотрудничества" width="200" />
+  <img src="../images/businessQr.png" alt="QR-код WeChat для делового сотрудничества" width="200" />
 </p>
 
 <p align="center"><sub>Этот контакт предназначен только для делового сотрудничества; техническая поддержка здесь не предоставляется. Вопросы по использованию можно обсудить в группах сообщества, а пожелания и сообщения об ошибках — отправить через форму обратной связи. Спасибо за понимание.</sub></p>
@@ -170,6 +188,13 @@ Toonflow — открытая ИИ-платформа для создания к
 | 🧩 **Каталог плагинов** | Добавляйте узлы, инструменты и творческие возможности через [каталог плагинов](https://api.toonflow.net/console/plugIn). |
 | 🤖 **Открытая система агентов** | Открытый доступ к промптам, инструментам и A2A для настройки поведения агентов и взаимодействия с внешними агентами. |
 | 🔧 **Свободное подключение моделей** | Настраивайте сторонние API или подключайте локальные ComfyUI и LLM. |
+| 🌐 **Поддержка языков** | Интерфейс доступен на 21 языке. |
+
+<a id="languages"></a>
+
+### Поддержка языков
+
+Поддерживаемые языки: 简体中文, 繁體中文, English, 日本語, Русский, Tiếng Việt, ไทย, 한국어, हिन्दी, Bahasa Indonesia, Bahasa Melayu, Filipino, বাংলা, اردو, தமிழ், తెలుగు, मराठी, ਪੰਜਾਬੀ, العربية, فارسی, Türkçe.
 
 ---
 
@@ -177,25 +202,25 @@ Toonflow — открытая ИИ-платформа для создания к
 
 <div align="center">
 
-<a href="./screenshots/projectHome.png"><img src="./screenshots/projectHome.png" alt="Главная страница проектов Toonflow и работа с идеями" width="80%" /></a><br /><sub>Главная страница проектов и работа с идеями</sub>
+<a href="../images/screenshots/projectHome.png"><img src="../images/screenshots/projectHome.png" alt="Главная страница проектов Toonflow и работа с идеями" width="80%" /></a><br /><sub>Главная страница проектов и работа с идеями</sub>
 
-<a href="./screenshots/quickStart.png"><img src="./screenshots/quickStart.png" alt="Первый запуск и быстрая настройка Toonflow" width="80%" /></a><br /><sub>Первый запуск и быстрая настройка</sub>
+<a href="../images/screenshots/quickStart.png"><img src="../images/screenshots/quickStart.png" alt="Первый запуск и быстрая настройка Toonflow" width="80%" /></a><br /><sub>Первый запуск и быстрая настройка</sub>
 
-<a href="./screenshots/canvasDark.png"><img src="./screenshots/canvasDark.png" alt="Холст Toonflow в тёмной теме и ИИ-помощник" width="80%" /></a><br /><sub>Творческий холст · Тёмная тема</sub>
+<a href="../images/screenshots/canvasDark.png"><img src="../images/screenshots/canvasDark.png" alt="Холст Toonflow в тёмной теме и ИИ-помощник" width="80%" /></a><br /><sub>Творческий холст · Тёмная тема</sub>
 
-<a href="./screenshots/canvasLight.png"><img src="./screenshots/canvasLight.png" alt="Холст Toonflow в светлой теме и ИИ-помощник" width="80%" /></a><br /><sub>Творческий холст · Светлая тема</sub>
+<a href="../images/screenshots/canvasLight.png"><img src="../images/screenshots/canvasLight.png" alt="Холст Toonflow в светлой теме и ИИ-помощник" width="80%" /></a><br /><sub>Творческий холст · Светлая тема</sub>
 
-<a href="./screenshots/assetCanvas.png"><img src="./screenshots/assetCanvas.png" alt="Холст Toonflow с материалами персонажей, сцен и реквизита" width="80%" /></a><br /><sub>Материалы персонажей, сцен и реквизита</sub>
+<a href="../images/screenshots/assetCanvas.png"><img src="../images/screenshots/assetCanvas.png" alt="Холст Toonflow с материалами персонажей, сцен и реквизита" width="80%" /></a><br /><sub>Материалы персонажей, сцен и реквизита</sub>
 
-<a href="./screenshots/directorStudio.png"><img src="./screenshots/directorStudio.png" alt="3D-студия режиссёра Toonflow и предварительная визуализация кадров" width="80%" /></a><br /><sub>3D-студия режиссёра и предварительная визуализация кадров</sub>
+<a href="../images/screenshots/directorStudio.png"><img src="../images/screenshots/directorStudio.png" alt="3D-студия режиссёра Toonflow и предварительная визуализация кадров" width="80%" /></a><br /><sub>3D-студия режиссёра и предварительная визуализация кадров</sub>
 
-<a href="./screenshots/characterImageGeneration.png"><img src="./screenshots/characterImageGeneration.png" alt="Персонажи в трёх проекциях и генерация изображений в Toonflow" width="80%" /></a><br /><sub>Персонажи в трёх проекциях и генерация изображений</sub>
+<a href="../images/screenshots/characterImageGeneration.png"><img src="../images/screenshots/characterImageGeneration.png" alt="Персонажи в трёх проекциях и генерация изображений в Toonflow" width="80%" /></a><br /><sub>Персонажи в трёх проекциях и генерация изображений</sub>
 
-<a href="./screenshots/videoGeneration.png"><img src="./screenshots/videoGeneration.png" alt="Генерация видео в Toonflow по нескольким референсам" width="80%" /></a><br /><sub>Генерация видео по нескольким референсам</sub>
+<a href="../images/screenshots/videoGeneration.png"><img src="../images/screenshots/videoGeneration.png" alt="Генерация видео в Toonflow по нескольким референсам" width="80%" /></a><br /><sub>Генерация видео по нескольким референсам</sub>
 
-<a href="./screenshots/nodeMenu.png"><img src="./screenshots/nodeMenu.png" alt="Меню узлов Toonflow и операции с группами" width="80%" /></a><br /><sub>Меню узлов и операции с группами</sub>
+<a href="../images/screenshots/nodeMenu.png"><img src="../images/screenshots/nodeMenu.png" alt="Меню узлов Toonflow и операции с группами" width="80%" /></a><br /><sub>Меню узлов и операции с группами</sub>
 
-<a href="./screenshots/pluginMarket.png"><img src="./screenshots/pluginMarket.png" alt="Каталог плагинов Toonflow" width="80%" /></a><br /><sub>Каталог плагинов</sub>
+<a href="../images/screenshots/pluginMarket.png"><img src="../images/screenshots/pluginMarket.png" alt="Каталог плагинов Toonflow" width="80%" /></a><br /><sub>Каталог плагинов</sub>
 
 </div>
 
@@ -239,7 +264,7 @@ sudo spctl --master-disable
 
 Затем откройте «Системные настройки → Конфиденциальность и безопасность». В разделе безопасности выберите «Любой источник» для разрешённых источников загрузки приложений, если система предлагает такой вариант, и подтвердите действие. Доступные настройки и поддержка команды зависят от версии macOS.
 
-Это ослабляет ограничения безопасности для всех приложений. После завершения рекомендуется снова разрешить приложения только из App Store и от установленных разработчиков.
+Это ослабляет ограничения безопасности для всех приложений. После завершения рекомендуется снова разрешить приложения только из App Store и от проверенных разработчиков.
 
 </details>
 
@@ -249,7 +274,7 @@ sudo spctl --master-disable
 
 ### 4.2 Установка через Docker
 
-Сначала установите Git, [Docker Engine](https://docs.docker.com/engine/install/) и Docker Compose. В Windows и macOS можно использовать Docker Desktop в режиме контейнеров Linux. В репозитории есть [Dockerfile](../Dockerfile), [конфигурация Compose](../compose.yaml) и [правила исключения файлов из сборки](../.dockerignore). Образ собирается на Bun 1.3.14 и содержит FFmpeg.
+Сначала установите Git, [Docker Engine](https://docs.docker.com/engine/install/) и Docker Compose. В Windows и macOS можно использовать Docker Desktop в режиме контейнеров Linux. В репозитории есть [Dockerfile](../../Dockerfile), [конфигурация Compose](../../compose.yaml) и [правила исключения файлов из сборки](../../.dockerignore). Образ собирается на Bun 1.3.14 и содержит FFmpeg.
 
 <details>
 <summary><strong>Показать шаги установки через Docker</strong></summary>
@@ -376,7 +401,7 @@ TF-Router — официальный шлюз моделей, которым у�
 > ### Письмо сообществу Toonflow
 > 130 дней.
 > Немного, но достаточно, чтобы яснее увидеть некоторые вещи.
-> С первого коммита до сегодняшнего дня прошло 130 дней. Мы выпустили 20 версий, сделали 800+ коммитов и написали 213,765 строк кода — 640,810 символов.
+> С первого коммита до сегодняшнего дня прошло 130 дней. Мы выпустили 20 версий, сделали 800+ коммитов и написали 213 765 строк кода — 640 810 символов.
 > Две переработки, система провайдеров и рабочий процесс, которым мы гордимся.
 > Мы думали, что этого достаточно.
 > Но этого оказалось мало.
@@ -455,7 +480,7 @@ TF-Router — официальный шлюз моделей, которым у�
 
 Помощник для приглашения в группу:
 
-<img src="./qr.png" alt="QR-код сообщества Toonflow" height="400"/>
+<img src="../images/qr.png" alt="QR-код сообщества Toonflow" height="400"/>
 
 Также можно нажать на значок, чтобы присоединиться к Discord:
 
@@ -473,7 +498,7 @@ TF-Router — официальный шлюз моделей, которым у�
 
 ## 9. 📜 Лицензия открытого исходного кода
 
-Toonflow распространяется по [лицензии MIT](../LICENSE). Сторонние зависимости и материалы регулируются собственными лицензиями и уведомлениями об авторских правах.
+Toonflow распространяется по [лицензии MIT](../../LICENSE). Сторонние зависимости и материалы регулируются собственными лицензиями и уведомлениями об авторских правах.
 
 [![История звёзд Toonflow](https://api.star-history.com/svg?repos=HBAI-Ltd/Toonflow-app&type=Date)](https://www.star-history.com/#HBAI-Ltd/Toonflow-app&Date)
 

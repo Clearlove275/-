@@ -179,6 +179,8 @@
 </template>
 
 <script setup lang="ts">
+import { translate, t } from "@toonflow/i18n/vue";
+
 import { computed, defineAsyncComponent, onMounted, onBeforeUnmount, ref, watch } from "vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
@@ -224,21 +226,21 @@ const resultVisible = ref(false);
 const activeSponsorId = ref<number>();
 const controller = new AbortController();
 const resultTitle = computed(() => {
-  if (updateError.value) return "更新未完成";
-  if (checking.value) return "正在检查更新";
-  if (action.value === "apply") return "正在重启并更新";
-  if (working.value) return "正在准备更新";
-  if (snapshot.value?.updateReady) return "更新已准备完成";
-  return snapshot.value?.updateAvailable ? "发现新版本" : "暂无更新";
+  if (updateError.value) return translate("更新未完成");
+  if (checking.value) return translate("正在检查更新");
+  if (action.value === "apply") return translate("正在重启并更新");
+  if (working.value) return translate("正在准备更新");
+  if (snapshot.value?.updateReady) return translate("更新已准备完成");
+  return snapshot.value?.updateAvailable ? translate("发现新版本") : translate("暂无更新");
 });
 const resultMessage = computed(() => {
   if (updateError.value) return updateError.value;
-  if (checking.value) return "正在获取最新版本信息…";
-  if (action.value === "apply") return "客户端即将关闭，更新完成后会自动重新打开。";
-  if (working.value) return "正在下载并校验更新包，可以关闭此弹窗继续使用。";
-  if (snapshot.value?.updateReady) return "点击“重启并更新”安装新版本，请先完成正在进行的任务。";
-  if (!snapshot.value?.updateAvailable) return `当前已是最新版本 v${currentVersion.value}`;
-  return snapshot.value.canUpdate ? "有新的版本可用，下载完成后可重启更新。" : "当前客户端不支持应用内更新，请下载安装包。";
+  if (checking.value) return translate("正在获取最新版本信息…");
+  if (action.value === "apply") return translate("客户端即将关闭，更新完成后会自动重新打开。");
+  if (working.value) return translate("正在下载并校验更新包，可以关闭此弹窗继续使用。");
+  if (snapshot.value?.updateReady) return translate("点击“重启并更新”安装新版本，请先完成正在进行的任务。");
+  if (!snapshot.value?.updateAvailable) return t`当前已是最新版本 v${currentVersion.value}`;
+  return snapshot.value.canUpdate ? translate("有新的版本可用，下载完成后可重启更新。") : translate("当前客户端不支持应用内更新，请下载安装包。");
 });
 
 const sponsors = ref<TfSponsor[]>([]);

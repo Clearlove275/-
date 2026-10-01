@@ -150,6 +150,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale, t, translate } from "@toonflow/i18n/vue";
 import { computed, inject, nextTick, reactive, ref, shallowRef, watch, type ComponentPublicInstance } from "vue";
 import { defaultRangeExtractor, observeElementRect, useVirtualizer } from "@tanstack/vue-virtual";
 import axios from "axios";
@@ -251,6 +252,14 @@ watch([() => props.active, messageList], async ([active, element]) => {
   messageListInitialized = true;
 }, { immediate: true, flush: "post" });
 let sender: xSender | undefined;
+watch(locale, () => {
+  if (!sender) return;
+  sender.updateConfig({ placeholder: translate("输入消息，@ 提及节点输出或全局素材…") });
+  sender.chatElement.richText.setAttribute("aria-label", translate("消息"));
+  for (const line of sender.chatEditor.NODES) for (const tag of line.children) {
+    if (tag.type === "Mention") tag.$el.setAttribute("aria-label", t`预览 ${tag.name}`);
+  }
+});
 let controller: AbortController | undefined;
 const senderElement = ref<HTMLElement>();
 const skillMenuRef = ref<InstanceType<typeof skillMenu>>();
@@ -518,13 +527,13 @@ async function sendCanvasResult(event: Extract<AgentEvent, { type: "canvasCall" 
     const result = await canvasContext.call(event, signal);
     body = JSON.stringify({ directory, callId: event.callId, result: result ?? null });
   } catch (error) {
-    body = JSON.stringify({ directory, callId: event.callId, error: (error instanceof Error && error.message ? error.message : "画布操作失败").slice(0, 8000) });
+    body = JSON.stringify({ directory, callId: event.callId, error: (error instanceof Error && error.message ? error.message : translate("画布操作失败")).slice(0, 8000) });
   }
   const cancelled = signal.aborted;
-  if (cancelled) body = JSON.stringify({ directory, callId: event.callId, error: "画布操作已取消" });
+  if (cancelled) body = JSON.stringify({ directory, callId: event.callId, error: translate("画布操作已取消") });
   const response = await fetch("/api/agent/canvasResult", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-toonflow-workspace": "1" },
+    headers: { "Accept-Language": locale.value, "Content-Type": "application/json", "x-toonflow-workspace": "1" },
     body,
     keepalive: cancelled,
     signal: cancelled ? AbortSignal.timeout(5000) : signal,
@@ -582,7 +591,7 @@ async function sendMessage(source?: AgentMessage) {
     await uploadAttachments(attachments, directory, requestController.signal);
     const response = await fetch("/api/agent", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-toonflow-workspace": "1" },
+      headers: { "Accept-Language": locale.value, "Content-Type": "application/json", "x-toonflow-workspace": "1" },
       body: JSON.stringify({ prompt, mentions, attachments: attachments.map(({ name, path, mimeType }) => ({ name, path, mimeType })), directory, providerId: model.providerId, modelId: model.modelId, thinkingLevel: reasoningEffort.value || undefined, sessionFile: props.sessionFile, resendFrom, canvas: canvasContext ? { id: canvasContext.id, tools: canvasContext.tools } : undefined }),
       signal: requestController.signal,
     });
@@ -653,7 +662,7 @@ async function sendMessage(source?: AgentMessage) {
     // ACT: Bun 的流断开事件可能不触发；主动结束仍在等待的提问，不依赖断开通知。
     for (const callId of pendingQuestions.values()) {
       void fetch("/api/agent/answer", {
-        method: "POST", headers: { "Content-Type": "application/json", "x-toonflow-workspace": "1" },
+        method: "POST", headers: { "Accept-Language": locale.value, "Content-Type": "application/json", "x-toonflow-workspace": "1" },
         body: JSON.stringify({ directory, callId, cancelled: true }), keepalive: true,
       }).catch(() => {});
     }
@@ -691,7 +700,7 @@ watch(senderElement, (element, _previous, onCleanup) => {
   if (!element) return;
   const instance = new xSender(element, {
     autoFocus: props.active,
-    placeholder: "输入消息，@ 提及节点输出或全局素材…",
+    placeholder: translate("输入消息，@ 提及节点输出或全局素材…"),
     chatStyle: { minHeight: "44px", maxHeight: "50vh", fontSize: "14px", lineHeight: "24px" },
     keyboardSendFun: event => event.key === "Enter" && !event.shiftKey && !event.isComposing,
     keyboardWrapFun: event => event.key === "Enter" && event.shiftKey && !event.isComposing,
@@ -707,7 +716,7 @@ watch(senderElement, (element, _previous, onCleanup) => {
       tag.$el.dataset.agentMention = tag.id;
       tag.$el.setAttribute("role", "button");
       tag.$el.setAttribute("tabindex", "0");
-      tag.$el.setAttribute("aria-label", `预览 ${tag.name}`);
+      tag.$el.setAttribute("aria-label", t`预览 ${tag.name}`);
       const mention = draftMentions.value.find(item => item.id === tag.id);
       if (!mention || !mentionThumbnailProps(mention).thumbnail) continue;
       const content = tag.$el.querySelector<HTMLElement>(".chat-tag-mention");
@@ -731,7 +740,7 @@ watch(senderElement, (element, _previous, onCleanup) => {
   });
   const editor = instance.chatElement.richText;
   editor.setAttribute("role", "textbox");
-  editor.setAttribute("aria-label", "消息");
+  editor.setAttribute("aria-label", translate("消息"));
   editor.setAttribute("aria-multiline", "true");
   element.addEventListener("paste", pasteAttachments, true);
   const updateCursor = (event: Event) => { if (!(event instanceof KeyboardEvent) || event.key !== "Escape") updateMentionQuery(); };

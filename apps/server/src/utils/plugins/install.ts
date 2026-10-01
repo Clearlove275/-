@@ -1,3 +1,4 @@
+import { t, translateMessage } from "@/lib/i18n";
 import { mkdir, mkdtemp, lstat, readFile, readdir, rename, rm, writeFile } from "@toonflow/file";
 import { dirname, join, resolve } from "node:path";
 import { createRequire } from "node:module";
@@ -27,8 +28,8 @@ export function requireNewerVersion(current: unknown, incoming: unknown, label: 
     return match[0];
   });
   const [installed, next] = versions;
-  if (!installed || !next) invalid(`${label}已安装，但现有或待安装版本缺失或无效，无法判断更新顺序；请在开发者设置中使用强制安装`, 409);
-  if (Bun.semver.order(next, installed) <= 0) invalid(`${label}已安装版本 ${installed}，待安装版本 ${next} 不高于现有版本；如需覆盖或降级，请在开发者设置中使用强制安装`, 409);
+  if (!installed || !next) invalid(t`${label}已安装，但现有或待安装版本缺失或无效，无法判断更新顺序；请在开发者设置中使用强制安装`, 409);
+  if (Bun.semver.order(next, installed) <= 0) invalid(t`${label}已安装版本 ${installed}，待安装版本 ${next} 不高于现有版本；如需覆盖或降级，请在开发者设置中使用强制安装`, 409);
 }
 
 function nodeVersion(source: string) {
@@ -63,6 +64,7 @@ async function readBounded(stream: ReadableStream<Uint8Array>, limit: number, me
 }
 
 async function download(url: string, limit: number, label: string) {
+  label = translateMessage(label);
   let address = remoteAddress(url);
   const signal = AbortSignal.timeout(30_000);
   try {
@@ -71,10 +73,10 @@ async function download(url: string, limit: number, label: string) {
       if ([301, 302, 303, 307, 308].includes(response.status)) {
         const location = response.headers.get("location");
         await response.body?.cancel();
-        if (!location) invalid(`${label}下载失败：服务器重定向响应缺少 Location 地址`, 502);
-        if (redirects === 5) invalid(`${label}下载失败：重定向超过 5 次，请使用文件的直接下载地址`, 502);
+        if (!location) invalid(t`${label}下载失败：服务器重定向响应缺少 Location 地址`, 502);
+        if (redirects === 5) invalid(t`${label}下载失败：重定向超过 5 次，请使用文件的直接下载地址`, 502);
         try { address = remoteAddress(new URL(location, address).href); }
-        catch { invalid(`${label}下载失败：重定向目标不是有效的 HTTP / HTTPS 地址`, 502); }
+        catch { invalid(t`${label}下载失败：重定向目标不是有效的 HTTP / HTTPS 地址`, 502); }
         continue;
       }
       if (!response.ok) {
@@ -86,17 +88,17 @@ async function download(url: string, limit: number, label: string) {
           : response.status === 429 ? "下载请求过于频繁，请稍后重试"
           : response.status >= 500 ? "下载服务器暂时异常，请稍后重试"
           : "服务器未返回文件，请检查下载地址";
-        invalid(`${label}下载失败（HTTP ${response.status}）：${hint}`, 502);
+        invalid(t`${label}下载失败（HTTP ${response.status}）：${translateMessage(hint)}`, 502);
       }
-      if (!response.body) invalid(`${label}下载失败：服务器没有返回文件内容`, 502);
-      const bytes = await readBounded(response.body, limit, `${label}文件不能超过 ${limit / 1024 / 1024} MB`);
-      if (!bytes.byteLength) invalid(`${label}下载失败：文件内容为空，请重新上传文件`, 502);
+      if (!response.body) invalid(t`${label}下载失败：服务器没有返回文件内容`, 502);
+      const bytes = await readBounded(response.body, limit, t`${label}文件不能超过 ${limit / 1024 / 1024} MB`);
+      if (!bytes.byteLength) invalid(t`${label}下载失败：文件内容为空，请重新上传文件`, 502);
       return bytes;
     }
   } catch (error) {
     if (error instanceof Error && "status" in error) throw error;
-    if (signal.aborted) invalid(`${label}下载超时（30 秒），请检查网络或重新获取下载链接`, 504);
-    invalid(`${label}下载连接失败，请检查网络、下载域名和 HTTPS 证书后重试`, 502);
+    if (signal.aborted) invalid(t`${label}下载超时（30 秒），请检查网络或重新获取下载链接`, 504);
+    invalid(t`${label}下载连接失败，请检查网络、下载域名和 HTTPS 证书后重试`, 502);
   }
   return invalid("下载地址无效");
 }
@@ -116,7 +118,7 @@ export async function installNode(fileName: string, source: string, force = fals
   }
   // ACT: 仅静态检查脚手架约定和语法，确认安装后由画布加载执行。
   if (!source.includes("toonflowNodeHost")) invalid("文件不是兼容的 Toonflow 节点，请使用节点脚手架构建生成的 .umd.js 文件");
-  if (!source.includes(`toonflowNodes.${name}`)) invalid(`文件名与节点导出名不一致：${fileName} 需要导出 toonflowNodes.${name}，请按实际节点名修改文件名`);
+  if (!source.includes(`toonflowNodes.${name}`)) invalid(t`文件名与节点导出名不一致：${fileName} 需要导出 toonflowNodes.${name}，请按实际节点名修改文件名`);
   try { new Bun.Transpiler({ loader: "js" }).scan(source); }
   catch { invalid("节点脚本语法无效，请重新构建并上传完整的 .umd.js 文件"); }
   const directory = resolve(dirname(conf.path), "nodes");
@@ -340,7 +342,7 @@ export async function installSkill(fileName: string, bytes: Uint8Array, force = 
   let preserveBackup = false;
   try {
     const existing = (await readdir(directory)).find(item => item.toLowerCase() === name.toLowerCase());
-    if (existing && existing !== name) invalid(`技能目录“${existing}”与“${name}”大小写冲突，请先统一名称`, 409);
+    if (existing && existing !== name) invalid(t`技能目录“${existing}”与“${name}”大小写冲突，请先统一名称`, 409);
     if (existing) {
       if (!(await lstat(target)).isDirectory()) invalid("现有技能必须是独立的普通目录", 403);
       const current = await lstat(join(target, "SKILL.md"));
@@ -398,9 +400,9 @@ export async function installRemotePlugin(type: PluginInstallType, url: string, 
   const patterns = { node: /^[a-z][a-zA-Z0-9]*\.umd\.js$/, tool: /^[a-z][a-zA-Z0-9]*\.tool\.js$/, skill: /\.(md|zip|tar|tar\.gz|tgz)$/i, provider: /^[a-z][a-zA-Z0-9]*\.ts$/, agent: /^[a-z][a-zA-Z0-9]*\.agent\.zip$/ };
   const examples = { node: "audioNode.umd.js", tool: "exampleTool.tool.js", skill: "example.zip、SKILL.md、example.tar、example.tar.gz 或 example.tgz", provider: "exampleProvider.ts", agent: "exampleTeam.agent.zip" };
   if (!Object.hasOwn(patterns, type)) invalid("不支持此插件类型，可选值为 node、tool、skill、provider、agent");
-  if (!fileName) invalid(`下载地址缺少文件名，请使用指向文件的地址，例如 ${examples[type]}`);
+  if (!fileName) invalid(t`下载地址缺少文件名，请使用指向文件的地址，例如 ${examples[type]}`);
   if (fileName.length > 128 || /[\\/]/.test(fileName)) invalid("插件文件名无效，不能包含目录路径或超过 128 字符");
-  if (!patterns[type].test(fileName)) invalid(`下载文件名“${fileName.slice(0, 128)}”不符合 ${type} 类型规范，文件名示例：${examples[type]}；改名后请重新生成下载链接`);
+  if (!patterns[type].test(fileName)) invalid(t`下载文件名“${fileName.slice(0, 128)}”不符合 ${type} 类型规范，文件名示例：${examples[type]}；改名后请重新生成下载链接`);
   const bytes = await download(url, type === "provider" ? 2 * 1024 * 1024 : maxBytes, { node: "节点", tool: "工具", skill: "技能", provider: "供应商", agent: "团队" }[type]);
   if (type === "agent") return (await import("@/utils/teams/install")).installTeam(fileName, bytes, force);
   if (type === "skill") return installSkill(fileName, bytes, force);
