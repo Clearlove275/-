@@ -21,16 +21,23 @@ async function refreshLanguageModels() {
     && item.protocol === provider.protocol && item.apiKey === provider.apiKey ? { ...item, models } : item));
 }
 
-async function refreshVideoModels() {
+async function refreshMediaModels() {
   if (!getMediaProviderApiKey(tfRouterMedia.id)) return;
-  await refreshMediaProviderModels(`${tfRouterMedia.id}.ts`);
+  // ACT: 同一供应商文件按类型串行保存，避免两个刷新读取相同版本后互相冲突。
+  for (const type of ["video", "audio"] as const) {
+    try { await refreshMediaProviderModels(`${tfRouterMedia.id}.ts`, undefined, type); }
+    catch (error) {
+      console.warn(`TF-Router ${type === "video" ? "视频" : "音频"}模型启动更新失败：`,
+        error instanceof Error ? error.message : "未知错误");
+    }
+  }
 }
 
 export default function initializeProviderModels() {
   // ACT: 每个进程启动时仅尝试一次；失败保留已有模型，下次启动再更新。
-  return initialization ??= Promise.allSettled([refreshLanguageModels(), refreshVideoModels()]).then(results => {
+  return initialization ??= Promise.allSettled([refreshLanguageModels(), refreshMediaModels()]).then(results => {
     results.forEach((result, index) => {
-      if (result.status === "rejected") console.warn(`TF-Router ${index === 0 ? "文本" : "视频"}模型启动更新失败：`,
+      if (result.status === "rejected") console.warn(`TF-Router ${index === 0 ? "文本" : "媒体"}模型启动更新失败：`,
         result.reason instanceof Error ? result.reason.message : "未知错误");
     });
   });

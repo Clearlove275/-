@@ -18,7 +18,7 @@ import { IconMaximize } from "@tabler/icons-vue";
 import xSender, { type AnyTagProps, type MentionItem } from "x-sender";
 import "x-sender/lib/XSender.css";
 
-const props = defineProps<{ references: (MentionItem & { value: string })[]; expandable?: boolean }>();
+const props = defineProps<{ references: (MentionItem & { value: string })[]; expandable?: boolean; placeholder?: string }>();
 const model = defineModel<AnyTagProps[][]>({ required: true });
 const text = defineModel<string>("text", { default: "" });
 const senderElement = ref<HTMLElement>();
@@ -183,7 +183,7 @@ watch(senderElement, (element, _previous, onCleanup) => {
   const initialModel: AnyTagProps[][] = model.value.length ? model.value : text.value.split("\n").map(text => [{ type: "Write", text }]);
   const instance = new xSender(element, {
     autoFocus: false,
-    placeholder: "描述一下生成风格提示词，输入 @ 引用参考",
+    placeholder: props.placeholder ?? "描述一下生成风格提示词，输入 @ 引用参考",
     chatStyle: { minHeight: "70px", maxHeight: "180px", fontSize: "14px", lineHeight: "1.6" },
     getPopupContainer: () => popup,
     mentionConfig: { dialogTitle: "选择参考", callEvery: false, options: props.references },

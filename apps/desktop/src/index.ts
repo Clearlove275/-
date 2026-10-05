@@ -132,6 +132,7 @@ async function start() {
       dataDirectory,
       toolsRoot: resolve(PATHS.VIEWS_FOLDER, "../tools"),
       nodesRoot: resolve(PATHS.VIEWS_FOLDER, "../nodes"),
+      extRoot: resolve(PATHS.VIEWS_FOLDER, "../ext"),
       providersRoot: resolve(PATHS.VIEWS_FOLDER, "../providers"),
       skillsRoot: resolve(PATHS.VIEWS_FOLDER, "../skills"),
       // ACT: 暂不安装内置团队，随团队打包一同恢复。
@@ -178,6 +179,7 @@ async function start() {
     let isShowing = false;
     app.locals.desktop = {
       openUrl,
+      showItemInFolder: Utils.showItemInFolder,
       readClipboardText: Utils.clipboardReadText,
       writeClipboardText: Utils.clipboardWriteText,
       selectSaveFile,

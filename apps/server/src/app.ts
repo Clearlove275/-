@@ -18,6 +18,7 @@ export async function createApp({
   dataDirectory,
   toolsRoot,
   nodesRoot,
+  extRoot,
   providersRoot,
   skillsRoot,
   agentsRoot,
@@ -27,6 +28,7 @@ export async function createApp({
   dataDirectory?: string;
   toolsRoot?: string;
   nodesRoot?: string;
+  extRoot?: string;
   providersRoot?: string;
   skillsRoot?: string;
   agentsRoot?: string;
@@ -40,6 +42,10 @@ export async function createApp({
   if (dataDirectory && toolsRoot)
     await initializePlugins(resolve(dataDirectory, "tools"), toolsRoot, /^[a-z][a-zA-Z0-9]*\.tool\.js$/, pluginRevision);
   if (dataDirectory && nodesRoot) await initializePlugins(resolve(dataDirectory, "nodes"), nodesRoot, /^[a-z][a-zA-Z0-9]*\.umd\.js$/, pluginRevision);
+  if (dataDirectory && extRoot) {
+    const { default: initializeExt } = await import("@/utils/plugins/initializeExt");
+    await initializeExt(resolve(dataDirectory, "ext"), extRoot, pluginRevision);
+  }
   // ACT: 供应方和技能可由用户编辑，只补首次安装，不随应用版本覆盖。
   if (dataDirectory && providersRoot)
     await initializePlugins(resolve(dataDirectory, "providers"), resolve(providersRoot, "media"), autoInstallProviders);

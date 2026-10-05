@@ -108,6 +108,8 @@ export interface MediaGenerationRequest {
   voice?: string;
   speed?: number;
   volume?: number;
+  pitch?: number;
+  language?: string;
   format?: string;
   sampleRate?: number;
   mode?: "singleImage" | "startEndRequired" | "endFrameOptional" | "startFrameOptional" | "text"

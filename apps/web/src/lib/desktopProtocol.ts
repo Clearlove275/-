@@ -13,7 +13,7 @@ declare global {
 }
 
 export function registerDesktopProtocol() {
-  const labels = { node: "节点", tool: "工具", skill: "技能", provider: "供应商", agent: "Agent" };
+  const labels = { node: "节点", ext: "文件扩展", tool: "工具", skill: "技能", provider: "供应商", agent: "Agent" };
   const pending = new Set<string>();
   let queue = Promise.resolve();
 
@@ -55,6 +55,7 @@ export function registerDesktopProtocol() {
       if (typeof data.data?.name !== "string" || !data.data.name.trim()) throw new Error("安装接口未返回有效的插件名称，请先检查插件列表，再重试");
       if (request.type === "provider") invalidateNodeModels("media");
       window.dispatchEvent(new CustomEvent("toonflow:plugin-installed", { detail: { type: request.type, name: data.data.name } }));
+      if (request.type === "ext") window.dispatchEvent(new CustomEvent("toonflow:ext-updated", { detail: { name: data.data.name } }));
       ElMessage({ type: "success", message: `${labels[request.type]}已安装` });
     } catch (error) {
       let message = error instanceof Error ? error.message : translate("安装失败，请稍后重试");

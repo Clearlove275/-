@@ -73,7 +73,7 @@
         :batchHistory="canvasHistory.batch"
         @update:showEdges="edgeDisconnect = undefined" />
       <nodeMenu
-        :key="JSON.stringify([project?.directory, canvasId])"
+        :key="JSON.stringify(['nodeMenu', project?.directory, canvasId])"
         ref="nodeMenuRef"
         :remoteNodes="availableNodes"
         :pasteNode="pasteClipboardNode"
@@ -87,7 +87,7 @@
         @undo="changeHistory('undo')"
         @redo="changeHistory('redo')" />
       <selectionToolbar
-        :key="JSON.stringify([project?.directory, canvasId])"
+        :key="JSON.stringify(['selectionToolbar', project?.directory, canvasId])"
         ref="selectionToolbarRef"
         :batchHistory="canvasHistory.batch"
         :getSignal="() => canvasController.signal"
@@ -124,6 +124,7 @@ import { IconUnlink } from "@tabler/icons-vue";
 import * as vueRuntime from "vue";
 import * as vueFlowRuntime from "@vue-flow/core";
 import * as elementPlusRuntime from "element-plus";
+import * as threeRuntime from "three";
 import { runAgentLoop } from "@earendil-works/pi-agent-core";
 import { createAssistantMessageEventStream } from "@earendil-works/pi-ai";
 import "element-plus/dist/index.css";
@@ -161,6 +162,7 @@ import { finishGroupDrag, getSelectionTree } from "./selectionNodes";
 import type { NodeOutput } from "@toonflow/nodes-scaffold/values";
 import type { NodeConnectionFeedback, NodeHandle } from "@toonflow/nodes-scaffold/connection";
 import { useNodeEvent } from "@toonflow/nodes-scaffold/nodeEvent";
+import type { NodeDocumentContext, NodeDocumentState } from "@toonflow/nodes-scaffold/nodeDocument";
 import { useNodeToolsContext } from "@toonflow/nodes-scaffold/nodeTools";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { generalSettings } from "@/stores/settings";
@@ -218,6 +220,12 @@ const assetsVisible = ref(false);
 const assetLibraryRef = ref<InstanceType<typeof assetLibrary>>();
 const edgeDisconnect = ref<{ id: string; x: number; y: number }>();
 const flow = useVueFlow(props.runtimeKey);
+const nodeDocument: NodeDocumentContext = { targets: shallowReactive(new Map()), mounts: new Map(), states: shallowReactive(new Map()) };
+const canvasDirty = ref(false);
+const canvasSaveError = ref("");
+const documentObservers = new Set<() => void>();
+onScopeDispose(() => { for (const release of documentObservers) release(); });
+provide("nodeDocument", nodeDocument);
 onScopeDispose(anonymousData.observeCanvas(() => props.active && canvasId.value
   ? { nodes: flow.nodes.value, edgeCount: flow.edges.value.length }
   : undefined));
@@ -266,16 +274,87 @@ function getCanvasContext() {
 }
 const canvasReady = computed(() => !!canvasId.value && !nodeListLoading.value && nodeLoads.size === 0);
 provide("canvas", getCanvasContext);
-defineExpose({ canvasId, canvasReady, getCanvasContext, readDocumentNode, saveDocumentNode, flushSave: flushCanvasSave, cancelSave: cancelCanvasSave,
+defineExpose({ canvasId, canvasReady, getCanvasContext, readDocumentNode, saveDocumentNode, mountDocumentNode, observeDocumentNode, prepareCanvasDelete, flushSave: flushCanvasSave, cancelSave: cancelCanvasSave,
+  syncCanvasPath: (previous: string, target: string) => canvasMenuRef.value?.syncCanvasPath(previous, target),
   getMentionNodes: () => flow.nodes.value, findMentionNode: flow.findNode,
   getRetainedNodes: canvasHistory.getRetainedNodes,
   get saveBusy() { return savePaused; }, get loadError() { return canvasMenuRef.value?.loadError ?? ""; },
 });
 
+async function prepareCanvasDelete() {
+  const directory = project.value?.directory;
+  const fileName = canvasId.value;
+  const nodes = [...flow.getNodes.value];
+  const signal = AbortSignal.any([workspaceController.signal, canvasController.signal]);
+  function checkCanvas() {
+    signal.throwIfAborted();
+    if (!directory || directory !== project.value?.directory || !fileName || fileName !== canvasId.value) {
+      throw new Error("工作区或画布已切换，请重新删除");
+    }
+  }
+  checkCanvas();
+  await nextTick();
+  checkCanvas();
+  // 宿主已暂停画布保存；这里只执行节点生命周期，文件删除成功后由宿主取消保存并卸载。
+  for (const node of nodes) {
+    if (flow.findNode(node.id) !== node) throw new Error("画布节点已变化，请重新删除");
+    await useNodeEvent(node.id, flow).emit("delete");
+    checkCanvas();
+    if (flow.findNode(node.id) !== node) throw new Error("画布节点已变化，请重新删除");
+  }
+  if (flow.getNodes.value.length !== nodes.length || nodes.some(node => flow.findNode(node.id) !== node)) {
+    throw new Error("画布节点已变化，请重新删除");
+  }
+}
+
 type DocumentNodeData = { label?: string; handles?: NodeHandle[]; outputs?: Record<string, NodeOutput | undefined>; textPath?: string };
 
 function checkDocumentDirectory(directory: string) {
   if (!directory || directory !== project.value?.directory) throw new Error("工作目录已切换，请重新打开节点");
+}
+
+function observeDocumentNode(directory: string, canvasPath: string, nodeId: string, onState: (state: NodeDocumentState) => void) {
+  checkDocumentDirectory(directory);
+  if (canvasId.value !== canvasPath || !findNode(nodeId)) throw new Error("节点不存在，请刷新文件树");
+  const stop = watch((): NodeDocumentState => {
+    const node = findNode(nodeId);
+    const state = nodeDocument.states.get(nodeId);
+    return { dirty: !!node && (canvasDirty.value || !!state?.dirty),
+      error: state?.error || canvasSaveError.value || (node && nodeErrors.value[node.type]) || "", deleted: !node };
+  }, onState, { immediate: true, flush: "sync" });
+  const release = () => { stop(); documentObservers.delete(dispose); };
+  const dispose = () => { onState({ dirty: false, error: "", deleted: true }); release(); };
+  documentObservers.add(dispose);
+  return {
+    release,
+    async flushSave() {
+      checkDocumentDirectory(directory);
+      if (!findNode(nodeId)) throw new Error("节点已删除，请刷新文件树");
+      await flushCanvasSave();
+    },
+  };
+}
+
+async function mountDocumentNode(directory: string, canvasPath: string, nodeId: string, target: HTMLElement) {
+  checkDocumentDirectory(directory);
+  if (canvasId.value !== canvasPath) throw new Error("画布已切换，请重新打开节点");
+  await nextTick();
+  checkDocumentDirectory(directory);
+  const node = findNode(nodeId);
+  if (!node) throw new Error("节点已删除，请刷新文件树");
+  if (nodeErrors.value[node.type]) throw new Error(nodeErrors.value[node.type]);
+  const mount = nodeDocument.mounts.get(nodeId);
+  if (!mount) throw new Error("当前节点未提供文档视图，请确认节点正常加载并更新节点插件");
+  const release = mount(target);
+  try {
+    await nextTick();
+    checkDocumentDirectory(directory);
+    if (!target.isConnected || !target.querySelector(".documentNode")) throw new Error("节点文档视图加载失败，请重新打开节点");
+    return release;
+  } catch (error) {
+    release();
+    throw error;
+  }
 }
 
 function documentHandles(node: Node<DocumentNodeData>) {
@@ -322,7 +401,6 @@ async function readDocumentNode(directory: string, canvasPath: string, nodeId: s
   const { files, node, liveNode, textPath } = await readDocumentCanvas(directory, canvasPath, nodeId);
   const source = liveNode ?? node;
   const handles = documentHandles(source);
-  if (!handles.length) throw new Error("节点没有文本输出，请刷新文件树");
   const storedText = textPath === undefined ? undefined : await files.readText(textPath);
   checkDocumentDirectory(directory);
   return {
@@ -338,17 +416,30 @@ async function readDocumentNode(directory: string, canvasPath: string, nodeId: s
   };
 }
 
-async function saveDocumentNode(directory: string, canvasPath: string, nodeId: string, handleId: string, text: string) {
+async function saveDocumentNode(directory: string, canvasPath: string, nodeId: string, handleId: string, text: string, expectedText?: string) {
   checkDocumentDirectory(directory);
   await flushCanvasSave(async () => {
     const { files, canvas, node, liveNode, textPath } = await readDocumentCanvas(directory, canvasPath, nodeId);
     if (!documentHandles(liveNode ?? node).some((handle) => handle.id === handleId)) throw new Error("文本输出已删除，请重新打开节点");
+    if (expectedText !== undefined) {
+      const output = (liveNode ?? node).data?.outputs?.[handleId];
+      const currentText = output?.dataType === "STRING" && typeof output.value === "string" ? output.value : textPath === undefined ? "" : await files.readText(textPath);
+      if (currentText !== expectedText) throw new Error("文档内容已变化，请重新读取后编辑");
+    }
     if (liveNode?.type === "remote-textNode") {
       await getNodeTools().call({ nodeId, name: "node:setText", args: { text } }, canvasController.signal);
       checkDocumentDirectory(directory);
+      // 节点工具已同步输出并排队保存；等待期间用户可能继续编辑，不能再写入旧文本快照。
+      return;
     }
+    if (liveNode && canvasId.value === canvasPath && findNode(nodeId) === liveNode) {
+      const output = liveNode.data.outputs?.[handleId];
+      if (output?.dataType === "STRING") output.value = text;
+      else if (textPath === undefined) (liveNode.data.outputs ??= {})[handleId] = { dataType: "STRING", value: text };
+    }
+    canvasMenuRef.value?.syncDocumentNode(canvasPath, nodeId, handleId, text, textPath === undefined);
     if (textPath !== undefined) {
-      if (liveNode?.type !== "remote-textNode") await files.write(textPath, text);
+      await files.write(textPath, text);
     } else {
       const data = (node.data ??= {});
       const output = data.outputs?.[handleId];
@@ -357,12 +448,6 @@ async function saveDocumentNode(directory: string, canvasPath: string, nodeId: s
       await files.writeJson(canvasPath, canvas);
     }
     checkDocumentDirectory(directory);
-    if (liveNode && canvasId.value === canvasPath && findNode(nodeId) === liveNode) {
-      const output = liveNode.data.outputs?.[handleId];
-      if (output?.dataType === "STRING") output.value = text;
-      else if (textPath === undefined) (liveNode.data.outputs ??= {})[handleId] = { dataType: "STRING", value: text };
-    }
-    canvasMenuRef.value?.syncDocumentNode(canvasPath, nodeId, handleId, text, textPath === undefined);
   });
 }
 
@@ -444,13 +529,17 @@ let changedWhilePaused = false;
 let saveRevision = 0;
 const saveCanvas = debounce((directory: string, fileName: string) => {
   const flow = toObject();
+  const revision = saveRevision;
   // ACT: 同页保存按顺序完成，防止慢请求覆盖后续修改；不处理多个客户端的并发编辑。
   saving = saving.then(async () => {
     try {
       await useWorkspaceFiles(directory).writeJson(fileName, { toonflowCanvas: true, nodes: flow.nodes, edges: flow.edges, viewport: flow.viewport });
       saveError = undefined;
+      canvasSaveError.value = "";
+      if (revision === saveRevision) canvasDirty.value = false;
     } catch (err) {
       saveError = err;
+      canvasSaveError.value = axios.isAxiosError<{ message?: string }>(err) ? err.response?.data.message || err.message : err instanceof Error ? err.message : "画布保存失败";
       ElMessage.error(
         axios.isAxiosError<{ message?: string }>(err)
           ? err.response?.data.message || "画布保存失败"
@@ -464,6 +553,7 @@ const saveCanvas = debounce((directory: string, fileName: string) => {
 
 function scheduleCanvasSave() {
   if (saveCancelled) return;
+  canvasDirty.value = true;
   saveRevision++;
   if (savePaused) {
     changedWhilePaused = true;
@@ -567,7 +657,10 @@ watch(() => props.active, (active) => {
 
 function flushCanvasSave(action?: () => Promise<void>): Promise<void> {
   // ACT: 完整保存及其文件操作串行执行，重命名暂停期间的显式保存也必须等待。
-  const next = flushing.then(() => saveCanvasState(action));
+  const next = flushing.then(() => saveCanvasState(action)).then(() => { canvasSaveError.value = ""; }, error => {
+    canvasSaveError.value = axios.isAxiosError<{ message?: string }>(error) ? error.response?.data.message || error.message : error instanceof Error ? error.message : "画布保存失败";
+    throw error;
+  });
   flushing = next.catch(() => {});
   return next;
 }
@@ -852,10 +945,10 @@ onBeforeUnmount(() => {
 });
 
 const nodeWindow = window as typeof window & {
-  toonflowNodeHost?: { vue: typeof vueRuntime; vueFlow: typeof vueFlowRuntime; elementPlus: typeof elementPlusRuntime; ai: { runAgentLoop: typeof runAgentLoop; createAssistantMessageEventStream: typeof createAssistantMessageEventStream } };
+  toonflowNodeHost?: { vue: typeof vueRuntime; vueFlow: typeof vueFlowRuntime; elementPlus: typeof elementPlusRuntime; three: typeof threeRuntime; ai: { runAgentLoop: typeof runAgentLoop; createAssistantMessageEventStream: typeof createAssistantMessageEventStream } };
   toonflowNodes?: NodeTypesObject;
 };
-nodeWindow.toonflowNodeHost = { vue: vueRuntime, vueFlow: vueFlowRuntime, elementPlus: elementPlusRuntime, ai: { runAgentLoop, createAssistantMessageEventStream } };
+nodeWindow.toonflowNodeHost = { vue: vueRuntime, vueFlow: vueFlowRuntime, elementPlus: elementPlusRuntime, three: threeRuntime, ai: { runAgentLoop, createAssistantMessageEventStream } };
 provide("nodeConfig", (nodeType: string) => nodeConfigs.value[nodeType] ?? {});
 provide("workspaceFiles", () => {
   const directory = project.value?.directory;

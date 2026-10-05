@@ -9,6 +9,7 @@ import conf, { removeLegacySettings } from "@/utils/conf";
 import * as ai from "@/utils/ai";
 import * as plugins from "@/utils/plugins/tools";
 import * as nodePlugins from "@/utils/plugins/nodes";
+import * as extPlugins from "@/utils/plugins/ext";
 import * as agent from "@/agent";
 import * as canvas from "@/agent/bridge/canvas";
 import * as question from "@/agent/bridge/question";
@@ -35,6 +36,7 @@ export default {
   ai,
   plugins,
   nodePlugins,
+  extPlugins,
   agent,
   canvas,
   question,

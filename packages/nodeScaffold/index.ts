@@ -7,6 +7,26 @@ import type { Rule } from "@form-create/element-ui";
 import { z } from "zod";
 import postcssConfig from "../../postcss.config.ts";
 
+const tiptapGlobals = {
+  "@tiptap/core": "toonflowTiptapHost.core",
+  "@tiptap/vue-3": "toonflowTiptapHost.vue3",
+  "@tiptap/starter-kit": "toonflowTiptapHost.starterKit",
+  "@tiptap/markdown": "toonflowTiptapHost.markdown",
+  "@tiptap/extension-find-and-replace": "toonflowTiptapHost.findAndReplace",
+  "@tiptap/extension-highlight": "toonflowTiptapHost.highlight",
+  "@tiptap/extension-image": "toonflowTiptapHost.image",
+  "@tiptap/extension-list": "toonflowTiptapHost.list",
+  "@tiptap/extension-subscript": "toonflowTiptapHost.subscript",
+  "@tiptap/extension-superscript": "toonflowTiptapHost.superscript",
+  "@tiptap/extension-table": "toonflowTiptapHost.table",
+  "@tiptap/extension-text-align": "toonflowTiptapHost.textAlign",
+  "@tiptap/pm/model": "toonflowTiptapHost.model",
+  "@tiptap/pm/state": "toonflowTiptapHost.state",
+  "@tiptap/pm/view": "toonflowTiptapHost.view",
+  "marked": "toonflowTiptapHost.marked",
+  "dompurify": "toonflowTiptapHost.dompurify",
+};
+
 export interface NodeConfig {
   name: string;
   displayName: string;
@@ -89,15 +109,17 @@ export function createNodeConfig(config: NodeConfig, configUrl: string) {
         fileName: () => fileName,
       },
       rolldownOptions: {
-        external: ["vue", "@vue/runtime-core", "@vue/runtime-dom", "@vue-flow/core", "element-plus", "@earendil-works/pi-agent-core", "@earendil-works/pi-ai"],
+        external: ["vue", "@vue/runtime-core", "@vue/runtime-dom", "@vue-flow/core", "element-plus", "three", "@earendil-works/pi-agent-core", "@earendil-works/pi-ai", ...Object.keys(tiptapGlobals)],
         output: {
           exports: "default",
           globals: {
+            ...tiptapGlobals,
             vue: "toonflowNodeHost.vue",
             "@vue/runtime-core": "toonflowNodeHost.vue",
             "@vue/runtime-dom": "toonflowNodeHost.vue",
             "@vue-flow/core": "toonflowNodeHost.vueFlow",
             "element-plus": "toonflowNodeHost.elementPlus",
+            three: "toonflowNodeHost.three",
             "@earendil-works/pi-agent-core": "toonflowNodeHost.ai",
             "@earendil-works/pi-ai": "toonflowNodeHost.ai",
           },

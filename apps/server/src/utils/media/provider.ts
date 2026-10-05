@@ -279,26 +279,29 @@ export function getMediaProviderApiKey(id: string) {
   return typeof value === "string" ? value.trim().replace(/^Bearer(?:\s+|$)/i, "").trim() : "";
 }
 
-export async function refreshMediaProviderModels(fileName: string, revision?: string) {
+export async function refreshMediaProviderModels(fileName: string, revision?: string, modelType?: ModelType) {
   if (!mediaProviderFileSchema.safeParse(fileName).success) invalid("供应商文件名无效");
   const provider = await getMediaProvider(fileName.slice(0, -3));
   if (revision !== undefined && revision !== provider.revision) invalid("供应商文件已被修改，请刷新页面后再获取", 409);
   if (!provider.modelsUrl) invalid("供应商未配置 modelsUrl");
   const apiKey = getMediaProviderApiKey(provider.id);
-  const response = await fetch(provider.modelsUrl, {
+  const modelsUrl = new URL(provider.modelsUrl);
+  if (modelType) modelsUrl.searchParams.set("type", modelType);
+  const response = await fetch(modelsUrl, {
     headers: { Accept: "application/json", ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}) },
     signal: AbortSignal.timeout(30000), redirect: "error",
   });
   if (!response.ok) throw new Error(t`获取媒体模型列表失败（HTTP ${response.status}）`);
   const result = z.object({ data: z.array(mediaModelsSchema.element.partial({ label: true, type: true })).max(2000) }).parse(await response.json());
   if (!result.data.length) throw new Error("未获取到媒体模型，保留原有列表");
-  const requestedType = z.enum(["text", "image", "video", "audio"]).safeParse(new URL(provider.modelsUrl).searchParams.get("type"));
+  const requestedType = z.enum(["text", "image", "video", "audio"]).safeParse(modelsUrl.searchParams.get("type"));
   const models = result.data.map(model => {
     const id = model.id.trim();
     const previous = provider.models.find(item => item.id === id)
       ?? (provider.id === tfRouter.id ? tfRouter.models.find(item => item.id === id) : undefined);
     const type = model.type ?? (requestedType.success ? requestedType.data : previous?.type);
     if (!type) invalid(t`模型 ${id} 缺少 type，请在返回数据或 modelsUrl 的 type 参数中指定`);
+    if (requestedType.success && type !== requestedType.data) invalid(t`模型 ${id} 的 type 与请求类型不一致`);
     // ACT: 只有 ID 的列表沿用同名模型参数，新模型不猜测生成能力。
     return { ...previous, ...model, id, label: model.label ?? previous?.label
       ?? (typeof model.display_name === "string" ? model.display_name : typeof model.displayName === "string" ? model.displayName : id), type };

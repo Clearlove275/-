@@ -215,6 +215,7 @@ function confirmDeveloper() {
 
 const installTypes = {
   node: { get label() { return translate("节点"); }, accept: ".umd.js", example: "imageNode.umd.js", get description() { return translate("选择脚手架打包的 .umd.js 文件。"); } },
+  ext: { get label() { return translate("文件扩展"); }, accept: ".umd.js", example: "ext-image.umd.js", get description() { return translate("选择扩展脚手架打包的 ext-*.umd.js 文件。"); } },
   skill: { get label() { return translate("技能"); }, accept: ".zip,.md,.tar,.tar.gz,.tgz", example: "skill.zip", get description() { return translate("支持包含技能与资源的 .zip 包、SKILL.md，以及 .tar、.tar.gz、.tgz 包。"); } },
   tool: { get label() { return translate("工具"); }, accept: ".tool.js", example: "mediaGeneration.tool.js", get description() { return translate("选择脚手架打包的 .tool.js 文件。"); } },
 };
@@ -355,10 +356,11 @@ async function installPlugin(sourceType: "file" | "url", file?: File) {
     if (file) {
       installedName.value = await installPluginFile(type, file, forceInstall.value);
     } else {
-      const { data } = await axios.post(`/api/${type}s/install`, { url: pluginUrl.value.trim(), force: forceInstall.value }, { headers: { "x-toonflow-workspace": "1" } });
+      const { data } = await axios.post(`/api/${type === "ext" ? "ext" : `${type}s`}/install`, { url: pluginUrl.value.trim(), force: forceInstall.value }, { headers: { "x-toonflow-workspace": "1" } });
       if (data.code !== 200) throw new Error(data.message || "安装失败");
       installedName.value = data.data.name;
       window.dispatchEvent(new CustomEvent("toonflow:plugin-installed", { detail: { type, name: data.data.name } }));
+      if (type === "ext") window.dispatchEvent(new CustomEvent("toonflow:ext-updated", { detail: { name: data.data.name } }));
     }
   } catch (err) {
     installError.value = axios.isAxiosError<{ message?: string }>(err) ? err.response?.data.message || "安装失败，请检查网络后重试" : err instanceof Error ? err.message : "安装失败";

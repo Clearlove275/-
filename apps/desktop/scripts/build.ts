@@ -45,6 +45,7 @@ if (!isMac) {
 for (const script of mode === "dev" ? ["dev:plugins"] : [
   "build:tools",
   "build:nodes",
+  "build:ext",
   // "build:teams",
 ]) {
   await $`${process.execPath} run ${script}`.cwd(projectDir);

@@ -111,7 +111,8 @@ async function assetBytes(asset: MediaAsset, mediaType: "image" | "video" | "aud
   if (asset.type === "url") {
     const result = await downloadAsset(asset.url, signal);
     bytes = result.bytes;
-    mimeType = result.mimeType || mimeType;
+    const responseMimeType = result.mimeType.split(";")[0].trim().toLowerCase();
+    mimeType = responseMimeType && responseMimeType !== "application/octet-stream" ? result.mimeType : mimeType;
   } else if (asset.type === "base64") {
     const data = /^data:([^;,]+);base64,([\s\S]+)$/.exec(asset.data);
     const content = (data?.[2] ?? asset.data).replace(/\s/g, "");
@@ -152,8 +153,8 @@ export async function generateMedia(
   signal?.throwIfAborted();
   const assets = mediaType === "audio"
     ? await provider.generateAudio!({
-      model: request.modelId, text: request.prompt, audios: await references(request.audios, "audio"),
-      voice: request.voice, speed: request.speed, volume: request.volume, format: request.format, sampleRate: request.sampleRate,
+      model: request.modelId, text: request.prompt, images, audios: await references(request.audios, "audio"),
+      voice: request.voice, speed: request.speed, volume: request.volume, pitch: request.pitch, language: request.language, format: request.format, sampleRate: request.sampleRate,
     })
     : mediaType === "image"
     ? await provider.generateImage!({ model: request.modelId, prompt: request.prompt, images, ratio: request.ratio, size: request.size })

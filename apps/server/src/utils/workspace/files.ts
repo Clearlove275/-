@@ -1,10 +1,36 @@
-import { constants, copyFile, lstat, rename, unlink, realpath, writeAtomic } from "@toonflow/file";
+import { constants, copyFile, cp, lstat, mkdir, rename, unlink, realpath, writeAtomic } from "@toonflow/file";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import type { Request } from "express";
 import { resolveWorkspace } from "@/utils/workspace";
 
 export async function writeWorkspaceFile(path: string, content: string | Uint8Array, exclusive = false) {
   await writeAtomic(path, content, { exclusive });
+}
+
+export async function copyWorkspaceFile(source: string, target: string) {
+  const info = await lstat(source);
+  if (info.isSymbolicLink() || (!info.isFile() && !info.isDirectory())) throw Object.assign(new Error("只能复制普通文件或文件夹"), { status: 403 });
+  if (!info.isDirectory()) return copyFile(source, target, constants.COPYFILE_EXCL);
+  if (isWithin(source, target)) throw Object.assign(new Error("不能把文件夹复制到自身或子目录"), { status: 400 });
+  await mkdir(target);
+  try {
+    await cp(source, target, {
+      recursive: true,
+      force: false,
+      errorOnExist: true,
+      dereference: false,
+      async filter(path) {
+        const entry = await lstat(path);
+        if (entry.isSymbolicLink() || (!entry.isFile() && !entry.isDirectory()) || !isWithin(source, await realpath(path))) {
+          throw new Error("不能复制包含符号链接或特殊文件的文件夹");
+        }
+        return true;
+      },
+    });
+  } catch (cause) {
+    // ACT: 失败保留已复制内容，不递归回滚删除可能被外部加入文件的目标目录。
+    throw Object.assign(new Error(`复制未完成，已复制的内容保留在 ${target}。${cause instanceof Error ? cause.message : "请检查文件权限后重试"}`, { cause }), { code: "ECOPYINCOMPLETE" });
+  }
 }
 
 export async function renameWorkspaceFile(source: string, target: string) {

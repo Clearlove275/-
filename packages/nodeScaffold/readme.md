@@ -27,6 +27,30 @@ data/nodes/
 
 节点运行时代码统一从 `@toonflow/nodes-scaffold/runtime` 导入组件、组合式函数、类型和工具。根入口 `@toonflow/nodes-scaffold` 仅供 Vite 配置导入 `createNodeConfig`，不要在浏览器组件中引用；旧的运行时子路径仍兼容。
 
+## 共享 Markdown 编辑依赖
+
+Tiptap、marked 和 DOMPurify 通过构建配置的 external 复用宿主依赖。编辑器、预览组件、工具栏和生命周期由各扩展或节点在自己的包内实现，不导入宿主组件，也没有组件转发层。子包使用这些依赖时声明与宿主兼容的 peerDependencies：当前 Tiptap 各包为 `3.31.3`，`marked` 为 `18.0.13`，`dompurify` 为 `3.4.16`。
+
+直接使用依赖原有 API：
+
+```ts
+import { Editor } from "@tiptap/core";
+import { StarterKit } from "@tiptap/starter-kit";
+import { Markdown } from "@tiptap/markdown";
+
+const editor = new Editor({
+  extensions: [StarterKit, Markdown],
+  content: "# 标题",
+  contentType: "markdown",
+});
+```
+
+共享模块包括 `@tiptap/core`、`@tiptap/vue-3`、`@tiptap/starter-kit`、`@tiptap/markdown`，以及 `extension-find-and-replace`、`extension-highlight`、`extension-image`、`extension-list`、`extension-subscript`、`extension-superscript`、`extension-table`、`extension-text-align`（均为 `@tiptap/` 前缀）；还包括 `@tiptap/pm/model`、`@tiptap/pm/state`、`@tiptap/pm/view`、`marked` 和 `dompurify`。构建产物引用 `window.toonflowTiptapHost` 中对应的依赖，不重复打包这些实现。
+
+Tiptap 统一使用具名导入，例如 `{ StarterKit }`、`{ Image }`、`{ Highlight }`、`{ Superscript }`、`{ Subscript }`、`{ TextAlign }`、`{ FindAndReplace }`。当前 Vite 8 UMD 的默认导入会取整个外部模块对象，不能用于这些共享模块；DOMPurify 单独共享默认函数，继续使用 `import DOMPurify from "dompurify"`。无需启用影响所有依赖的旧版 CJS 兼容开关。
+
+宿主先检查 UMD 是否引用 `toonflowTiptapHost`，仅在需要时动态加载共享依赖，后续复用同一个 ES 模块；普通图片、视频或纯文本插件不会因此预载 Tiptap。组件的挂载、销毁、隐藏状态、正文更新和文件保存仍由各包管理。使用共享依赖的产物需要配套宿主版本。
+
 ## 共享提示词与参考列表
 
 多种节点共用的提示词输入与参考列表放在脚手架中，节点之间不互相依赖。按组件子路径导入，仅使用时才打包对应依赖：
@@ -430,7 +454,7 @@ export default createNodeConfig({
 
 构建会把三个展示字段、`version`、`readme` 和 `configRules` 写入 UMD 第一行的 `/*! toonflowNode:{JSON} */` 注释，无需额外清单文件。server 只解析这段 JSON，不执行节点代码，并通过 `/api/nodes/get` 返回元数据。设置中的已安装列表显示插件名称、版本和作者，名称末尾的小图标用于打开 GitHub；没有元数据的旧 UMD 继续显示节点标识，缺少版本时接口返回空字符串。修改配置或版本并开发同步后，重新打开市场即可刷新。
 
-需要额外 alias、插件等配置时，在该节点的 `vite.config.ts` 中用 Vite 的 `mergeConfig` 合并。保持共享配置中的 UMD 格式、输出目录和 Vue/VueFlow/Element Plus external 设置。
+需要额外 alias、插件等配置时，在该节点的 `vite.config.ts` 中用 Vite 的 `mergeConfig` 合并。保持共享配置中的 UMD 格式、输出目录和所有共享依赖的 external/globals 设置。
 
 ### 节点插件配置
 
@@ -466,6 +490,7 @@ const apiKey = computed(() => String(config.value.apiKey ?? ""));
 
 - `vue` 和 `@vue-flow/core` 是节点的 peer dependency，UMD 直接使用宿主提供的 `window.toonflowNodeHost.vue`、`.vueFlow`；节点内不创建 Vue app，`useVueFlow()` 继承所在画布。
 - `element-plus` 同样声明为 peer dependency，复用 `window.toonflowNodeHost.elementPlus`。组件从根入口按需导入，例如 `import { ElButton } from "element-plus"`，模板使用 `<el-button>`；不要导入 `element-plus/es/...` 或其 CSS。宿主统一加载 Element Plus 组件与样式，节点产物不重复打包。
+- `three` 核心通过 external 复用 `window.toonflowNodeHost.three`，宿主提供完整 API。节点继续声明与宿主一致的 `three` 版本（当前 `0.184.0`），正常使用 `import { WebGLRenderer, Vector3 } from "three"`，无需直接访问全局对象。`three/addons/*`、`three/examples/jsm/*` 扩展仍按需打入节点，扩展内部的 `three` 引用同样复用宿主核心；不要从 `three/src/*` 深层导入核心。节点 UMD 与宿主需要使用配套版本。
 - 文本 AI 使用的 Pi SDK 同样通过现有 external 机制复用 `window.toonflowNodeHost.ai`，包含 `runAgentLoop` 和 `createAssistantMessageEventStream`；不在各节点 UMD 中重复打包，不新增运行时或服务。节点 UMD、宿主与后端需要使用配套版本。
 - 第三方库直接引用 `@vue/runtime-core` 或 `@vue/runtime-dom` 时，也使用宿主的 Vue 导出。各节点的 Vue/VueFlow 版本必须与宿主兼容；不要引入自行内嵌 Vue 的库或直接导入 Vue 的 `dist` 产物。
 - 其它依赖随各节点独立打包；不同节点可以使用不同 UI 框架和第三方库版本，同一个库也可能重复出现在不同 UMD 中。

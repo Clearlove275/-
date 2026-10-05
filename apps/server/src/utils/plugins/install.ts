@@ -1,5 +1,5 @@
 import { t, translateMessage } from "@/lib/i18n";
-import { mkdir, mkdtemp, lstat, readFile, readdir, rename, rm, writeFile } from "@toonflow/file";
+import { mkdir, mkdtemp, lstat, readFile, readdir, rename, rm, unlink, writeFile } from "@toonflow/file";
 import { dirname, join, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { crc32, inflateRawSync } from "node:zlib";
@@ -7,6 +7,7 @@ import { parseFrontmatter } from "@earendil-works/pi-coding-agent";
 import type { PluginInstallType } from "@/types/desktop";
 import conf from "@/utils/conf";
 import { parseTool, toolsDirectory } from "@/utils/plugins/tools";
+import { extDirectory, parseExt } from "@/utils/plugins/ext";
 import { addMediaProvider } from "@/utils/media/provider";
 import { isSafeSegment } from "@/utils/skills/files";
 import { isWithin, lockWorkspaceFiles, writeWorkspaceFile } from "@/utils/workspace/files";
@@ -131,6 +132,36 @@ export async function installNode(fileName: string, source: string, force = fals
     if (current && !current.isFile()) invalid("现有节点必须是普通文件", 403);
     if (current && !force) requireNewerVersion(current.size <= maxBytes ? nodeVersion(await readFile(path, "utf8")) : undefined, nodeVersion(source), `节点“${name}”`);
     await writeWorkspaceFile(path, source, !current);
+  } finally { release(); }
+  return { name };
+}
+
+export async function installExt(fileName: string, source: string, force = false) {
+  if (!/^ext-[a-z][a-zA-Z0-9]*\.umd\.js$/.test(fileName)) invalid("文件名需为 ext-小驼峰格式，例如 ext-image.umd.js");
+  if (!source.trim()) invalid("文件扩展内容为空，请重新上传扩展脚本");
+  if (Buffer.byteLength(source, "utf8") > maxBytes) invalid("文件扩展不能超过 20 MB", 413);
+  const name = fileName.slice(0, -7);
+  const metadata = parseExt(source, name);
+  if (!source.includes("toonflowExtHost") || !new RegExp(`toonflowExts\\s*\\[\\s*["']${name}["']\\s*\\]`).test(source)) {
+    invalid("文件不是兼容的 Toonflow 文件扩展，请使用扩展脚手架构建并保留原文件名");
+  }
+  try { new Bun.Transpiler({ loader: "js" }).scan(source); }
+  catch { invalid("文件扩展脚本语法无效，请重新构建完整的 .umd.js 文件"); }
+  await mkdir(extDirectory, { recursive: true });
+  if ((await lstat(extDirectory)).isSymbolicLink()) invalid("文件扩展目录不能是符号链接", 403);
+  const path = resolve(extDirectory, fileName);
+  const release = lockWorkspaceFiles([path]);
+  try {
+    const current = await lstat(path).catch((error: NodeJS.ErrnoException) => { if (error.code !== "ENOENT") throw error; });
+    if (current && !current.isFile()) invalid("现有文件扩展必须是普通文件", 403);
+    if (current && !force) {
+      let version: string | undefined;
+      try { if (current.size <= maxBytes) version = parseExt(await readFile(path, "utf8"), name).version; }
+      catch { /* 损坏的已安装版本只能由明确的强制安装覆盖。 */ }
+      requireNewerVersion(version, metadata.version, `文件扩展“${name}”`);
+    }
+    await writeWorkspaceFile(path, source, !current);
+    await unlink(resolve(extDirectory, `${name}.removed`)).catch((error: NodeJS.ErrnoException) => { if (error.code !== "ENOENT") throw error; });
   } finally { release(); }
   return { name };
 }
@@ -397,17 +428,18 @@ export async function installRemotePlugin(type: PluginInstallType, url: string, 
     try { fileName = decodeURIComponent(address.pathname.split("/").at(-1) ?? ""); }
     catch { return invalid("下载地址中的文件名编码无效，请重新生成下载链接"); }
   }
-  const patterns = { node: /^[a-z][a-zA-Z0-9]*\.umd\.js$/, tool: /^[a-z][a-zA-Z0-9]*\.tool\.js$/, skill: /\.(md|zip|tar|tar\.gz|tgz)$/i, provider: /^[a-z][a-zA-Z0-9]*\.ts$/, agent: /^[a-z][a-zA-Z0-9]*\.agent\.zip$/ };
-  const examples = { node: "audioNode.umd.js", tool: "exampleTool.tool.js", skill: "example.zip、SKILL.md、example.tar、example.tar.gz 或 example.tgz", provider: "exampleProvider.ts", agent: "exampleTeam.agent.zip" };
-  if (!Object.hasOwn(patterns, type)) invalid("不支持此插件类型，可选值为 node、tool、skill、provider、agent");
+  const patterns = { node: /^[a-z][a-zA-Z0-9]*\.umd\.js$/, ext: /^ext-[a-z][a-zA-Z0-9]*\.umd\.js$/, tool: /^[a-z][a-zA-Z0-9]*\.tool\.js$/, skill: /\.(md|zip|tar|tar\.gz|tgz)$/i, provider: /^[a-z][a-zA-Z0-9]*\.ts$/, agent: /^[a-z][a-zA-Z0-9]*\.agent\.zip$/ };
+  const examples = { node: "audioNode.umd.js", ext: "ext-image.umd.js", tool: "exampleTool.tool.js", skill: "example.zip、SKILL.md、example.tar、example.tar.gz 或 example.tgz", provider: "exampleProvider.ts", agent: "exampleTeam.agent.zip" };
+  if (!Object.hasOwn(patterns, type)) invalid("不支持此插件类型，可选值为 node、ext、tool、skill、provider、agent");
   if (!fileName) invalid(t`下载地址缺少文件名，请使用指向文件的地址，例如 ${examples[type]}`);
   if (fileName.length > 128 || /[\\/]/.test(fileName)) invalid("插件文件名无效，不能包含目录路径或超过 128 字符");
   if (!patterns[type].test(fileName)) invalid(t`下载文件名“${fileName.slice(0, 128)}”不符合 ${type} 类型规范，文件名示例：${examples[type]}；改名后请重新生成下载链接`);
-  const bytes = await download(url, type === "provider" ? 2 * 1024 * 1024 : maxBytes, { node: "节点", tool: "工具", skill: "技能", provider: "供应商", agent: "团队" }[type]);
+  const bytes = await download(url, type === "provider" ? 2 * 1024 * 1024 : maxBytes, { node: "节点", ext: "文件扩展", tool: "工具", skill: "技能", provider: "供应商", agent: "团队" }[type]);
   if (type === "agent") return (await import("@/utils/teams/install")).installTeam(fileName, bytes, force);
   if (type === "skill") return installSkill(fileName, bytes, force);
   const source = decodeText(bytes);
   if (type === "node") return installNode(fileName, source, force);
+  if (type === "ext") return installExt(fileName, source, force);
   if (type === "tool") return installTool(fileName, source, force);
   return { name: (await addMediaProvider(source)).id };
 }

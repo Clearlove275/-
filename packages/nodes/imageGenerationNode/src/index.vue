@@ -9,17 +9,24 @@
     @fullscreen="previewVisible = true"
     :bottomWidth="660"
     :style="{ width: previewUrl && imageWidth ? `${imageWidth + 18}px` : undefined }">
+    <template v-if="editor?.mode" #top><div ref="paintToolbar" /></template>
     <template #topActions>
+      <el-button :icon="IconBrush" :disabled="generating || deleting || uploading || !previewUrl || gridSplit?.splitting" text title="局部重绘" aria-label="局部重绘" @click.stop="editor?.start('inpaint')">局部重绘</el-button>
+      <el-button :icon="IconLayoutGrid" :disabled="generating || deleting || uploading || !previewUrl" :loading="gridSplit?.splitting" text title="宫格切分" aria-label="宫格切分" @click.stop="gridSplit?.open($event)">宫格切分</el-button>
       <mediaHistory mediaType="image" :current="outputFile" :disabled="generating || deleting || uploading" @select="outputs.image = { dataType: 'IMAGE', value: $event }" />
-      <el-button :icon="IconTransfer" :loading="uploading" :disabled="generating || deleting" text title="替换图片" aria-label="替换图片" @click.stop="fileInput?.click()" />
+      <el-button :icon="IconTransfer" :loading="uploading" :disabled="generating || deleting" text title="替换图片" aria-label="替换图片" @click.stop="fileInput?.click()">替换图片</el-button>
       <input ref="fileInput" type="file" accept="image/*" hidden aria-label="选择替换图片" :disabled="generating || deleting || uploading" @change="replaceOutput" />
     </template>
+    <template #topRightActions>
+      <el-button :icon="IconPencil" :disabled="generating || deleting || uploading || !previewUrl || gridSplit?.splitting" text title="标记" aria-label="标记" @click.stop="editor?.start('mark')" />
+    </template>
     <div v-loading="generating || uploading" class="imageContent nopan" :aria-busy="generating || uploading">
-      <img
+      <imageEditor
         v-if="previewUrl"
-        class="imagePreview"
+        ref="editor"
         :src="previewUrl"
-        draggable="false"
+        :toolbarTarget="paintToolbar"
+        :disabled="generating || deleting || uploading"
         alt="生成图片"
         @load="resizeImage"
         @error="showNodeError('无法预览该图片', '图片预览失败')" />
@@ -27,14 +34,15 @@
         <icon-photo-ai :size="48" stroke="1.25" aria-hidden="true" />
       </div>
     </div>
-    <template #bottom>
+    <template v-if="editor?.mode !== 'mark'" #bottom>
       <el-card class="promptCard" shadow="never" :bodyStyle="{ padding: '14px 16px 12px' }">
         <referenceItem
           v-if="refList.length"
           v-model="refList"
           @preview="setReferencePreview"
           @remove="removeReference" />
-        <promptInput v-model="data.promptModel" v-model:text="data.prompt" :references="referenceMentions" expandable />
+        <promptInput v-if="editor?.mode === 'inpaint'" v-model="data.inpaintPromptModel" v-model:text="data.inpaintPrompt" :references="referenceMentions" expandable />
+        <promptInput v-else v-model="data.promptModel" v-model:text="data.prompt" :references="referenceMentions" expandable />
         <div class="promptFooter">
           <el-select
             v-model="data.model"
@@ -65,14 +73,15 @@
           <el-button
             class="sendButton"
             :icon="generating ? IconPlayerStop : IconArrowUp"
-            :disabled="deleting || uploading || (!generating && (!generationPrompt || !selectedModel))"
-            :title="generating ? '停止生成' : '生成图片'"
-            :aria-label="generating ? '停止生成' : '生成图片'"
-            @click="generating ? generationController?.abort() : startGeneration().catch((error) => showNodeError(error, '图片生成失败'))" />
+            :disabled="deleting || uploading || (!generating && (editor?.busy || !generationPrompt || !selectedModel))"
+            :title="generating ? '停止生成' : editor?.mode === 'inpaint' ? '局部重绘' : '生成图片'"
+            :aria-label="generating ? '停止生成' : editor?.mode === 'inpaint' ? '局部重绘' : '生成图片'"
+            @click="generating ? generationController?.abort() : startGeneration(editor?.mode === 'inpaint').catch((error) => showNodeError(error, '图片生成失败'))" />
         </div>
       </el-card>
     </template>
   </nodeSkeleton>
+  <imageGridSplit ref="gridSplit" :src="previewUrl" :disabled="generating || deleting || uploading" :active="node.selected" />
   <el-image-viewer
     v-if="previewVisible && previewUrl"
     :urlList="[previewUrl]"
@@ -83,11 +92,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onScopeDispose, ref, watch } from "vue";
 import { ElButton, ElCard, ElSelect, ElOption, ElOptionGroup, ElLoading, ElImageViewer } from "element-plus";
-import { IconPhotoAi, IconSparkles, IconArrowUp, IconPlayerStop, IconTransfer } from "@tabler/icons-vue";
+import { IconPhotoAi, IconSparkles, IconArrowUp, IconPlayerStop, IconTransfer, IconLayoutGrid, IconBrush, IconPencil } from "@tabler/icons-vue";
 import { groupNodeModels, nodeSkeleton, nodeTools, showNodeError, useNode, useNodeGeneration, useNodeReferences, z, type NodeMediaModel, type NodeHandle } from "@toonflow/nodes-scaffold/runtime";
 import promptInput from "@toonflow/nodes-scaffold/promptInput";
 import referenceItem from "@toonflow/nodes-scaffold/referenceItem";
 import mediaHistory from "@toonflow/nodes-scaffold/mediaHistory";
+import imageGridSplit from "@toonflow/nodes-scaffold/imageGridSplit";
+import imageEditor from "@toonflow/nodes-scaffold/imageEditor";
 import generationSettings from "./components/generationSettings.vue";
 
 defineOptions({
@@ -103,9 +114,11 @@ const { id, node, nodeProps, nodeEvent, outputs, files, ai, updateNodeInternals 
   label: "图片生成",
 });
 type PromptModel = NonNullable<InstanceType<typeof promptInput>["$props"]["modelValue"]>;
-const data = computed(() => node.data as { prompt: string; promptModel: PromptModel; model: string; size: string; ratio: string });
+const data = computed(() => node.data as { prompt: string; promptModel: PromptModel; inpaintPrompt: string; inpaintPromptModel: PromptModel; model: string; size: string; ratio: string });
 data.value.prompt ??= "";
 data.value.promptModel ??= [];
+data.value.inpaintPrompt ??= "";
+data.value.inpaintPromptModel ??= [];
 data.value.model ??= "";
 data.value.size ??= "";
 data.value.ratio ??= "16:9";
@@ -114,6 +127,9 @@ const models = ref<NodeMediaModel[]>([]);
 const modelsLoading = ref(false);
 const uploading = ref(false);
 const fileInput = ref<HTMLInputElement>();
+const gridSplit = ref<InstanceType<typeof imageGridSplit>>();
+const editor = ref<InstanceType<typeof imageEditor>>();
+const paintToolbar = ref<HTMLElement>();
 let disposed = false;
 const deleting = ref(false);
 const previewVisible = ref(false);
@@ -141,7 +157,7 @@ watch(
 const modelGroups = computed(() => groupNodeModels(models.value));
 const generationPrompt = computed(() =>
   [
-    data.value.prompt.trim(),
+    (editor.value?.mode === "inpaint" ? data.value.inpaintPrompt : data.value.prompt).trim(),
     ...refList.value.flatMap((item, index) => (item.dataType === "STRING" && item.value?.trim() ? [`参考 ${index + 1}：\n${item.value.trim()}`] : [])),
   ]
     .filter(Boolean)
@@ -201,11 +217,14 @@ function loadModels() {
   return modelsRequest;
 }
 
-async function startGeneration() {
+async function startGeneration(inpaint = false) {
   const choice = selectedModel.value;
   if (generating.value) throw new Error("图片正在生成，请等待完成");
   if (uploading.value) throw new Error("图片正在替换，请等待完成");
   if (deleting.value) throw new Error("节点正在删除");
+  if (editor.value?.busy || editor.value?.mode === "mark") throw new Error("请先完成图片标记");
+  const inpaintEditor = editor.value?.mode === "inpaint" ? editor.value : undefined;
+  if (inpaint !== !!inpaintEditor) throw new Error(inpaint ? "请先进入局部重绘" : "请先退出局部重绘，再启动普通图片生成");
   if (!choice) throw new Error("请先选择图片模型");
   if (!generationPrompt.value) throw new Error("请输入生成提示词");
   if (refList.value.some(item => item.value === undefined)) throw new Error("引用节点暂无内容，请先补充引用内容");
@@ -221,8 +240,18 @@ async function startGeneration() {
     images: refList.value.flatMap((item) => (item.dataType === "IMAGE" && item.value ? [{ path: item.value.url, mimeType: item.value.mimeType }] : [])),
   };
   generationController = controller;
+  if (inpaintEditor) {
+    const imageReferences = refList.value.flatMap((item, index) => item.dataType === "IMAGE" && item.value ? [index + 1] : []);
+    if (imageReferences.length) input.prompt += `\n用户参考编号对应关系（前两张为原图和区域引导图）：${imageReferences.map((reference, index) => `参考 ${reference} / {{ref ${reference}}} 对应第 ${index + 3} 张图`).join("；")}。`;
+  }
   // ACT: 工具立即返回，任务由节点持有，停止或卸载时取消。
-  generation = generationState.run(() => workspace
+  generation = generationState.run(() => inpaintEditor
+    ? inpaintEditor.generate(input, controller.signal).then(value => {
+      controller.signal.throwIfAborted();
+      outputs.value.image = { dataType: "IMAGE", value };
+      inpaintEditor.cancel();
+    })
+    : workspace
     .list()
     .then(({ directory }) => {
       controller.signal.throwIfAborted();
@@ -241,10 +270,10 @@ async function startGeneration() {
 }
 
 nodeEvent.on("save", (reason) => {
-  if (reason === "reload" && (generating.value || uploading.value || deleting.value)) throw new Error("图片处理中，请完成后再刷新节点");
+  if (reason === "reload" && (generating.value || uploading.value || deleting.value || editor.value?.busy)) throw new Error("图片处理中，请完成后再刷新节点");
 });
 nodeEvent.on("delete", async () => {
-  if (uploading.value) throw new Error("图片正在替换，请稍后删除节点");
+  if (uploading.value || (editor.value?.busy && !generating.value)) throw new Error("图片处理中，请稍后删除节点");
   deleting.value = true;
   generationController?.abort();
   try {
@@ -318,7 +347,7 @@ nodeTools.register({
 
 nodeTools.register({
   name: "setPrompt",
-  description: "修改此节点的图片生成提示词，支持 {{ref 1}} 等参考标记；只修改提示词，不启动生成",
+  description: "修改此节点的普通图片生成提示词，支持 {{ref 1}} 等参考标记；不修改局部重绘提示词，不启动生成",
   parameters: z.strictObject({ prompt: z.string() }),
   execute({ prompt: value }) {
     if (deleting.value) throw new Error("节点正在删除，请稍后修改");
@@ -330,7 +359,7 @@ nodeTools.register({
 
 nodeTools.register({
   name: "generateImage",
-  description: "启动此节点的后台图片生成，使用当前提示词、模型、分辨率、比例和参考图片；立即返回已开始，用 getGenerationStatus 查询完成结果，cancelGeneration 停止生成",
+  description: "启动此节点的后台普通图片生成，使用普通生成提示词、模型、分辨率、比例和参考图片；局部重绘模式下须先退出；立即返回已开始，用 getGenerationStatus 查询完成结果，cancelGeneration 停止生成",
   parameters: z.strictObject({}),
   execute(_args, { signal }) {
     signal?.throwIfAborted();
@@ -357,14 +386,6 @@ nodeTools.register({
 
   :deep(.el-loading-mask) {
     pointer-events: none;
-  }
-
-  .imagePreview {
-    display: block;
-    width: 100%;
-    max-height: 240px;
-    object-fit: contain;
-    border-radius: var(--el-border-radius-base);
   }
 
 }
