@@ -20,7 +20,8 @@ export default router.put("/", validateFields({ settings: z.record(z.string(), z
   u.mcpControl.assertAppRequest(req);
   const { settings } = req.body;
   u.removeLegacySettings(settings);
+  const previousSettings = u.conf.get("settings", {});
   u.conf.set("settings", settings);
-  await u.mcpRuntime.reloadMcpRuntime();
-  res.json(success(null, "设置已保存"));
+  const [models] = await Promise.all([u.ai.refreshProviderModels(previousSettings), u.mcpRuntime.reloadMcpRuntime()]);
+  res.json(success(models, "设置已保存"));
 });

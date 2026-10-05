@@ -67,7 +67,7 @@ import { IconArrowLeft } from "@tabler/icons-vue";
 import tfRouter from "@toonflow/providers/language/tfRouter";
 import tfRouterSource from "@toonflow/providers/media/tfRouter?raw";
 import { invalidateNodeModels } from "@toonflow/nodes-scaffold/nodeAi";
-import { customProviders, saveSettings, type CustomProviderModel } from "@/stores/settings";
+import { customProviders, saveSettings } from "@/stores/settings";
 import type { MediaProvider } from "@/components/settings/panels/mediaModel/types";
 import { useHelloStore } from "@/stores/hello";
 import anonymousData from "@/lib/anonymousData";
@@ -143,20 +143,7 @@ async function configureProviders() {
   const request = new AbortController();
   loginRequest = request;
   try {
-    const [modelsResponse, mediaResponse] = await Promise.all([
-      axios.post<{ code: number; data: CustomProviderModel[] }>(
-        "/api/providers/models",
-        {
-          apiUrl: tfRouter.apiUrl,
-          protocol: tfRouter.protocol,
-          apiKey,
-        },
-        { signal: request.signal, timeout: 35000 }
-      ),
-      axios.get<{ code: number; data: MediaProvider[] }>("/api/providers/media/list", { signal: request.signal }),
-    ]);
-    const models = modelsResponse.data.data;
-    if (modelsResponse.data.code !== 200 || !Array.isArray(models) || !models.length) throw new Error("未获取到文本模型，请重试配置");
+    const mediaResponse = await axios.get<{ code: number; data: MediaProvider[] }>("/api/providers/media/list", { signal: request.signal });
     if (mediaResponse.data.code !== 200 || !Array.isArray(mediaResponse.data.data)) throw new Error("读取媒体供应商失败，请重试配置");
     request.signal.throwIfAborted();
     if (!mediaResponse.data.data.some((provider) => provider.id === tfRouter.id)) {
@@ -181,7 +168,7 @@ async function configureProviders() {
         apiUrl: tfRouter.apiUrl,
         protocol: tfRouter.protocol,
         apiKey,
-        models: previous?.models?.length ? previous.models : models,
+        models: previous?.models ?? [],
       };
       return {
         customProviders: index < 0 ? [...providers, provider] : providers.map((item, position) => position === index ? provider : item),
@@ -193,7 +180,7 @@ async function configureProviders() {
     await hello.complete();
     anonymousData.track("onboarding.complete");
     loginKey.value = "";
-    ElMessage.success("文本模型和媒体模型已配置完成");
+    ElMessage.success("TF-Router API Key 已配置完成");
     await router.replace("/home");
   } catch (error) {
     if (!request.signal.aborted)

@@ -25,7 +25,7 @@
           placeholder="粘贴 API Key"
           :disabled="saving"
           @keyup.enter="submitKey" />
-        <el-button type="primary" size="small" :loading="saving || fetchingModels" :disabled="!draftKey.trim()" @click="submitKey">保存</el-button>
+        <el-button type="primary" size="small" :loading="saving" :disabled="!draftKey.trim()" @click="submitKey">保存</el-button>
       </div>
       <el-text v-if="setupError" size="small" type="danger">{{ setupError }}</el-text>
       <el-button tag="a" href="https://api.toonflow.net/" target="_blank" rel="noopener noreferrer" text type="primary" :icon="IconExternalLink">
@@ -60,13 +60,11 @@ import { computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, watch
 import axios from "axios";
 import { IconCreditCard, IconExternalLink, IconRefresh } from "@tabler/icons-vue";
 import tf, { type TfBalance } from "@/lib/tf";
-import type { CustomProvider, CustomProviderModel } from "@/stores/settings";
 
 const props = withDefaults(defineProps<{
   apiKey: string;
   visible?: boolean;
-  modelProvider?: Pick<CustomProvider, "apiUrl" | "protocol">;
-  saveApiKey: (key: string, models?: CustomProviderModel[]) => Promise<void>;
+  saveApiKey: (key: string) => Promise<void>;
 }>(), { visible: true });
 const rechargeDialog = shallowRef<Component>();
 const rechargeVisible = ref(false);
@@ -82,8 +80,6 @@ const errorMessage = ref("");
 const draftKey = ref("");
 const saving = ref(false);
 const setupError = ref("");
-const fetchingModels = ref(false);
-const draftModels = shallowRef<CustomProviderModel[]>();
 const numberFormat = computed(() => new Intl.NumberFormat(locale.value, { style: "currency", currency: "CNY", minimumFractionDigits: 2, maximumFractionDigits: 6 }));
 let controller: AbortController | undefined;
 let rechargeKey = "";
@@ -97,11 +93,11 @@ function openRecharge() {
 
 async function submitKey() {
   const key = draftKey.value.trim();
-  if (!key || saving.value || fetchingModels.value) return;
+  if (!key || saving.value) return;
   saving.value = true;
   setupError.value = "";
   try {
-    await props.saveApiKey(key, draftModels.value);
+    await props.saveApiKey(key);
     draftKey.value = "";
   } catch (error) {
     setupError.value = error instanceof Error ? error.message : "保存失败，请重试";
@@ -109,35 +105,6 @@ async function submitKey() {
     saving.value = false;
   }
 }
-
-watch(
-  [draftKey, () => props.visible, () => props.modelProvider?.apiUrl, () => props.modelProvider?.protocol],
-  ([key, visible, apiUrl, protocol], _previous, onCleanup) => {
-    draftModels.value = undefined;
-    fetchingModels.value = false;
-    setupError.value = "";
-    if (!visible || !apiUrl || !protocol || !key.trim()) return;
-    const request = new AbortController();
-    fetchingModels.value = true;
-    const timer = setTimeout(async () => {
-      try {
-        const { data } = await axios.post("/api/providers/models", { apiUrl, protocol, apiKey: key.trim() }, { signal: request.signal, timeout: 35000 });
-        if (request.signal.aborted) return;
-        if (data.code !== 200 || !Array.isArray(data.data)) throw new Error(data.message || "获取模型列表失败");
-        if (!data.data.length) throw new Error("未获取到可用模型，请检查 API Key 后重试");
-        draftModels.value = data.data;
-      } catch (error) {
-        if (!request.signal.aborted) setupError.value = axios.isAxiosError(error)
-          ? error.response?.data?.message || "获取模型列表失败，请检查 API Key 后重试"
-          : error instanceof Error ? error.message : "获取模型列表失败";
-      } finally {
-        if (!request.signal.aborted) fetchingModels.value = false;
-      }
-    }, 500);
-    onCleanup(() => { clearTimeout(timer); request.abort(); });
-  },
-  { flush: "sync" },
-);
 
 async function refresh() {
   controller?.abort();
