@@ -1,7 +1,9 @@
 import logger from "morgan";
 import express from "express";
 import cors from "cors";
+import { createHash } from "node:crypto";
 import { resolve } from "node:path";
+import { readFile } from "@toonflow/file";
 import type { Request, Response, NextFunction } from "express";
 import buildRoute from "@/core";
 import { error } from "@/lib/responseFormat";
@@ -11,7 +13,7 @@ import { languageRequest, resolveRequestLocale, runWithLocale, setLocaleFallback
 import { detectLocale, normalizeLocale } from "@toonflow/i18n";
 import { z } from "zod";
 
-const autoInstallProviders = ["tfRouter.ts", "apiMart.ts", "meta.ts"];
+const autoInstallProviders = ["tfRouter.ts", "apiMart.ts", "metaso.ts"];
 
 export async function createApp({
   webRoot,
@@ -46,9 +48,24 @@ export async function createApp({
     const { default: initializeExt } = await import("@/utils/plugins/initializeExt");
     await initializeExt(resolve(dataDirectory, "ext"), extRoot, pluginRevision);
   }
-  // ACT: 供应方和技能可由用户编辑，只补首次安装，不随应用版本覆盖。
-  if (dataDirectory && providersRoot)
-    await initializePlugins(resolve(dataDirectory, "providers"), resolve(providersRoot, "media"), autoInstallProviders);
+  // ACT: 内置媒体供应商随构建同步，其他供应商文件和独立保存的配置保留。
+  if (dataDirectory && providersRoot) {
+    const sourceDirectory = resolve(providersRoot, "media");
+    let providerRevision = pluginRevision;
+    if (providerRevision === undefined) {
+      const hash = createHash("sha256");
+      for (const name of autoInstallProviders) {
+        const source = await readFile(resolve(sourceDirectory, name)).catch((error: NodeJS.ErrnoException) => {
+          if (error.code === "ENOENT") return Buffer.alloc(0);
+          throw error;
+        });
+        hash.update(name).update("\0").update(source).update("\0");
+      }
+      providerRevision = hash.digest("hex");
+    }
+    await initializePlugins(resolve(dataDirectory, "providers"), sourceDirectory, autoInstallProviders, providerRevision);
+  }
+  // ACT: 技能和团队只补首次安装，保留用户修改。
   if (dataDirectory && skillsRoot) await initializePlugins(resolve(dataDirectory, "skills"), skillsRoot);
   if (dataDirectory && agentsRoot) await initializePlugins(resolve(dataDirectory, "agents"), agentsRoot);
   const app = express();

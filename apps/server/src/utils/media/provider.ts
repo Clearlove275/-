@@ -179,7 +179,7 @@ function parseProvider(source: string) {
 function metadata(fileName: string, source: string) {
   const { id, label, version, readme, modelsUrl, models } = parseProvider(source);
   if (fileName !== `${id}.ts`) invalid("供应商 ID 与文件名不一致");
-  // ACT: 旧 TF-Router 文件不会随应用覆盖，缺少列表地址时使用内置定义。
+  // ACT: 兼容旧 TF-Router 文件，缺少列表地址时使用内置定义。
   return { fileName, id, label, version, readme, modelsUrl: modelsUrl ?? (id === tfRouter.id ? tfRouter.modelsUrl : undefined), models,
     revision: createHash("sha256").update(source).digest("hex"), loadError: "" };
 }
@@ -279,12 +279,13 @@ export function getMediaProviderApiKey(id: string) {
   return typeof value === "string" ? value.trim().replace(/^Bearer(?:\s+|$)/i, "").trim() : "";
 }
 
-export async function refreshMediaProviderModels(fileName: string, revision?: string, modelType?: ModelType) {
+export async function refreshMediaProviderModels(fileName: string, revision?: string, modelType?: ModelType, expectedApiKey?: string) {
   if (!mediaProviderFileSchema.safeParse(fileName).success) invalid("供应商文件名无效");
   const provider = await getMediaProvider(fileName.slice(0, -3));
   if (revision !== undefined && revision !== provider.revision) invalid("供应商文件已被修改，请刷新页面后再获取", 409);
   if (!provider.modelsUrl) invalid("供应商未配置 modelsUrl");
   const apiKey = getMediaProviderApiKey(provider.id);
+  if (expectedApiKey !== undefined && apiKey !== expectedApiKey) invalid("供应商配置已变更，请重试", 409);
   const modelsUrl = new URL(provider.modelsUrl);
   if (modelType) modelsUrl.searchParams.set("type", modelType);
   const response = await fetch(modelsUrl, {

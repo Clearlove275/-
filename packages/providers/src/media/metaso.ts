@@ -58,7 +58,7 @@ async function pollVideo(context: ProviderContext, baseUrl: string, apiKey: stri
 }
 
 export default {
-  id: "meta",
+  id: "metaso",
   label: "秘塔版MiniMax H3",
   version,
   readme: `秘塔科技提供高性价比的 MiniMax H3 视频生成服务：768P 仅 0.09 元/秒，2K 仅 0.15 元/秒。支持原生 2K、音画同步，API 兼容 OpenAI 协议，同时支持 ComfyUI、无限画布，无需自行部署 GPU。

@@ -29,7 +29,7 @@ writeAtomicSync(join(installDirectory, ".electrobun-uninstall.json"), JSON.strin
   data_path_versions: [1],
 }, null, 2));
 
-// 重装同一构建也重新同步内置节点和工具；供应商、技能沿用首次初始化，保留用户修改。
-for (const directory of ["nodes", "tools"]) {
+// 重装同一构建也重新同步内置节点、工具和供应商；技能沿用首次初始化，保留用户修改。
+for (const directory of ["nodes", "tools", "providers"]) {
   rmSync(join(installDirectory, "data", directory, "initialized"), { force: true });
 }
