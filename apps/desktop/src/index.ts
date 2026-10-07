@@ -181,6 +181,7 @@ async function start() {
       openUrl,
       showItemInFolder: Utils.showItemInFolder,
       readClipboardText: Utils.clipboardReadText,
+      readClipboardImage: Utils.clipboardReadImage,
       writeClipboardText: Utils.clipboardWriteText,
       selectSaveFile,
       saveFile,

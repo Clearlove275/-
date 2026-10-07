@@ -149,7 +149,7 @@ import type { CanvasContext } from "@toonflow/tool-canvas/runtime";
 import { loadNodeComponent } from "./loadNodeComponent";
 import { useCanvasHistory } from "./useCanvasHistory";
 import { copyNodeToClipboard, copyNodesToClipboard, nodeClipboardCommand, readClipboardNodes } from "./nodeClipboard";
-import { readClipboardText } from "@/lib/clipboard";
+import { readClipboardImage, readClipboardText } from "@/lib/clipboard";
 import nodeMenu from "./components/nodeMenu.vue";
 import remoteNode from "./components/remoteNode.vue";
 import canvasMenu from "./components/canvasMenu.vue";
@@ -169,7 +169,7 @@ import { generalSettings } from "@/stores/settings";
 import { getShortcutBindings, shortcutLabel, shortcutMatches, shortcutPressed } from "@/lib/canvasShortcuts";
 import useWorkspaceFiles from "@/lib/workspaceFiles";
 import anonymousData from "@/lib/anonymousData";
-import { dropCanvasFiles, importCanvasFiles, isCanvasFileDrag } from "./canvasDrop";
+import { createClipboardImageFile, dropCanvasFiles, getClipboardImageFiles, importCanvasFiles, isCanvasFileDrag } from "./canvasDrop";
 import "@vue-flow/core/dist/style.css";
 import "@vue-flow/core/dist/theme-default.css";
 import "@vue-flow/minimap/dist/style.css";
@@ -759,16 +759,48 @@ async function copySelectedNodes() {
 async function pasteNode(event: ClipboardEvent) {
   if (!canUseCanvasClipboard(event)) return;
   const command = event.clipboardData?.getData("text/plain") ?? "";
-  if (!nodeClipboardCommand.test(command)) return;
+  if (nodeClipboardCommand.test(command)) {
+    event.preventDefault();
+    await pasteNodeAtCenter(command);
+    return;
+  }
+  let files = getClipboardImageFiles(event);
+  // ACT: 部分 WebView 不向 paste 事件暴露剪贴板图片，桌面端回退到原生 PNG 读取。
+  if (!files.length && isDesktop) {
+    const image = await readClipboardImage().catch(() => null);
+    if (image) files = [createClipboardImageFile(image)];
+  }
+  if (!files.length) return;
   event.preventDefault();
-  await pasteNodeAtCenter(command);
+  const position = pastePosition();
+  if (position) await importCanvasImages(files, position);
+}
+
+function pastePosition() {
+  const rect = canvasElement.value?.getBoundingClientRect();
+  if (!rect) return;
+  const point = pointerPosition && pointerPosition.x >= rect.left && pointerPosition.x <= rect.right && pointerPosition.y >= rect.top && pointerPosition.y <= rect.bottom
+    ? pointerPosition
+    : { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  return screenToFlowCoordinate(point);
 }
 
 async function pasteNodeAtCenter(command?: string) {
-  const rect = canvasElement.value?.getBoundingClientRect();
-  if (!rect) return;
-  const position = screenToFlowCoordinate({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
-  await pasteClipboardNode(position, command);
+  const position = pastePosition();
+  if (position) await pasteClipboardNode(position, command);
+}
+
+async function importCanvasImages(files: File[], position: { x: number; y: number }) {
+  const directory = project.value?.directory;
+  if (!directory) return false;
+  const canvasSignal = canvasController.signal;
+  try {
+    await canvasHistory.batch(() => importCanvasFiles(files, position, { directory, availableNodes: availableNodes.value, signal: canvasSignal, flow }));
+    return true;
+  } catch (error) {
+    if (!canvasSignal.aborted) ElMessage.error(error instanceof Error ? error.message : "图片导入失败");
+    return false;
+  }
 }
 
 async function pasteClipboardNode(position: { x: number; y: number }, command?: string) {
@@ -778,23 +810,28 @@ async function pasteClipboardNode(position: { x: number; y: number }, command?: 
     const directory = project.value.directory;
     const snapshot = await readClipboardNodes(command ?? (await readClipboardText()), directory);
     if (canvasSignal.aborted) return false;
-    if (!snapshot) throw new Error("剪贴板中没有可粘贴的节点命令");
-    if (snapshot.nodes.some(node => node.type !== "canvasGroup" && !availableNodes.value.some(item => item.type === node.type))) {
-      throw new Error("请先安装并启用对应的节点插件");
+    if (snapshot) {
+      if (snapshot.nodes.some(node => node.type !== "canvasGroup" && !availableNodes.value.some(item => item.type === node.type))) {
+        throw new Error("请先安装并启用对应的节点插件");
+      }
+      const ids = new Map(snapshot.nodes.map(node => [node.id, crypto.randomUUID()]));
+      const roots = snapshot.nodes.filter(node => !node.parentNode);
+      const left = Math.min(...roots.map(node => node.position.x));
+      const top = Math.min(...roots.map(node => node.position.y));
+      await canvasHistory.batch(async () => {
+        flow.removeSelectedElements();
+        addNodes(snapshot.nodes.map(node => ({ ...node, id: ids.get(node.id)!, parentNode: ids.get(node.parentNode ?? ""), selected: true,
+          position: node.parentNode ? node.position : { x: position.x + node.position.x - left, y: position.y + node.position.y - top } })));
+        await nextTick();
+        if (canvasSignal.aborted) return;
+        addEdges(snapshot.edges.map(edge => ({ ...edge, id: crypto.randomUUID(), source: ids.get(edge.source)!, target: ids.get(edge.target)! })));
+      });
+      return true;
     }
-    const ids = new Map(snapshot.nodes.map(node => [node.id, crypto.randomUUID()]));
-    const roots = snapshot.nodes.filter(node => !node.parentNode);
-    const left = Math.min(...roots.map(node => node.position.x));
-    const top = Math.min(...roots.map(node => node.position.y));
-    await canvasHistory.batch(async () => {
-      flow.removeSelectedElements();
-      addNodes(snapshot.nodes.map(node => ({ ...node, id: ids.get(node.id)!, parentNode: ids.get(node.parentNode ?? ""), selected: true,
-        position: node.parentNode ? node.position : { x: position.x + node.position.x - left, y: position.y + node.position.y - top } })));
-      await nextTick();
-      if (canvasSignal.aborted) return;
-      addEdges(snapshot.edges.map(edge => ({ ...edge, id: crypto.randomUUID(), source: ids.get(edge.source)!, target: ids.get(edge.target)! })));
-    });
-    return true;
+    const image = await readClipboardImage();
+    if (canvasSignal.aborted) return false;
+    if (!image) throw new Error("剪贴板中没有可粘贴的节点或图片");
+    return await importCanvasImages([createClipboardImageFile(image)], position);
   } catch (error) {
     const pasteShortcut = generalSettings.value.canvasShortcuts.paste;
     const clipboardMessage = getShortcutBindings(pasteShortcut).some(binding => /^(Ctrl|Meta)\+KeyV$/.test(binding))

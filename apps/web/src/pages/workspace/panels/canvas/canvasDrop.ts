@@ -15,6 +15,34 @@ const fileMimeTypes: Record<string, string> = {
   json: "application/json", xml: "application/xml", html: "text/html", css: "text/css", js: "text/javascript", ndjson: "application/x-ndjson",
 };
 
+const imageExtensions: Record<string, string> = {
+  "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif",
+  "image/apng": "apng", "image/bmp": "bmp", "image/svg+xml": "svg", "image/x-icon": "ico",
+};
+
+function clipboardImageName(type: string, index: number) {
+  const extension = imageExtensions[type] ?? (type.split("/")[1]?.replace(/[^a-z0-9]/gi, "") || "png");
+  return "pasted-image-" + Date.now() + "-" + (index + 1) + "." + extension;
+}
+
+export function createClipboardImageFile(blob: Blob, index = 0) {
+  const type = blob.type.startsWith("image/") ? blob.type : "image/png";
+  return new File([blob], clipboardImageName(type, index), { type });
+}
+
+export function getClipboardImageFiles(event: ClipboardEvent) {
+  const transfer = event.clipboardData;
+  if (!transfer) return [];
+  const files: File[] = [];
+  for (const item of transfer.items) {
+    if (item.kind !== "file" || !item.type.startsWith("image/")) continue;
+    const file = item.getAsFile();
+    if (file) files.push(file);
+  }
+  if (!files.length) files.push(...Array.from(transfer.files).filter((file) => file.type.startsWith("image/")));
+  return files.map((file, index) => createClipboardImageFile(file, index));
+}
+
 export function startAssetDrag(event: DragEvent, entry: { type: string; path: string }) {
   if (entry.type !== "file" || !event.dataTransfer) return;
   event.dataTransfer.effectAllowed = "copy";
