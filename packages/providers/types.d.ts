@@ -49,9 +49,9 @@ interface MediaRequest {
 
 /** 抽象层的媒体来源；供应商负责转换为平台需要的 URL、文件或字节。 */
 type MediaInput =
-  | { type: "url"; url: string; mimeType?: string }
-  | { type: "base64"; data: string; mimeType: string }
-  | { type: "binary"; data: Uint8Array; mimeType: string };
+  | { type: "url"; url: string; mimeType?: string; name?: string }
+  | { type: "base64"; data: string; mimeType: string; name?: string }
+  | { type: "binary"; data: Uint8Array; mimeType: string; name?: string };
 
 type MediaAsset = MediaInput & { mediaType: "image" | "video" | "audio" };
 

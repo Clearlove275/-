@@ -1,4 +1,5 @@
 import { t, translateMessage, validationOptions } from "@/lib/i18n";
+import { withImageHeightContext } from "@toonflow/providers/media/imageHeightError";
 import { createHash } from "node:crypto";
 import { lstat, mkdir, readFile, readdir, unlink } from "@toonflow/file";
 import { dirname, join } from "node:path";
@@ -406,6 +407,7 @@ export async function loadMediaProviderSource(source: string, config: Record<str
         if (signal?.aborted || info?.name === "AbortError") throw error;
         let message = mediaErrorMessage(error, provider.config);
         if (!message) throw error;
+        message = withImageHeightContext(message, request, definition.label);
         // ACT: 只补充串行请求中匹配的错误；并发时无法精确关联响应，由适配器使用 errorMessage 提取。
         const matchesFailure = failure?.status !== undefined
           ? new RegExp(`\\b(?:HTTP|status(?: code)?)\\s*[:：]?\\s*${failure.status}[)）.。\\s]*$`, "i").test(message)
