@@ -15,32 +15,42 @@ const fileMimeTypes: Record<string, string> = {
   json: "application/json", xml: "application/xml", html: "text/html", css: "text/css", js: "text/javascript", ndjson: "application/x-ndjson",
 };
 
-const imageExtensions: Record<string, string> = {
+const mediaExtensions: Record<string, string> = {
   "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif",
   "image/apng": "apng", "image/bmp": "bmp", "image/svg+xml": "svg", "image/x-icon": "ico",
+  "audio/mpeg": "mp3", "audio/wav": "wav", "audio/ogg": "ogg", "audio/mp4": "m4a", "audio/aac": "aac", "audio/flac": "flac",
+  "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov", "video/x-matroska": "mkv", "video/x-msvideo": "avi",
 };
 
-function clipboardImageName(type: string, index: number) {
-  const extension = imageExtensions[type] ?? (type.split("/")[1]?.replace(/[^a-z0-9]/gi, "") || "png");
-  return "pasted-image-" + Date.now() + "-" + (index + 1) + "." + extension;
+function inferredMediaType(file: File) {
+  const type = file.type.split(";")[0]?.trim().toLowerCase() ?? "";
+  if (/^(image|audio|video)\//.test(type)) return type;
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return fileMimeTypes[extension] ?? "";
 }
 
-export function createClipboardImageFile(blob: Blob, index = 0) {
-  const type = blob.type.startsWith("image/") ? blob.type : "image/png";
-  return new File([blob], clipboardImageName(type, index), { type });
+function clipboardMediaName(type: string, index: number) {
+  const extension = mediaExtensions[type] ?? (type.split("/")[1]?.replace(/[^a-z0-9]/gi, "") || "bin");
+  return "pasted-media-" + Date.now() + "-" + (index + 1) + "." + extension;
 }
 
-export function getClipboardImageFiles(event: ClipboardEvent) {
+export function createClipboardMediaFile(blob: Blob, index = 0) {
+  const file = blob instanceof File ? blob : undefined;
+  const type = (file && inferredMediaType(file)) || (/^(image|audio|video)\//.test(blob.type) ? blob.type : "application/octet-stream");
+  return new File([blob], clipboardMediaName(type, index), { type });
+}
+
+export function getClipboardMediaFiles(event: ClipboardEvent) {
   const transfer = event.clipboardData;
   if (!transfer) return [];
   const files: File[] = [];
   for (const item of transfer.items) {
-    if (item.kind !== "file" || !item.type.startsWith("image/")) continue;
+    if (item.kind !== "file") continue;
     const file = item.getAsFile();
-    if (file) files.push(file);
+    if (file && inferredMediaType(file)) files.push(file);
   }
-  if (!files.length) files.push(...Array.from(transfer.files).filter((file) => file.type.startsWith("image/")));
-  return files.map((file, index) => createClipboardImageFile(file, index));
+  if (!files.length) files.push(...Array.from(transfer.files).filter(file => !!inferredMediaType(file)));
+  return files.map((file, index) => createClipboardMediaFile(file, index));
 }
 
 export function startAssetDrag(event: DragEvent, entry: { type: string; path: string }) {

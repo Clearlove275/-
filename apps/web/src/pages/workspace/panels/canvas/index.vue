@@ -149,7 +149,7 @@ import type { CanvasContext } from "@toonflow/tool-canvas/runtime";
 import { loadNodeComponent } from "./loadNodeComponent";
 import { useCanvasHistory } from "./useCanvasHistory";
 import { copyNodeToClipboard, copyNodesToClipboard, nodeClipboardCommand, readClipboardNodes } from "./nodeClipboard";
-import { readClipboardImage, readClipboardText } from "@/lib/clipboard";
+import { readClipboardFiles, readClipboardText } from "@/lib/clipboard";
 import nodeMenu from "./components/nodeMenu.vue";
 import remoteNode from "./components/remoteNode.vue";
 import canvasMenu from "./components/canvasMenu.vue";
@@ -169,7 +169,7 @@ import { generalSettings } from "@/stores/settings";
 import { getShortcutBindings, shortcutLabel, shortcutMatches, shortcutPressed } from "@/lib/canvasShortcuts";
 import useWorkspaceFiles from "@/lib/workspaceFiles";
 import anonymousData from "@/lib/anonymousData";
-import { createClipboardImageFile, dropCanvasFiles, getClipboardImageFiles, importCanvasFiles, isCanvasFileDrag } from "./canvasDrop";
+import { createClipboardMediaFile, dropCanvasFiles, getClipboardMediaFiles, importCanvasFiles, isCanvasFileDrag } from "./canvasDrop";
 import "@vue-flow/core/dist/style.css";
 import "@vue-flow/core/dist/theme-default.css";
 import "@vue-flow/minimap/dist/style.css";
@@ -764,16 +764,13 @@ async function pasteNode(event: ClipboardEvent) {
     await pasteNodeAtCenter(command);
     return;
   }
-  let files = getClipboardImageFiles(event);
-  // ACT: 部分 WebView 不向 paste 事件暴露剪贴板图片，桌面端回退到原生 PNG 读取。
-  if (!files.length && isDesktop) {
-    const image = await readClipboardImage().catch(() => null);
-    if (image) files = [createClipboardImageFile(image)];
-  }
+  let files = getClipboardMediaFiles(event);
+  // ACT: 部分 WebView 不向 paste 事件暴露剪贴板文件，桌面端回退到原生剪贴板读取。
+  if (!files.length && isDesktop) files = await readClipboardFiles().catch(() => []);
   if (!files.length) return;
   event.preventDefault();
   const position = pastePosition();
-  if (position) await importCanvasImages(files, position);
+  if (position) await importCanvasMedia(files, position);
 }
 
 function pastePosition() {
@@ -790,7 +787,7 @@ async function pasteNodeAtCenter(command?: string) {
   if (position) await pasteClipboardNode(position, command);
 }
 
-async function importCanvasImages(files: File[], position: { x: number; y: number }) {
+async function importCanvasMedia(files: File[], position: { x: number; y: number }) {
   const directory = project.value?.directory;
   if (!directory) return false;
   const canvasSignal = canvasController.signal;
@@ -798,7 +795,7 @@ async function importCanvasImages(files: File[], position: { x: number; y: numbe
     await canvasHistory.batch(() => importCanvasFiles(files, position, { directory, availableNodes: availableNodes.value, signal: canvasSignal, flow }));
     return true;
   } catch (error) {
-    if (!canvasSignal.aborted) ElMessage.error(error instanceof Error ? error.message : "图片导入失败");
+    if (!canvasSignal.aborted) ElMessage.error(error instanceof Error ? error.message : "媒体导入失败");
     return false;
   }
 }
@@ -828,10 +825,10 @@ async function pasteClipboardNode(position: { x: number; y: number }, command?: 
       });
       return true;
     }
-    const image = await readClipboardImage();
+    const files = await readClipboardFiles();
     if (canvasSignal.aborted) return false;
-    if (!image) throw new Error("剪贴板中没有可粘贴的节点或图片");
-    return await importCanvasImages([createClipboardImageFile(image)], position);
+    if (!files.length) throw new Error("剪贴板中没有可粘贴的节点、图片、视频或音频");
+    return await importCanvasMedia(files, position);
   } catch (error) {
     const pasteShortcut = generalSettings.value.canvasShortcuts.paste;
     const clipboardMessage = getShortcutBindings(pasteShortcut).some(binding => /^(Ctrl|Meta)\+KeyV$/.test(binding))
@@ -839,12 +836,11 @@ async function pasteClipboardNode(position: { x: number; y: number }, command?: 
       : "无法读取剪贴板，请允许浏览器访问剪贴板";
     if (!canvasSignal.aborted)
       ElMessage.error(
-        error instanceof DOMException && error.name === "NotAllowedError" ? clipboardMessage : error instanceof Error ? error.message : "节点粘贴失败"
+        error instanceof DOMException && error.name === "NotAllowedError" ? clipboardMessage : error instanceof Error ? error.message : "节点或媒体粘贴失败"
       );
     return false;
   }
 }
-
 function zoomCanvas(event: WheelEvent | (Event & { scale: number })) {
   if (event.type === "gestureend") gestureScale = undefined;
   if (!props.active || props.settingsVisible || document.fullscreenElement || flow.userSelectionActive.value) return;
