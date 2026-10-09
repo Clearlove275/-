@@ -149,7 +149,7 @@ import type { CanvasContext } from "@toonflow/tool-canvas/runtime";
 import { loadNodeComponent } from "./loadNodeComponent";
 import { useCanvasHistory } from "./useCanvasHistory";
 import { copyNodeToClipboard, copyNodesToClipboard, nodeClipboardCommand, readClipboardNodes } from "./nodeClipboard";
-import { readClipboardFiles, readClipboardText } from "@/lib/clipboard";
+import { readClipboardFiles, readClipboardText, writeClipboardImage } from "@/lib/clipboard";
 import nodeMenu from "./components/nodeMenu.vue";
 import remoteNode from "./components/remoteNode.vue";
 import canvasMenu from "./components/canvasMenu.vue";
@@ -253,7 +253,12 @@ const { canUndo, canRedo } = canvasHistory;
 provide("batchCanvasHistory", canvasHistory.batch);
 const getNodeTools = useNodeToolsContext();
 const { addNodes, addEdges, removeEdges, findEdge, findNode, toObject, viewport, screenToFlowCoordinate } = flow;
-provide("copyNodeToClipboard", (node: Parameters<typeof copyNodeToClipboard>[0]) => copyNodeToClipboard(node, project.value?.directory ?? ""));
+provide("copyNodeToClipboard", async (node: Parameters<typeof copyNodeToClipboard>[0]) => {
+  const directory = project.value?.directory;
+  if (!directory) throw new Error("请先选择工作目录");
+  if (await copyImageNodeToClipboard(directory, node)) return;
+  await copyNodeToClipboard(node, directory);
+});
 provide("retainNodeFiles", true);
 provide("selectionConnection", shallowRef<NodeConnectionFeedback>());
 provide("saveNodeToAssets", (label: string, outputs: { label: string; output: NodeOutput }[]) => assetLibraryRef.value?.openSave(label, outputs));
@@ -726,6 +731,21 @@ function copyNode(event: ClipboardEvent) {
   void copySelectedNodes();
 }
 
+function imageOutput(data: { outputs?: Record<string, NodeOutput | undefined> } | undefined) {
+  for (const output of Object.values(data?.outputs ?? {})) {
+    if (output?.dataType !== "IMAGE" || !output.value || typeof output.value !== "object") continue;
+    if (typeof output.value.url === "string" && output.value.url) return output.value;
+  }
+}
+
+async function copyImageNodeToClipboard(directory: string, node: Parameters<typeof copyNodeToClipboard>[0]) {
+  const output = imageOutput(node.data);
+  if (!output) return false;
+  const content = await useWorkspaceFiles(directory).read(output.url);
+  await writeClipboardImage(new Blob([content], { type: output.mimeType || "image/png" }));
+  return true;
+}
+
 async function copySelectedNodes() {
   if (copyingNodes || !project.value?.directory) return;
   const nodes = getSelectionTree(flow.getSelectedNodes.value, flow.getNodes.value);
@@ -734,6 +754,10 @@ async function copySelectedNodes() {
   const signal = canvasController.signal;
   copyingNodes = true;
   try {
+    if (nodes.length === 1 && await copyImageNodeToClipboard(directory, { data: nodes[0]!.data ?? {} })) {
+      ElMessage.success("已复制图片");
+      return;
+    }
     const ids = new Set(nodes.map(node => node.id));
     const snapshot = toObject();
     const savedNodes = new Map(snapshot.nodes.map(node => [node.id, node]));

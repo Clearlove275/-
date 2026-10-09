@@ -1,5 +1,6 @@
 import { readFile, stat } from "node:fs/promises";
-import { basename, extname, fileURLToPath } from "node:path";
+import { basename, extname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Router } from "express";
 import { z } from "zod";
 import u from "@/utils";

@@ -53,6 +53,42 @@ export async function readClipboardFiles(): Promise<File[]> {
   return files;
 }
 
+function blobBase64(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "");
+    reader.onerror = () => reject(reader.error ?? new Error("图片读取失败"));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function imagePngBlob(image: Blob) {
+  if (image.type === "image/png") return image;
+  const bitmap = await createImageBitmap(image);
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("当前环境无法处理图片");
+    context.drawImage(bitmap, 0, 0);
+    return await new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("图片转换失败")), "image/png"));
+  } finally {
+    bitmap.close();
+  }
+}
+export async function writeClipboardImage(image: Blob): Promise<void> {
+  if (isDesktopClipboard) {
+    const { data } = await axios.post<{ code: number; message: string }>("/api/desktop/clipboard/write", {
+      format: "image",
+      image: await blobBase64(image),
+    }, { headers });
+    if (data.code !== 200) throw new Error(data.message || "写入剪贴板图片失败");
+    return;
+  }
+  if (!navigator.clipboard?.write) throw new Error("当前环境不支持写入剪贴板图片");
+  await navigator.clipboard.write([new ClipboardItem({ "image/png": await imagePngBlob(image) })]);
+}
 export async function writeClipboardText(text: string): Promise<void> {
   if (!isDesktopClipboard) return navigator.clipboard.writeText(text);
   const { data } = await axios.post<{ code: number; message: string }>("/api/desktop/clipboard/write", { text }, { headers });
